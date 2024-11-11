@@ -24,8 +24,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import usu.adpl.petkumobile.R
-import androidx.compose.ui.res.fontResource
 import androidx.compose.ui.text.style.TextAlign
 
 

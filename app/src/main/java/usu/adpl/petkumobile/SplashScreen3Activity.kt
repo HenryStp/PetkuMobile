@@ -28,7 +28,6 @@ import androidx.compose.ui.text.withStyle
 import android.content.Intent
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.res.fontResource
 
 
 class SplashScreen3Activity : ComponentActivity() {

@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "usu.adpl.petkumobile"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "usu.adpl.petkumobile"

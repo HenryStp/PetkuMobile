@@ -145,11 +145,10 @@ fun CreateAccountScreen() {
                             .get()
                             .addOnSuccessListener { documents ->
                                 if (documents.isEmpty) {
-                                    // Email tidak ada di database, maka buat akun
                                     val userData = hashMapOf(
                                         "username" to username,
                                         "email" to email,
-                                        "password" to password  // Jangan lupa, di aplikasi nyata harus disimpan dalam bentuk terenkripsi
+                                        "password" to password
                                     )
                                     firestore.collection("users")
                                         .add(userData)
@@ -178,18 +177,19 @@ fun CreateAccountScreen() {
                 .fillMaxWidth()
                 .height(48.dp),
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = if (isFormValid) Color(0xFF703E98) else Color.White
+                backgroundColor = Color.White // Warna tombol diubah menjadi putih tanpa kondisi
             ),
             shape = RoundedCornerShape(24.dp)
         ) {
             Text(
                 text = "Get started",
                 fontSize = 16.sp,
-                color = if (isFormValid) Color.White else Color.Black,
+                color = Color.Black, // Teks tetap hitam untuk kontras dengan latar putih
                 fontFamily = CustomFontFamily,
                 fontWeight = FontWeight.Bold
             )
         }
+
 
         Spacer(modifier = Modifier.height(16.dp))
 

@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "usu.adpl.petkumobile"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "usu.adpl.petkumobile"
         minSdk = 30
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -56,4 +56,9 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation ("androidx.compose.ui:ui:1.0.5")
+    implementation ("androidx.compose.material:material:1.0.5")
+    implementation ("androidx.compose.ui:ui-tooling-preview:1.0.5")
+
 }

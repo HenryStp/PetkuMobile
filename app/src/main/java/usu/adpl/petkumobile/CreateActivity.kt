@@ -76,6 +76,7 @@ fun CreateAccountScreen() {
 
     val context = LocalContext.current
 
+
     // Cek apakah semua field sudah terisi
     val isFormValid = username.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty() && confirmPassword.isNotEmpty()
 
@@ -282,5 +283,3 @@ fun CustomTextField(
         )
     }
 }
-
-

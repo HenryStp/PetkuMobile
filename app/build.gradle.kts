@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "usu.adpl.petkumobile"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "usu.adpl.petkumobile"
         minSdk = 30
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -49,6 +49,12 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation ("com.google.accompanist:accompanist-pager:0.25.1")
+    implementation("androidx.compose.ui:ui:1.5.0")
+    implementation("androidx.compose.material3:material3:1.1.0") // Sesuaikan versi sesuai dengan versi stable
+    implementation("androidx.compose.ui:ui-tooling-preview:1.5.0")
+    implementation("androidx.compose.runtime:runtime-livedata:1.5.0")
+    implementation("androidx.compose.foundation:foundation:1.5.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

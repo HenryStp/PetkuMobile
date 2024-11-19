@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "usu.adpl.petkumobile"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "usu.adpl.petkumobile"
         minSdk = 30
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -40,6 +40,18 @@ android {
 }
 
 dependencies {
+    // Dependencies untuk Jetpack Compose
+    implementation ("androidx.compose.ui:ui:1.4.3")
+    implementation ("androidx.compose.material3:material3:1.1.0")
+    implementation ("androidx.compose.ui:ui-tooling-preview:1.0.5")
+    implementation ("androidx.compose.runtime:runtime-livedata:1.0.5")
+    implementation ("androidx.compose.foundation:foundation:1.4.3")
+    implementation ("androidx.compose.material:material:1.3.0")
+    implementation ("androidx.activity:activity-compose:1.6.0")
+    implementation ("org.jetbrains.kotlin:kotlin-stdlib:1.8.10")
+
+    // Dependencies untuk Navigation di Jetpack Compose
+    implementation ("androidx.navigation:navigation-compose:2.5.3")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

@@ -2,10 +2,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -15,10 +17,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.ui.tooling.preview.Preview
 
-
-class MainActivity : ComponentActivity() {
+class CalendarScreenActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -29,7 +31,7 @@ class MainActivity : ComponentActivity() {
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewMainCalendarScreen() {
+fun CalendarScreen() {
     val date = LocalDate.of(2020, 12, 7)
     val formattedDate = date.format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy"))
 
@@ -66,7 +68,9 @@ fun PreviewMainCalendarScreen() {
 }
 
 @Composable
-fun MainCalendarItem(time: String, title: String, description: String) {
+fun CalendarItem(time: String, title: String, description: String) {
+    var showMenu by remember { mutableStateOf(false) }
+
     Card(
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier
@@ -81,12 +85,42 @@ fun MainCalendarItem(time: String, title: String, description: String) {
             modifier = Modifier
                 .padding(16.dp)
         ) {
-            Text(
-                text = time,
-                fontSize = 12.sp,
-                color = Color.Gray,
-                textAlign = TextAlign.Start
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = time,
+                    fontSize = 12.sp,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.weight(1f)
+                )
+                IconButton(onClick = { showMenu = !showMenu }) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "More options"
+                    )
+                }
+                DropdownMenu(
+                    expanded = showMenu,
+                    onDismissRequest = { showMenu = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Edit") },
+                        onClick = {
+                            // Tambahkan logika untuk Edit
+                            showMenu = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Delete") },
+                        onClick = {
+                            // Tambahkan logika untuk Delete
+                            showMenu = false
+                        }
+                    )
+                }
+            }
             Text(
                 text = title,
                 fontSize = 16.sp,

@@ -36,6 +36,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import com.google.firebase.auth.FirebaseAuth
+import java.security.MessageDigest
+
 
 
 class CreateActivity : ComponentActivity() {
@@ -53,6 +56,13 @@ val CustomFontFamily = FontFamily(
     Font(R.font.sen_bold, FontWeight.Bold),
     Font(R.font.sen_extrabold, FontWeight.ExtraBold)
 )
+// Function to hash the password using SHA-256
+fun hashPassword(password: String): String {
+    val digest = MessageDigest.getInstance("SHA-256")
+    val hashedBytes = digest.digest(password.toByteArray())
+    return hashedBytes.joinToString("") { "%02x".format(it) }
+}
+
 
 @Composable
 @Preview(showBackground = true)
@@ -75,7 +85,8 @@ fun CreateAccountScreen() {
     )
 
     val context = LocalContext.current
-
+    val auth = FirebaseAuth.getInstance()
+    val firestore = FirebaseFirestore.getInstance()
     // Cek apakah semua field sudah terisi
     val isFormValid = username.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty() && confirmPassword.isNotEmpty()
 
@@ -134,43 +145,50 @@ fun CreateAccountScreen() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        val firestore = FirebaseFirestore.getInstance()
 
+
+        // Button for registration
         Button(
             onClick = {
-                if (username.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty() && confirmPassword.isNotEmpty()) {
-                    if (password == confirmPassword) {
-                        firestore.collection("users")
-                            .whereEqualTo("email", email)
-                            .get()
-                            .addOnSuccessListener { documents ->
-                                if (documents.isEmpty) {
-                                    val userData = hashMapOf(
-                                        "username" to username,
-                                        "email" to email,
-                                        "password" to password
-                                    )
-                                    firestore.collection("users")
-                                        .add(userData)
-                                        .addOnSuccessListener {
-                                            Toast.makeText(context, "Account created successfully", Toast.LENGTH_SHORT).show()
-                                            context.startActivity(Intent(context, HomeActivity::class.java))
-                                        }
-                                        .addOnFailureListener {
-                                            Toast.makeText(context, "Failed to create account: ${it.message}", Toast.LENGTH_SHORT).show()
-                                        }
-                                } else {
-                                    Toast.makeText(context, "Email already in use", Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                            .addOnFailureListener {
-                                Toast.makeText(context, "Failed to check email: ${it.message}", Toast.LENGTH_SHORT).show()
-                            }
-                    } else {
-                        Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
-                    }
-                } else {
+                // Input validation
+                if (username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
                     Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                } else if (password != confirmPassword) {
+                    Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
+                } else {
+                    // Create user in Firebase Authentication
+                    auth.createUserWithEmailAndPassword(email, password)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                // Get the Firebase user ID
+                                val userId = task.result.user?.uid ?: ""
+
+                                // Hash the password before storing in Firestore
+                                val hashedPassword = hashPassword(password)
+
+                                // Save data in Firestore
+                                val userData = hashMapOf(
+                                    "username" to username,
+                                    "email" to email,
+                                    "password" to hashedPassword // Store hashed password
+                                )
+
+                                firestore.collection("users")
+                                    .document(userId) // Use user ID as document ID
+                                    .set(userData)
+                                    .addOnSuccessListener {
+                                        Toast.makeText(context, "Account created successfully", Toast.LENGTH_SHORT).show()
+                                        // Navigate to HomeActivity
+                                        context.startActivity(Intent(context, HomeActivity::class.java))
+                                    }
+                                    .addOnFailureListener { exception ->
+                                        Toast.makeText(context, "Failed to save user data: ${exception.message}", Toast.LENGTH_SHORT).show()
+                                    }
+                            } else {
+                                // Display error if registration fails
+                                Toast.makeText(context, "Authentication failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                 }
             },
             modifier = Modifier

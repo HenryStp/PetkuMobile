@@ -56,12 +56,7 @@ val CustomFontFamily = FontFamily(
     Font(R.font.sen_bold, FontWeight.Bold),
     Font(R.font.sen_extrabold, FontWeight.ExtraBold)
 )
-// Function to hash the password using SHA-256
-fun hashPassword(password: String): String {
-    val digest = MessageDigest.getInstance("SHA-256")
-    val hashedBytes = digest.digest(password.toByteArray())
-    return hashedBytes.joinToString("") { "%02x".format(it) }
-}
+
 
 
 @Composable
@@ -163,14 +158,11 @@ fun CreateAccountScreen() {
                                 // Get the Firebase user ID
                                 val userId = task.result.user?.uid ?: ""
 
-                                // Hash the password before storing in Firestore
-                                val hashedPassword = hashPassword(password)
-
                                 // Save data in Firestore
                                 val userData = hashMapOf(
                                     "username" to username,
-                                    "email" to email,
-                                    "password" to hashedPassword // Store hashed password
+                                    "email" to email
+
                                 )
 
                                 firestore.collection("users")
@@ -300,5 +292,3 @@ fun CustomTextField(
         )
     }
 }
-
-

@@ -20,8 +20,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavController
 
 @Composable
-fun DogForm(navController: NavController) {
-    var selectedButton by rememberSaveable { mutableStateOf("Dog") }
+fun CatForm(navController: NavController) {
+    var selectedButton by rememberSaveable { mutableStateOf("Cat") }
     var selectedAvatar by rememberSaveable { mutableStateOf<Int?>(null) }
     var name by rememberSaveable { mutableStateOf("") }
     var breed by rememberSaveable { mutableStateOf("") }
@@ -66,7 +66,7 @@ fun DogForm(navController: NavController) {
                     .padding(top = 40.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                PetTypeSelection(
+                PetTypeSelectionCat(
                     selectedButton = selectedButton,
                     onTypeSelected = { selectedType -> selectedButton = selectedType },
                     navController = navController
@@ -83,15 +83,15 @@ fun DogForm(navController: NavController) {
                     contentPadding = PaddingValues(16.dp)
                 ) {
                     item {
-                        CustomTextFieldForDogForm("Name", name, onValueChange = { name = it })
+                        CustomTextFieldForCatForm("Name", name, onValueChange = { name = it })
                     }
                     item {
                         Spacer(modifier = Modifier.height(10.dp))
-                        CustomTextFieldForDogForm("Breed", breed, onValueChange = { breed = it })
+                        CustomTextFieldForCatForm("Breed", breed, onValueChange = { breed = it })
                     }
                     item {
                         Spacer(modifier = Modifier.height(10.dp))
-                        CustomTextFieldForDogForm("Age", age, onValueChange = { age = it })
+                        CustomTextFieldForCatForm("Age", age, onValueChange = { age = it })
                     }
                     item {
                         Spacer(modifier = Modifier.height(10.dp))
@@ -99,21 +99,21 @@ fun DogForm(navController: NavController) {
                     }
                     item {
                         Spacer(modifier = Modifier.height(10.dp))
-                        CustomTextFieldForDogForm("Weight", weight, onValueChange = { weight = it })
+                        CustomTextFieldForCatForm("Weight", weight, onValueChange = { weight = it })
                     }
                     item {
                         Spacer(modifier = Modifier.height(10.dp))
-                        CustomTextFieldForDogForm("Height", height, onValueChange = { height = it })
+                        CustomTextFieldForCatForm("Height", height, onValueChange = { height = it })
                     }
                     item {
                         Spacer(modifier = Modifier.height(10.dp))
-                        CustomTextFieldForDogForm(
+                        CustomTextFieldForCatForm(
                             "Medical Information", medicalInfo, onValueChange = { medicalInfo = it }, isMultiline = true
                         )
                     }
                     item {
                         Spacer(modifier = Modifier.height(10.dp))
-                        CustomTextFieldForDogForm(
+                        CustomTextFieldForCatForm(
                             "Additional Information", additionalInfo, onValueChange = { additionalInfo = it }, isMultiline = true
                         )
                     }
@@ -164,7 +164,7 @@ fun DogForm(navController: NavController) {
 }
 
 @Composable
-fun PetTypeSelection(
+fun PetTypeSelectionCat(
     selectedButton: String,
     onTypeSelected: (String) -> Unit,
     navController: NavController
@@ -173,8 +173,8 @@ fun PetTypeSelection(
         listOf("Dog", "Cat").forEach { type ->
             Button(
                 onClick = {
-                    if (type == "Cat") {
-                        navController.navigate("catForm") // Navigasi ke halaman CatForm
+                    if (type == "Dog") {
+                        navController.navigate("dogForm") // Navigasi ke halaman DogForm
                     } else {
                         onTypeSelected(type)
                     }
@@ -191,16 +191,15 @@ fun PetTypeSelection(
     }
 }
 
-
 @Composable
-fun AvatarSection(selectedAvatar: Int?, onAvatarSelected: (Int) -> Unit) {
+fun AvatarSectionCat(selectedAvatar: Int?, onAvatarSelected: (Int) -> Unit) {
     val dogAvatars = listOf(
-        R.drawable.avatar1,
-        R.drawable.avatar2,
-        R.drawable.avatar3,
-        R.drawable.avatar4,
-        R.drawable.avatar5,
-        R.drawable.avatar6
+        R.drawable.avatar7,
+        R.drawable.avatar8,
+        R.drawable.avatar9,
+        R.drawable.avatar10,
+        R.drawable.avatar11,
+        R.drawable.avatar12
     )
 
     Spacer(modifier = Modifier.height(16.dp))
@@ -279,13 +278,13 @@ fun AvatarSection(selectedAvatar: Int?, onAvatarSelected: (Int) -> Unit) {
     }
 }
 
-fun validateInputs(name: String, breed: String, age: String, selectedAvatar: Int?): Boolean {
+fun validateInputsCat(name: String, breed: String, age: String, selectedAvatar: Int?): Boolean {
     return name.isNotBlank() && breed.isNotBlank() && age.isNotBlank() && selectedAvatar != null
 }
 
 
 @Composable
-fun CustomTextFieldForDogForm(label: String, value: String, onValueChange: (String) -> Unit, isMultiline: Boolean = false) {
+fun CustomTextFieldForCatForm(label: String, value: String, onValueChange: (String) -> Unit, isMultiline: Boolean = false) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -321,7 +320,7 @@ fun CustomTextFieldForDogForm(label: String, value: String, onValueChange: (Stri
 }
 
 @Composable
-fun GenderSelection() {
+fun GenderSelectionCat() {
     var selectedGender by remember { mutableStateOf<String?>(null) }
 
     Row(
@@ -362,7 +361,7 @@ fun GenderSelection() {
 
 @Preview
 @Composable
-fun DogFormPreview() {
+fun CatFormPreview() {
     val navController = rememberNavController()
-    DogForm(navController = navController)
+    CatForm(navController = navController)
 }

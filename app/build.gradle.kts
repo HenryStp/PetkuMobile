@@ -41,17 +41,18 @@ android {
 
 dependencies {
     // Dependencies untuk Jetpack Compose
-    implementation ("androidx.compose.ui:ui:1.4.3")
-    implementation ("androidx.compose.material3:material3:1.1.0")
-    implementation ("androidx.compose.ui:ui-tooling-preview:1.0.5")
-    implementation ("androidx.compose.runtime:runtime-livedata:1.0.5")
+    implementation ("androidx.compose.ui:ui:1.7.5")
+    implementation ("androidx.compose.material3:material3:1.3.1")
+    implementation ("androidx.compose.ui:ui-tooling-preview:1.7.5")
+    implementation ("androidx.compose.runtime:runtime-livedata:1.7.5")
     implementation ("androidx.compose.foundation:foundation:1.4.3")
-    implementation ("androidx.compose.material:material:1.3.0")
-    implementation ("androidx.activity:activity-compose:1.6.0")
-    implementation ("org.jetbrains.kotlin:kotlin-stdlib:1.8.10")
+    implementation ("androidx.compose.material:material:1.7.5")
+    implementation ("androidx.activity:activity-compose:1.9.3")
+    implementation ("org.jetbrains.kotlin:kotlin-stdlib:2.0.0")
+    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.0")
 
     // Dependencies untuk Navigation di Jetpack Compose
-    implementation ("androidx.navigation:navigation-compose:2.5.3")
+    implementation ("androidx.navigation:navigation-compose:2.8.4")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

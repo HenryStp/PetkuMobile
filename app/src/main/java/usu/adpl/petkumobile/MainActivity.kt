@@ -30,6 +30,15 @@ class MainActivity : ComponentActivity() {
                         composable("dogForm") {
                             DogForm(navController = navController) // Memanggil dogForm
                         }
+                        composable("catForm") {
+                            CatForm(navController = navController) // Memanggil CatForm
+                        }
+                        composable("petSaved") {
+                            ProfileSaved(navController = navController) // Memanggil PetSaved
+                        }
+                        composable("displayPet") {
+                            DisplayPet(navController = navController) // Memanggil DisplayPet
+                        }
                     }
                 }
             }

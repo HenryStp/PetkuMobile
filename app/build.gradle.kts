@@ -55,6 +55,10 @@ dependencies {
     implementation ("androidx.compose.material:material-icons-extended:1.3.1")
     implementation ("androidx.compose.material:material:1.4.3")
     implementation(libs.firebase.firestore)
+    implementation ("com.google.firebase:firebase-auth-ktx:21.1.0")
+    implementation ("com.google.firebase:firebase-bom:32.1.0")
+    implementation ("com.google.firebase:firebase-auth-ktx")
+
 
     implementation ("com.google.firebase:firebase-bom:32.1.0")
     

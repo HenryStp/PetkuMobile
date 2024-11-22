@@ -82,6 +82,7 @@ fun CreateAccountScreen() {
     val context = LocalContext.current
     val auth = FirebaseAuth.getInstance()
     val firestore = FirebaseFirestore.getInstance()
+
     // Cek apakah semua field sudah terisi
     val isFormValid = username.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty() && confirmPassword.isNotEmpty()
 
@@ -292,3 +293,4 @@ fun CustomTextField(
         )
     }
 }
+

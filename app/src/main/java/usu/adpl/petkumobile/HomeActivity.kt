@@ -30,8 +30,9 @@ import android.content.Intent
 class HomeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Ambil `username` dari Intent
-        val username = intent.getStringExtra("USERNAME") ?: "User"
+
+        val username = intent.getStringExtra("username") ?: "Unknown User"
+
         setContent {
             HomeScreen(username)
         }

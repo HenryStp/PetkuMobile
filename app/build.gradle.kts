@@ -55,16 +55,12 @@ dependencies {
     implementation ("androidx.compose.material:material-icons-extended:1.3.1")
     implementation ("androidx.compose.material:material:1.4.3")
     implementation(libs.firebase.firestore)
-    implementation ("com.google.firebase:firebase-auth-ktx:21.1.0")
     implementation ("com.google.firebase:firebase-bom:32.1.0")
-    implementation ("com.google.firebase:firebase-auth-ktx")
-
-
-    implementation ("com.google.firebase:firebase-bom:32.1.0")
+    implementation ("com.google.firebase:firebase-firestore:25.1.1")
     
     implementation(libs.firebase.auth)
-
-
+    implementation ("com.google.firebase:firebase-auth:23.1.0")
+    
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -76,9 +72,6 @@ dependencies {
     implementation ("androidx.compose.ui:ui:1.4.0") // Versi terbaru Compose
     implementation ("androidx.compose.material:material:1.4.0")
     implementation ("androidx.compose.ui:ui-tooling-preview:1.4.0")
-
-    implementation ("com.google.firebase:firebase-firestore:25.1.1")
-    implementation ("com.google.firebase:firebase-auth:23.1.0")
 
 
 }

@@ -36,6 +36,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import com.google.firebase.auth.FirebaseAuth
+
 
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,7 +68,7 @@ fun LoginActivityScreen() {
     )
 
     val context = LocalContext.current
-    val firestore = FirebaseFirestore.getInstance()
+    val firebaseAuth = FirebaseAuth.getInstance()
 
     Column(
         modifier = Modifier
@@ -120,38 +122,42 @@ fun LoginActivityScreen() {
             onClick = {
                 if (email.isNotEmpty() && password.isNotEmpty() && confirmPassword.isNotEmpty()) {
                     if (password == confirmPassword) {
-                        firestore.collection("users")
-                            .whereEqualTo("email", email)
-                            .get()
-                            .addOnSuccessListener { documents ->
-                                if (!documents.isEmpty) {
-                                    val document = documents.first()
-                                    val storedPassword = document.getString("password")
-                                    val username = document.getString("username") // Ambil username dari database
+                        // Gunakan FirebaseAuth untuk login
+                        firebaseAuth.signInWithEmailAndPassword(email, password)
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    // Login berhasil
+                                    val user = firebaseAuth.currentUser
+                                    val uid = user?.uid
+                                    val firestore = FirebaseFirestore.getInstance()
 
+                                    if (uid != null) {
+                                        firestore.collection("users").document(uid).get()
+                                            .addOnSuccessListener { document ->
+                                                if (document != null && document.exists()) {
+                                                    val username = document.getString("username") ?: "Unknown User"
 
-                                    if (storedPassword == password) {
-                                        val userId = document.id // Ambil user id dari dokumen
+                                                    Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
 
-                                        // Login successful
-                                        Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
-
-                                        // Buat Intent untuk membuka HomeActivity
-                                        val intent = Intent(context, HomeActivity::class.java).apply {
-                                            putExtra("USER_ID", userId) // Tambahkan user id ke intent
-                                            putExtra("USERNAME", username) // Tambahkan username ke intent
-                                        }
-
-                                        context.startActivity(intent)
+                                                    // Pindah ke HomeActivity dengan membawa username
+                                                    val intent = Intent(context, HomeActivity::class.java)
+                                                    intent.putExtra("username", username)
+                                                    context.startActivity(intent)
+                                                } else {
+                                                    Toast.makeText(context, "User data not found", Toast.LENGTH_SHORT).show()
+                                                }
+                                            }
+                                            .addOnFailureListener {
+                                                Toast.makeText(context, "Failed to fetch user data", Toast.LENGTH_SHORT).show()
+                                            }
                                     } else {
-                                        Toast.makeText(context, "Incorrect password", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, "User UID not found", Toast.LENGTH_SHORT).show()
                                     }
+
                                 } else {
-                                    Toast.makeText(context, "Email not found", Toast.LENGTH_SHORT).show()
+                                    // Login gagal
+                                    Toast.makeText(context, "Error: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                                 }
-                            }
-                            .addOnFailureListener {
-                                Toast.makeText(context, "Error: ${it.message}", Toast.LENGTH_SHORT).show()
                             }
                     } else {
                         Toast.makeText(context, "Password and Confirm Password do not match", Toast.LENGTH_SHORT).show()
@@ -160,6 +166,7 @@ fun LoginActivityScreen() {
                     Toast.makeText(context, "Please enter all fields", Toast.LENGTH_SHORT).show()
                 }
             },
+
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),

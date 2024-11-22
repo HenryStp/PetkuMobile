@@ -171,8 +171,10 @@ fun CreateAccountScreen() {
                                     .set(userData)
                                     .addOnSuccessListener {
                                         Toast.makeText(context, "Account created successfully", Toast.LENGTH_SHORT).show()
-                                        // Navigate to HomeActivity
-                                        context.startActivity(Intent(context, HomeActivity::class.java))
+                                        val intent = Intent(context, HomeActivity::class.java).apply {
+                                            putExtra("username", username) // Pass the username to HomeActivity
+                                        }
+                                        context.startActivity(intent)
                                     }
                                     .addOnFailureListener { exception ->
                                         Toast.makeText(context, "Failed to save user data: ${exception.message}", Toast.LENGTH_SHORT).show()

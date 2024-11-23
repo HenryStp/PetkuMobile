@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.gms.google-services")
+//    alias(libs.plugins.google.services)
 }
 
 android {
@@ -40,25 +42,41 @@ android {
 }
 
 dependencies {
+    implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    // Firebase BoM
+    //implementation(platform(libs.androidx.compose.bom))
+    //implementation(platform(libs.firebase.bom))
+
+    // Firebase dependencies
+    implementation(libs.firebase.database.ktx)
+    implementation(libs.firebase.auth.ktx)
+
     // Dependencies untuk Jetpack Compose
-    implementation ("androidx.compose.ui:ui:1.7.5")
-    implementation ("androidx.compose.material3:material3:1.3.1")
-    implementation ("androidx.compose.ui:ui-tooling-preview:1.7.5")
-    implementation ("androidx.compose.runtime:runtime-livedata:1.7.5")
-    implementation ("androidx.compose.foundation:foundation:1.4.3")
-    implementation ("androidx.compose.material:material:1.7.5")
-    implementation ("androidx.activity:activity-compose:1.9.3")
-    implementation ("org.jetbrains.kotlin:kotlin-stdlib:2.0.0")
-    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.0")
+    implementation (libs.androidx.compose.ui)
+    implementation (libs.androidx.compose.material3)
+    implementation (libs.androidx.compose.ui.tooling.preview)
+    implementation (libs.androidx.compose.runtime)
+    implementation (libs.androidx.compose.foundation)
+    implementation (libs.androidx.compose.material)
+    implementation (libs.androidx.activity.compose)
+    implementation (libs.kotlin.stdlib)
+
+    // AndroidX dependencies
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
 
     // Dependencies untuk Navigation di Jetpack Compose
-    implementation ("androidx.navigation:navigation-compose:2.8.4")
+    implementation(libs.androidx.navigation.compose)
+
+    // AndroidX dependencies
+    implementation(libs.androidx.lifecycle.runtime.ktx)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.ui)
+//    implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)

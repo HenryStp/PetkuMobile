@@ -10,11 +10,20 @@ import androidx.navigation.compose.composable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.FirebaseApp
 import usu.adpl.petkumobile.ui.theme.PetkuMobileTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Inisialisasi Firebase
+        FirebaseApp.initializeApp(this)
+        // Inisialisasi Firebase Realtime Database
+        val database = FirebaseDatabase.getInstance()
+        database.reference
+
         setContent {
             // Membuat NavController
             val navController = rememberNavController()

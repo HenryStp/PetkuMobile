@@ -14,10 +14,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavController
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.DatabaseReference
 
 @Composable
 fun DogForm(navController: NavController) {
@@ -31,6 +32,9 @@ fun DogForm(navController: NavController) {
     var medicalInfo by rememberSaveable { mutableStateOf("") }
     var additionalInfo by rememberSaveable { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    // Menyimpan status dialog
+    var showDialog by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -126,6 +130,9 @@ fun DogForm(navController: NavController) {
                                 modifier = Modifier.padding(bottom = 8.dp)
                             )
                         }
+
+                        // Tombol Submit berada di bawah form
+                        Spacer(modifier = Modifier.weight(1f)) // Mengisi ruang kosong agar tombol berada di bawah
                         Button(
                             onClick = {
                                 if (validateInputs(
@@ -136,27 +143,41 @@ fun DogForm(navController: NavController) {
                                     )
                                 ) {
                                     errorMessage = null
-                                    // Submit data
+                                    // Simpan data ke Realtime Database
+                                    saveToDatabase(name, breed, age, weight, height, medicalInfo, additionalInfo, selectedAvatar)
+                                    // Menampilkan dialog saat form disubmit
+                                    showDialog = true
                                 } else {
                                     errorMessage = "Please fill all fields and select an avatar."
                                 }
                             },
                             modifier = Modifier
-                                .align(Alignment.CenterHorizontally) // Rata tengah
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp) // Padding horizontal untuk tombol
                                 .border(
-                                    width = 1.dp, // Stroke dengan ketebalan 1sp
-                                    color = Color.Black, // Warna stroke hitam
-                                    shape = RoundedCornerShape(50.dp) // Bentuk rounded untuk tombol
+                                    width = 1.dp,
+                                    color = Color.Black,
+                                    shape = RoundedCornerShape(50.dp)
                                 ),
-                            shape = RoundedCornerShape(50.dp), // Bentuk rounded
+                            shape = RoundedCornerShape(50.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.White, // Warna latar tombol putih
-                                contentColor = Color.Black // Warna font hitam
+                                containerColor = Color.White,
+                                contentColor = Color.Black
                             )
                         ) {
                             Text("Submit")
                         }
                     }
+                }
+            }
+            // Menampilkan ProfileSaved di tengah layar
+            if (showDialog) {
+                Box(
+                    modifier = Modifier
+                        .offset(y = 50.dp) // Memindahkan ke bawah sedikit
+                        .align(Alignment.Center)
+                ) {
+                    ProfileSaved(navController = navController)
                 }
             }
         }
@@ -285,7 +306,12 @@ fun validateInputs(name: String, breed: String, age: String, selectedAvatar: Int
 
 
 @Composable
-fun CustomTextFieldForDogForm(label: String, value: String, onValueChange: (String) -> Unit, isMultiline: Boolean = false) {
+fun CustomTextFieldForDogForm(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    isMultiline: Boolean = false
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -305,9 +331,9 @@ fun CustomTextFieldForDogForm(label: String, value: String, onValueChange: (Stri
             modifier = Modifier
                 .fillMaxWidth()
                 .height(if (isMultiline) 100.dp else 50.dp)
-                .background(Color.White, shape = RoundedCornerShape(30.dp))
-                .border(1.dp, Color.Black, RoundedCornerShape(30.dp))
-                .padding(12.dp),
+                .clip(RoundedCornerShape(30.dp)) // Membulatkan sudut
+                .background(Color.White) // Warna latar belakang
+                .border(1.dp, Color.Black, RoundedCornerShape(30.dp)), // Garis tepi
             maxLines = if (isMultiline) 5 else 1,
             singleLine = !isMultiline,
             colors = TextFieldDefaults.colors(
@@ -319,6 +345,7 @@ fun CustomTextFieldForDogForm(label: String, value: String, onValueChange: (Stri
         )
     }
 }
+
 
 @Composable
 fun GenderSelection() {
@@ -359,6 +386,39 @@ fun GenderSelection() {
         }
     }
 }
+
+fun saveToDatabase(
+    name: String, breed: String, age: String, weight: String, height: String,
+    medicalInfo: String, additionalInfo: String, selectedAvatar: Int?
+) {
+    val database: FirebaseDatabase = FirebaseDatabase.getInstance()
+    val reference: DatabaseReference = database.reference
+
+    // Membuat objek yang akan disimpan
+    val petData = PetData(name, breed, age, weight, height, medicalInfo, additionalInfo, selectedAvatar)
+
+    // Menyimpan data ke dalam database
+    reference.child("pets").push().setValue(petData)
+        .addOnSuccessListener {
+            // Data berhasil disimpan
+            println("Data berhasil disimpan!")
+        }
+        .addOnFailureListener { exception ->
+            // Gagal menyimpan data
+            println("Gagal menyimpan data: ${exception.message}")
+        }
+}
+
+data class PetData(
+    val name: String,
+    val breed: String,
+    val age: String,
+    val weight: String,
+    val height: String,
+    val medicalInfo: String,
+    val additionalInfo: String,
+    val selectedAvatar: Int?
+)
 
 @Preview
 @Composable

@@ -12,23 +12,29 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.border
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.remember
+
 
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FormLostPet() {
+fun FormLostPet(modifier: Modifier = Modifier) {
+    val scrollState = rememberScrollState() // Mengingat status scroll
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
+            .verticalScroll(scrollState) // Menambahkan kemampuan scroll
+            .imePadding() // Menambahkan padding untuk menghindari keyboard
             .padding(16.dp)
     ) {
         // Row untuk tombol back dan teks "Report a Lost Pet" di tengah atas
@@ -47,6 +53,7 @@ fun FormLostPet() {
             Text(
                 text = "Report a Lost Pet",
                 fontSize = 20.sp,
+                fontFamily = customFontFamily,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
                 modifier = Modifier.align(Alignment.CenterVertically)
@@ -56,15 +63,29 @@ fun FormLostPet() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text(text = "Pet", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(start = 15.dp))
+        Text(text = "Pet", fontSize = 14.sp,
+            fontFamily = customFontFamily,
+            fontWeight = FontWeight.Normal,
+            color = Color.Gray,
+            modifier = Modifier.padding(start = 15.dp))
         // Pet type (Cat/Dog)
+        val selectedPetType = remember { mutableStateOf("Cat") }
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth()
         ) {
-            ChoiceButton("Cat")
-            ChoiceButton("Dog")
+            ChoiceButton(
+                text = "Cat",
+                isSelected = selectedPetType.value == "Cat",
+                onClick = { selectedPetType.value = "Cat" }
+            )
+            ChoiceButton(
+                text = "Dog",
+                isSelected = selectedPetType.value == "Dog",
+                onClick = { selectedPetType.value = "Dog" }
+            )
         }
+
 
         // Input fields for pet details
         InputField(label = "Photo", isButton = true, modifier = Modifier.fillMaxWidth())
@@ -72,14 +93,31 @@ fun FormLostPet() {
         InputField(label = "Breed", modifier = Modifier.fillMaxWidth())
         InputField(label = "Age", modifier = Modifier.fillMaxWidth())
 
-        Text(text = "Gender", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(start = 15.dp))
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(text = "Gender", fontSize = 14.sp,
+            fontFamily = customFontFamily,
+            fontWeight = FontWeight.Normal,
+            color = Color.Gray,
+            modifier = Modifier.padding(start = 15.dp))
+
+        val selectedGender = remember { mutableStateOf("Female") }
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth()
         ) {
-            ChoiceButton("Female")
-            ChoiceButton("Male")
+            ChoiceButton(
+                text = "Female",
+                isSelected = selectedGender.value == "Female",
+                onClick = { selectedGender.value = "Female" }
+            )
+            ChoiceButton(
+                text = "Male",
+                isSelected = selectedGender.value == "Male",
+                onClick = { selectedGender.value = "Male" }
+            )
         }
+
 
         InputField(label = "Weight", modifier = Modifier.fillMaxWidth())
         InputField(label = "Height", modifier = Modifier.fillMaxWidth())
@@ -98,7 +136,7 @@ fun FormLostPet() {
         Spacer(modifier = Modifier.height(16.dp))
 
         // Owner contact information
-        Text(text = "Owner Contact:", fontWeight = FontWeight.Bold)
+        Text(text = "Owner Contact:",fontFamily = customFontFamily, fontWeight = FontWeight.Bold)
         InputField(label = "Name", modifier = Modifier.fillMaxWidth())
         InputField(label = "Phone", modifier = Modifier.fillMaxWidth())
         InputField(label = "Email", modifier = Modifier.fillMaxWidth())
@@ -119,24 +157,38 @@ fun FormLostPet() {
             Text(
                 text = "Submit",
                 fontSize = 16.sp,
-                color = Color.Black,
-                fontWeight = FontWeight.Bold
+                fontFamily = customFontFamily,
+                fontWeight = FontWeight.Normal,
+                color = Color.Black
             )
         }
+        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
 @Composable
-fun ChoiceButton(text: String) {
+fun ChoiceButton(
+    text: String,
+    isSelected: Boolean = false,
+    onClick: () -> Unit = {}
+) {
     OutlinedButton(
-        onClick = { /* Pilihan Cat atau Dog */ },
-        border = BorderStroke(1.dp, Color.Black), // Border hitam
-        shape = RoundedCornerShape(50), // Membuat sudut bundar
-        modifier = Modifier.padding(4.dp) // Menambahkan sedikit padding jika diperlukan
+        onClick = onClick,
+        border = BorderStroke(1.dp, if (isSelected) Color.Black else Color.Gray), // Border hitam jika dipilih
+        shape = RoundedCornerShape(30.dp), // Sudut tombol bulat
+        modifier = Modifier.padding(4.dp)
     ) {
-        Text(text = text, fontSize = 14.sp, color = Color.Black) // Warna teks hitam
+        Text(
+            text = text,
+            fontSize = 14.sp,
+            fontFamily = customFontFamily,
+            fontWeight = FontWeight.Bold,
+            color = if (isSelected) Color.Black else Color.Gray // Teks hitam jika dipilih
+        )
     }
 }
+
 
 
 @Composable
@@ -148,6 +200,8 @@ fun InputField(label: String, isButton: Boolean = false, singleLine: Boolean = t
         Text(
             text = label,
             fontSize = 14.sp,
+            fontFamily = customFontFamily,
+            fontWeight = FontWeight.Normal,
             color = Color.Gray,
             modifier = Modifier.padding(start = 15.dp) // Tambahkan padding kiri
         )
@@ -157,7 +211,7 @@ fun InputField(label: String, isButton: Boolean = false, singleLine: Boolean = t
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Upload Photo", color = Color.White)
+                Text(text = "Upload Photo", color = Color.White, fontFamily = customFontFamily, fontWeight = FontWeight.Normal)
             }
         } else {
             OutlinedTextField(
@@ -179,8 +233,9 @@ fun InputField(label: String, isButton: Boolean = false, singleLine: Boolean = t
     }
 }
 
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewFormLostPet() {
-    FormLostPet()
+    FormLostPet(modifier = Modifier.padding(16.dp)) // Gunakan padding default untuk preview
 }

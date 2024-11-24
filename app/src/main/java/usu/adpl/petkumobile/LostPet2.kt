@@ -21,13 +21,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.draw.clip
 
 @Composable
-fun LostPet2() {
+fun LostPet2(modifier: Modifier = Modifier) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFD3C0E8)) // Background ungu muda
             .padding(16.dp)
-    ) {
+    )
+
+    {
+        Spacer(modifier = Modifier.height(16.dp))
         // Tombol Back
         IconButton(onClick = { /* Kembali ke halaman sebelumnya */ }) {
             Icon(

@@ -17,7 +17,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             PetkuMobileTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    FormLostPet(
+                    LostPet1(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }

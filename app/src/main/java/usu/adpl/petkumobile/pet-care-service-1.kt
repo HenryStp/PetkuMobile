@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.zIndex
+import androidx.navigation.NavController
 
 
 val CustomFontFamily = FontFamily(
@@ -32,7 +33,7 @@ val CustomFontFamily = FontFamily(
 
 
 @Composable
-fun ServiceScreen() {
+fun ServiceScreen(navController: NavController? = null) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -48,7 +49,7 @@ fun ServiceScreen() {
             contentAlignment = Alignment.Center
         ) {
             Image(
-                painter = painterResource(id = R.drawable.vector),
+                painter = painterResource(id = R.drawable.back_black),
                 contentDescription = "Back",
                 modifier = Modifier
                     .size(25.dp)
@@ -58,7 +59,7 @@ fun ServiceScreen() {
 
             Text(
                 text = "Service",
-                fontSize = 24.sp,
+                fontSize = 25.sp,
                 fontFamily = CustomFontFamily,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center
@@ -73,6 +74,7 @@ fun ServiceScreen() {
             imageOffsetX = 10,
             imageOffsetY = -10,
             padding = PaddingValues(bottom = 8.dp),
+            onClick = { navController?.navigate("pet-boarding") }
         )
 
         ServiceOption(
@@ -82,7 +84,8 @@ fun ServiceScreen() {
             imageSize = 125,
             imageOffsetX = 0,
             imageOffsetY = -8,
-            padding = PaddingValues(bottom = 25.dp)
+            padding = PaddingValues(bottom = 25.dp),
+            onClick = { navController?.navigate("pet-clinic") }
         )
 
         ServiceOption(
@@ -91,7 +94,8 @@ fun ServiceScreen() {
             imageId = R.drawable.pet_shop,
             imageSize = 120,
             imageOffsetX = -15,
-            imageOffsetY = -7
+            imageOffsetY = -7,
+            onClick = { navController?.navigate("pet-shop") }
         )
     }
 }
@@ -107,12 +111,14 @@ fun ServiceOption(
     imageSize: Int = 100,
     imageOffsetX: Int = -10,
     imageOffsetY: Int = -20,
-    padding: PaddingValues = PaddingValues(0.dp)
+    padding: PaddingValues = PaddingValues(0.dp),
+    onClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
             .padding(padding)
-            .padding(1.dp),
+            .padding(1.dp)
+            .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
         Box(

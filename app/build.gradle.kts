@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.gms.google-services")
+
 }
 
 android {
@@ -49,6 +51,16 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation ("androidx.compose.material:material-icons-core:1.3.1")
+    implementation ("androidx.compose.material:material-icons-extended:1.3.1")
+    implementation ("androidx.compose.material:material:1.4.3")
+    implementation(libs.firebase.firestore)
+    implementation ("com.google.firebase:firebase-bom:32.1.0")
+    implementation ("com.google.firebase:firebase-firestore:25.1.1")
+    
+    implementation(libs.firebase.auth)
+    implementation ("com.google.firebase:firebase-auth:23.1.0")
+    
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -56,4 +68,11 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation ("androidx.compose.ui:ui:1.5.1") // Versi terbaru Compose
+    implementation ("androidx.compose.material:material:1.5.1")
+    implementation("androidx.compose.foundation:foundation:1.5.1")
+    implementation ("androidx.compose.ui:ui-tooling-preview:1.5.1")
+
+
 }

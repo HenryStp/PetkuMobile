@@ -2,27 +2,82 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/logo"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+
         android:supportsRtl="true"
         android:theme="@style/Theme.PetkuMobile"
         tools:targetApi="31">
-        <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.PetkuMobile">
+        <!-- Splash Activity as the launcher activity -->
+        <activity android:name=".SplashActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!-- SplashScreen2Activity -->
+        <activity
+            android:name=".SplashScreen2Activity"
+            android:exported="true"
+            android:theme="@style/Theme.PetkuMobile"
+            android:windowSoftInputMode="adjustResize">
+        </activity>
+
+        <!-- SplashScreen3Activity -->
+        <activity
+            android:name=".SplashScreen3Activity"
+            android:exported="true"
+            android:theme="@style/Theme.PetkuMobile">
+        </activity>
+
+        <!-- SplashScreen4Activity -->
+        <activity
+            android:name=".SplashScreen4Activity"
+            android:exported="true"
+            android:theme="@style/Theme.PetkuMobile">
+        </activity>
+        <!-- Create Activity -->
+        <activity
+            android:name=".CreateActivity"
+            android:exported="true"
+            android:theme="@style/Theme.PetkuMobile">
+        </activity>
+
+        <!-- Login Activity -->
+        <activity
+            android:name=".LoginActivity"
+            android:exported="true"
+            android:theme="@style/Theme.PetkuMobile">
+        </activity>
+
+        <!-- Home Activity -->
+        <activity
+            android:name=".HomeActivity"
+            android:exported="true"
+            android:theme="@style/Theme.PetkuMobile">
+        </activity>
+
+        <!-- Profil Pet Activity -->
+        <activity
+            android:name=".ProfilScreen"
+            android:exported="true"
+            android:theme="@style/Theme.PetkuMobile">
+        </activity>
+
+        <!-- Main Activity -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.PetkuMobile">
+        </activity>
+        <activity android:name=".CalendarActivity" />
     </application>
 
 </manifest>

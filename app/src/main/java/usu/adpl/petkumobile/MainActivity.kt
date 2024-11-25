@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewMainCalendarScreen() {
+fun MainCalendarScreen() {
     val date = LocalDate.of(2020, 12, 7)
     val formattedDate = date.format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy"))
 
@@ -101,3 +101,5 @@ fun MainCalendarItem(time: String, title: String, description: String) {
         }
     }
 }
+
+

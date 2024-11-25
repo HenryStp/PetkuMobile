@@ -203,7 +203,7 @@ fun LostPetCard(onViewDetailsClick: () -> Unit) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xFFE57373), RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp))
+                .background(Color(0xFFFFBFBF), RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp))
                 .padding(vertical = 4.dp),
             contentAlignment = Alignment.Center
         ) {
@@ -212,7 +212,7 @@ fun LostPetCard(onViewDetailsClick: () -> Unit) {
                 fontFamily = customFontFamily,
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp,
-                color = Color.White,
+                color = Color.Red,
                 textAlign = TextAlign.Center
             )
         }

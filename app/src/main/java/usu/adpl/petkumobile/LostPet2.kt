@@ -21,7 +21,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.draw.clip
 
 @Composable
-fun LostPet2(modifier: Modifier = Modifier) {
+fun LostPet2(
+    onHomeClick: () -> Unit,
+    onReportClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -82,9 +86,12 @@ fun LostPet2(modifier: Modifier = Modifier) {
         ) {
             // Tombol Home
             Button(
-                onClick = { /* Navigasi ke halaman Home */ },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFCDD2)),
-                shape = RoundedCornerShape(16.dp)
+                onClick = onHomeClick,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6A1B9A)),
+                modifier = Modifier
+                    .padding(16.dp)
+                    .size(width = 200.dp, height = 60.dp),
+                shape = RoundedCornerShape(32.dp)
             ) {
                 Text(
                     text = "Home",
@@ -97,10 +104,13 @@ fun LostPet2(modifier: Modifier = Modifier) {
 
             // Tombol Report
             Button(
-                onClick = { /* Navigasi ke halaman Report */ },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE0E0E0)),
-                shape = RoundedCornerShape(16.dp)
-            ) {
+                onClick = onReportClick,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE57373)),
+                modifier = Modifier
+                    .padding(16.dp)
+                    .size(width = 200.dp, height = 60.dp),
+                shape = RoundedCornerShape(32.dp)
+            ){
                 Text(
                     text = "Report",
                     fontSize = 16.sp,
@@ -222,5 +232,9 @@ fun LostPetCard(onViewDetailsClick: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun PreviewLostPet2() {
-    LostPet2()
+    // Memberikan nilai untuk onHomeClick dan onReportClick di preview
+    LostPet2(
+        onHomeClick = { /* Tambahkan aksi untuk tombol Home di preview */ },
+        onReportClick = { /* Tambahkan aksi untuk tombol Report di preview */ }
+    )
 }

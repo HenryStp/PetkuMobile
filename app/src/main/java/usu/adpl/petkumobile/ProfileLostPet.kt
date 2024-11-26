@@ -181,15 +181,23 @@ fun ProfileLostPet() {
                 ) {
                     Text(text = "EDIT", color = Color.White)
                 }
+
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 Button(
                     onClick = { /* Mark as found action */ },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF81C784)),
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(32.dp)
                 ) {
                     Text(text = "FOUNDED", color = Color.White, fontFamily = customFontFamily,
                         fontWeight = FontWeight.Bold,)
                 }
             }
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

@@ -20,11 +20,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
+
 
 
 @Composable
-fun PetShopProfileScreen(navController: NavController? = null) {
+fun PetShopProfileScreen(
+    nama: String,
+    alamat: String,
+    telepon: String,
+    instagram: String,
+    link: String,
+    navController: NavController
+) {
     val scrollState = rememberScrollState()
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     Column(
         modifier = Modifier
@@ -51,7 +63,7 @@ fun PetShopProfileScreen(navController: NavController? = null) {
             TopAppBar(
                 title = {},
                 navigationIcon = {
-                    IconButton(onClick = { /* Handle back action */ }) {
+                    IconButton(onClick = {  navController.popBackStack() }) {
                         Image(
                             painter = painterResource(id = R.drawable.back_white),
                             contentDescription = "Back",
@@ -67,73 +79,109 @@ fun PetShopProfileScreen(navController: NavController? = null) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Pet Paradise Store",
+            text = nama.ifEmpty { "Unknown Pet Hotel" },
             fontSize = 25.sp,
             fontWeight = FontWeight.Bold,
-            fontFamily = CustomFontFamily
+            fontFamily = CustomFontFamily,
+            color = Color(0xFF4A4A4A)
         )
-
-        Divider(
-            color = Color.Gray,
-            thickness = 1.dp,
-            modifier = Modifier.padding(vertical = 8.dp)
-        )
-
-        Text(
-            text = "Address: Jl. Kucing No. 5, Medan",
-            fontSize = 15.sp,
-            fontFamily = CustomFontFamily
-        )
-
         Spacer(modifier = Modifier.height(16.dp))
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .shadow(5.dp, RoundedCornerShape(16.dp))
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFFF1F1F1))
-                .padding(10.dp)
+
+
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = 3.dp,
+            shape = RoundedCornerShape(10.dp)
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+            Row(
+                modifier = Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Contact Us:",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = CustomFontFamily
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_location),
+                    contentDescription = "Address Icon",
+                    modifier = Modifier.size(24.dp),
+                    tint = Color(0xFF6A1B9A)
                 )
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Phone: +62 812-9876-5432",
+                    text = alamat,
                     fontSize = 15.sp,
-                    fontFamily = CustomFontFamily
-                )
-                Spacer(modifier = Modifier.height(5.dp))
-                Text(
-                    text = "Social Media:",
-                    fontSize = 15.sp,
-                    fontFamily = CustomFontFamily
-                )
-                Text(
-                    text = "• Instagram: @petparadisestore",
-                    fontSize = 15.sp,
-                    fontFamily = CustomFontFamily
-                )
-                Text(
-                    text = "• Facebook: /petparadisestore",
-                    fontSize = 15.sp,
-                    fontFamily = CustomFontFamily
+                    fontFamily = CustomFontFamily,
+                    color = Color.DarkGray
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = 3.dp,
+            shape = RoundedCornerShape(10.dp)
+        ) {
+            Row(
+                modifier = Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_phone),
+                    contentDescription = "Phone Icon",
+                    modifier = Modifier.size(24.dp),
+                    tint = Color(0xFF388E3C)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = telepon,
+                    fontSize = 15.sp,
+                    fontFamily = CustomFontFamily,
+                    color = Color.DarkGray
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = 3.dp,
+            shape = RoundedCornerShape(10.dp)
+        ) {
+            Row(
+                modifier = Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_instagram),
+                    contentDescription = "Instagram Icon",
+                    modifier = Modifier.size(24.dp),
+                    contentScale = ContentScale.Fit // Menjaga proporsi asli gambar
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = instagram,
+                    fontSize = 15.sp,
+                    fontFamily = CustomFontFamily,
+                    color = Color.DarkGray
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(64.dp))
+
 
         Button(
-            onClick = { /* Navigate to location */ },
+            onClick = {
+                if (link.isNotEmpty()) {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
+                    context.startActivity(intent)
+                } else {
+                    Toast.makeText(context, "Link tidak tersedia", Toast.LENGTH_SHORT).show()
+                }
+            },
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .width(250.dp)
@@ -141,20 +189,21 @@ fun PetShopProfileScreen(navController: NavController? = null) {
                 .shadow(5.dp, RoundedCornerShape(16.dp)),
             colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFC2E8D6)),
             elevation = null
-
         ) {
             Text(
                 text = "See Location",
-                fontSize = 25.sp,
+                fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                fontFamily = CustomFontFamily
+                fontFamily = CustomFontFamily,
+                color = Color.Black
             )
         }
+
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewPetShopProfileScreen() {
-    PetShopProfileScreen()
+
 }

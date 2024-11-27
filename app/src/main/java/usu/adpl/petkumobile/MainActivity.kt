@@ -72,6 +72,26 @@ class MainActivity : ComponentActivity() {
 
                             PetBoardingProfileScreen(nama, alamat, telepon, instagram, link,navController = navController )
                         }
+
+                        // Menambahkan destinasi untuk PetShopProfileScreen dengan argumen tambahan
+                        composable(
+                            "pet-shop-profile/{nama}/{alamat}/{telepon}/{instagram}/{link}",
+                            arguments = listOf(
+                                navArgument("nama") { type = NavType.StringType },
+                                navArgument("alamat") { type = NavType.StringType },
+                                navArgument("telepon") { type = NavType.StringType },
+                                navArgument("instagram") { type = NavType.StringType },
+                                navArgument("link") { type = NavType.StringType },
+                            )
+                        ) { backStackEntry ->
+                            val nama = backStackEntry.arguments?.getString("nama") ?: ""
+                            val alamat = backStackEntry.arguments?.getString("alamat") ?: ""
+                            val telepon = backStackEntry.arguments?.getString("telepon") ?: ""
+                            val instagram = backStackEntry.arguments?.getString("instagram") ?: ""
+                            val link = backStackEntry.arguments?.getString("link") ?: ""
+
+                            PetShopProfileScreen(nama, alamat, telepon, instagram, link,navController = navController )
+                        }
                     }
                 }
             }

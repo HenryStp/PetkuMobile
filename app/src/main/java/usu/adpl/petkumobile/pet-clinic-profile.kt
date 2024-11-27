@@ -183,7 +183,7 @@ fun PetClinicProfileScreen(
                 .width(250.dp)
                 .height(50.dp)
                 .shadow(5.dp, RoundedCornerShape(16.dp)),
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFFFD7C2)),
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFF8C2C2)),
             elevation = null
         ) {
             Text(

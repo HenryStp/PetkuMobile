@@ -21,9 +21,59 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.font.FontFamily
 import androidx.navigation.NavController
+import com.google.firebase.firestore.FirebaseFirestore
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.foundation.lazy.items
+import android.net.Uri
+
+
+data class PetShop(
+    val nama: String = "",
+    val alamat: String = "",
+    val telepon: String = "",
+    val instagram: String = "",
+    val link: String = ""
+)
+
 
 @Composable
 fun PetShopScreen(navController: NavController? = null) {
+    val firestore = FirebaseFirestore.getInstance()
+    val petShopList = remember { mutableStateListOf<PetShop>() }
+
+    // Fetch data from Firestore
+    LaunchedEffect(Unit) {
+        firestore.collection("pet_shop")
+            .get()
+            .addOnSuccessListener { documents ->
+                petShopList.clear()
+                for (document in documents) {
+                    val name = document.getString("nama") ?: ""
+                    val address = document.getString("alamat") ?: ""
+                    val phone = document.getString("telepon") ?: ""
+                    val instagram = document.getString("instagram") ?: ""
+                    val link = document.getString("link") ?: ""
+
+                    // Add PetShopitem with complete data
+                    petShopList.add(
+                        PetShop(
+                            nama = name,
+                            alamat = address,
+                            telepon = phone,
+                            instagram = instagram,
+                            link = link
+                        )
+                    )
+                }
+            }
+            .addOnFailureListener {
+                // Handle error
+            }
+    }
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -62,15 +112,31 @@ fun PetShopScreen(navController: NavController? = null) {
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            items(6) {
+            items(petShopList) { petShop ->
                 PetShopItem(
                     imageId = R.drawable.gambar_pet_shop,
-                    title = "Pet Paradise\nStore",
-                    rating = "4.8",
-                    distance = "Distance: 1.0 km",
-                    location = "Jl. Kucing No. 5, Medan",
+                    title = petShop.nama,
+                    location = petShop.alamat,
+                    onItemClick = {
+                        // Navigasi ke halaman detail pet shop
+                        navController?.navigate(
+                            "pet-shop-profile/${
+                                Uri.encode(petShop.nama)
+                            }/${
+                                Uri.encode(petShop.alamat)
+                            }/${
+                                Uri.encode(petShop.telepon)
+                            }/${
+                                Uri.encode(petShop.instagram)
+                            }/${
+                                Uri.encode(petShop.link)
+                            }"
+
+                        )
+                    }
                 )
             }
+
         }
     }
 }
@@ -79,10 +145,10 @@ fun PetShopScreen(navController: NavController? = null) {
 fun PetShopItem(
     imageId: Int,
     title: String,
-    rating: String,
-    distance: String,
     location: String,
-    fontFamily: FontFamily = CustomFontFamily
+    fontFamily: FontFamily = CustomFontFamily,
+    onItemClick: () -> Unit
+
 ) {
     Row(
         modifier = Modifier
@@ -90,8 +156,9 @@ fun PetShopItem(
             .height(108.dp)
             .shadow(5.dp, RoundedCornerShape(16.dp))
             .background(Color(0xFFE5F2EC), shape = RoundedCornerShape(20.dp))
-
+            .clickable { onItemClick() }
     ) {
+        // Gambar tetap ditampilkan
         Image(
             painter = painterResource(id = imageId),
             contentDescription = "Pet Boarding Image",
@@ -101,14 +168,12 @@ fun PetShopItem(
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        // Text information
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 13.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            // Title
             Text(
                 text = title,
                 fontSize = 18.sp,
@@ -139,8 +204,9 @@ fun PetShopItem(
     }
 }
 
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewPetShopScreen() {
-    PetShopScreen()
+
 }

@@ -151,7 +151,7 @@ fun PetClinicItem(
             .width(299.dp)
             .height(108.dp)
             .shadow(5.dp, RoundedCornerShape(16.dp))
-            .background(Color(0xFFFFE8D8), shape = RoundedCornerShape(20.dp))
+            .background(Color(0xFFF8C2C1), shape = RoundedCornerShape(20.dp))
             .clickable { onItemClick() }
     ) {
         // Gambar tetap ditampilkan

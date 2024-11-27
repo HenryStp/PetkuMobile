@@ -19,17 +19,20 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.border
+
 
 @Composable
 fun LostPet2(
     onHomeClick: () -> Unit,
     onReportClick: () -> Unit,
+    onViewDetailsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFD3C0E8)) // Background ungu muda
+            .background(Color(0xFFC9A9E2)) // Background ungu muda
             .padding(16.dp)
     )
 
@@ -54,14 +57,14 @@ fun LostPet2(
             Column {
                 Text(
                     text = "Help Find",
-                    fontSize = 24.sp,
+                    fontSize = 25.sp,
                     fontFamily = customFontFamily,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
                 )
                 Text(
                     text = "Lost Pets!",
-                    fontSize = 24.sp,
+                    fontSize = 25.sp,
                     fontFamily = customFontFamily,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
@@ -75,7 +78,7 @@ fun LostPet2(
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(4.dp))
 
         // Tombol Home dan Report
         Row(
@@ -87,17 +90,26 @@ fun LostPet2(
             // Tombol Home
             Button(
                 onClick = onHomeClick,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6A1B9A)),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF4B9B8)),
+                shape = RoundedCornerShape(32.dp),
+                contentPadding = PaddingValues(0.dp), // Menghilangkan padding default
                 modifier = Modifier
-                    .padding(16.dp)
-                    .size(width = 200.dp, height = 60.dp),
-                shape = RoundedCornerShape(32.dp)
+                    .padding(8.dp) // Memberikan jarak antar tombol
+                    .clip(RoundedCornerShape(32.dp)) // Mengikuti bentuk tombol
+                    .border(
+                        width = 2.dp,
+                        color = Color.Black,
+                        shape = RoundedCornerShape(32.dp) // Outline bulat sama dengan tombol
+                    )
+                    .height(40.dp) // Tinggi tombol
+                    .width(200.dp) // Lebar tombol
+                    .weight(1f)
             ) {
                 Text(
                     text = "Home",
-                    fontSize = 16.sp,
+                    fontSize = 18.sp,
                     fontFamily = customFontFamily,
-                    fontWeight = FontWeight.Normal,
+                    fontWeight = FontWeight.Bold,
                     color = Color.Black
                 )
             }
@@ -105,15 +117,16 @@ fun LostPet2(
             // Tombol Report
             Button(
                 onClick = onReportClick,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE57373)),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD3D3D3)),
                 modifier = Modifier
-                    .padding(16.dp)
-                    .size(width = 200.dp, height = 60.dp),
+                    .padding(8.dp)
+                    .size(width = 200.dp, height = 40.dp)
+                    .weight(1f),
                 shape = RoundedCornerShape(32.dp)
             ){
                 Text(
                     text = "Report",
-                    fontSize = 16.sp,
+                    fontSize = 18.sp,
                     fontFamily = customFontFamily,
                     fontWeight = FontWeight.Normal,
                     color = Color.Gray
@@ -148,7 +161,9 @@ fun LostPetCard(onViewDetailsClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(8.dp),
+            .padding(8.dp)
+            .border(1.dp, Color.Gray, RoundedCornerShape(8.dp)), // Menambahkan border hitam
+        colors = CardDefaults.cardColors(containerColor = Color.White), // Warna putih untuk Card
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(
@@ -160,7 +175,8 @@ fun LostPetCard(onViewDetailsClick: () -> Unit) {
                     .fillMaxWidth()
                     .aspectRatio(1f) // Membuat rasio persegi untuk gambar
                     .clip(RoundedCornerShape(8.dp))
-                    .background(Color(0xFFFFF3E0)), // Warna latar belakang gambar untuk memberi tepi
+                    .background(Color(0xFFFFFFFF))// Warna latar belakang gambar untuk memberi tepi
+                    .border(1.dp, Color.Gray, RoundedCornerShape(8.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
@@ -235,6 +251,7 @@ fun PreviewLostPet2() {
     // Memberikan nilai untuk onHomeClick dan onReportClick di preview
     LostPet2(
         onHomeClick = { /* Tambahkan aksi untuk tombol Home di preview */ },
-        onReportClick = { /* Tambahkan aksi untuk tombol Report di preview */ }
+        onReportClick = { /* Tambahkan aksi untuk tombol Report di preview */ },
+        onViewDetailsClick = {}
     )
 }

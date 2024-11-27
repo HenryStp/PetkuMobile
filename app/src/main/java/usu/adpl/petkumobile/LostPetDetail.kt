@@ -1,31 +1,36 @@
 package usu.adpl.petkumobile
 
-
-import androidx.compose.foundation.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.foundation.*
 
 @Composable
-fun ProfileLostPet() {
+fun LostPetDetail() {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .background(Color(0xFFC9A9E2)) // Latar belakang ungu muda
             .padding(16.dp)
-    )
-    {
+    ) {
         Spacer(modifier = Modifier.height(8.dp))
         // Header dengan tombol kembali
         Box(
@@ -167,64 +172,14 @@ fun ProfileLostPet() {
                 color = Color.Gray,
                 lineHeight = 20.sp
             )
-
-            // Tombol Edit dan Found
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Button(
-                    onClick = { /* Edit action */ },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE57373)),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text(text = "EDIT", color = Color.White)
-                }
-
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Button(
-                    onClick = { /* Mark as found action */ },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF81C784)),
-                    shape = RoundedCornerShape(32.dp)
-                ) {
-                    Text(text = "FOUNDED", color = Color.White, fontFamily = customFontFamily,
-                        fontWeight = FontWeight.Bold,)
-                }
-            }
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
 
-@Composable
-fun ProfileSection(label: String, value: String) {
-    Column(modifier = Modifier.padding(vertical = 4.dp)) {
-        Text(
-            text = label,
-            fontFamily = customFontFamily,
-            fontWeight = FontWeight.Bold,
-            fontSize = 14.sp,
-            color = Color.Black
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = value,
-            fontFamily = customFontFamily,
-            fontWeight = FontWeight.Bold,
-            fontSize = 14.sp,
-            color = Color.Gray
-        )
-    }
-}
 @Preview(showBackground = true)
 @Composable
-fun PreviewProfileLostPet() {
-    ProfileLostPet()
+fun PreviewLostPetDetail() {
+    LostPetDetail()
 }
 

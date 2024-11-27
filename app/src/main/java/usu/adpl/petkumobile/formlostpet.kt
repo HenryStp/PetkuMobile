@@ -3,6 +3,7 @@ package usu.adpl.petkumobile
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -21,8 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.remember
-
-
+import androidx.compose.ui.draw.clip
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,6 +37,7 @@ fun FormLostPet(modifier: Modifier = Modifier) {
             .imePadding() // Menambahkan padding untuk menghindari keyboard
             .padding(16.dp)
     ) {
+        Spacer(modifier = Modifier.height(8.dp))
         // Row untuk tombol back dan teks "Report a Lost Pet" di tengah atas
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -148,18 +149,26 @@ fun FormLostPet(modifier: Modifier = Modifier) {
         // Submit button
         Button(
             onClick = { /* Submit form data */ },
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF4B9B8)),
+            shape = RoundedCornerShape(32.dp),
+            contentPadding = PaddingValues(0.dp), // Menghilangkan padding default
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFCDD2))
+                .padding(8.dp) // Memberikan jarak antar tombol
+                .clip(RoundedCornerShape(32.dp)) // Mengikuti bentuk tombol
+                .border(
+                    width = 2.dp,
+                    color = Color.Black,
+                    shape = RoundedCornerShape(32.dp) // Outline bulat sama dengan tombol
+                )
+                .height(40.dp) // Tinggi tombol
+                .width(200.dp) // Lebar tombol
         ) {
             Text(
                 text = "Submit",
                 fontSize = 16.sp,
                 fontFamily = customFontFamily,
                 fontWeight = FontWeight.Normal,
-                color = Color.Black
+                color = Color.Red
             )
         }
         Spacer(modifier = Modifier.height(16.dp))

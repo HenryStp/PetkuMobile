@@ -21,9 +21,58 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.font.FontFamily
 import androidx.navigation.NavController
+import com.google.firebase.firestore.FirebaseFirestore
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.foundation.lazy.items
+import android.net.Uri
+
+data class PetClinic(
+    val nama: String = "",
+    val alamat: String = "",
+    val telepon: String = "",
+    val instagram: String = "",
+    val link: String = ""
+)
+
 
 @Composable
 fun PetClinicScreen(navController: NavController? = null) {
+        val firestore = FirebaseFirestore.getInstance()
+        val petClinicList = remember { mutableStateListOf<PetBoarding>() }
+
+        // Fetch data from Firestore
+        LaunchedEffect(Unit) {
+            firestore.collection("pet_clinic")
+                .get()
+                .addOnSuccessListener { documents ->
+                    petClinicList.clear()
+                    for (document in documents) {
+                        val name = document.getString("nama") ?: ""
+                        val address = document.getString("alamat") ?: ""
+                        val phone = document.getString("telepon") ?: ""
+                        val instagram = document.getString("instagram") ?: ""
+                        val link = document.getString("link") ?: ""
+
+                        // Add PetBoarding item with complete data
+                        petClinicList.add(
+                            PetBoarding(
+                                nama = name,
+                                alamat = address,
+                                telepon = phone,
+                                instagram = instagram,
+                                link = link
+                            )
+                        )
+                    }
+                }
+                .addOnFailureListener {
+                    // Handle error
+                }
+        }
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -61,18 +110,29 @@ fun PetClinicScreen(navController: NavController? = null) {
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            items(6) {
+            items(petClinicList) { petClinic ->
                 PetClinicItem(
                     imageId = R.drawable.gambar_pet_clinic,
-                    title = "Furry Friends\nAnimal Clinic",
-                    rating = "4.9",
-                    consultation = "Consultation IDR 250.000",
-                    location = "Jl. Merpati No. 12, Medan",
-                    onClick = {
-                        navController?.navigate("pet-clinic-profile")
+                    title = petClinic.nama,
+                    location = petClinic.alamat,
+                    onItemClick = {
+                        // Navigasi ke halaman detail pet boarding
+                        navController?.navigate(
+                            "pet-clinic-profile/${
+                                Uri.encode(petClinic.nama)
+                            }/${
+                                Uri.encode(petClinic.alamat)
+                            }/${
+                                Uri.encode(petClinic.telepon)
+                            }/${
+                                Uri.encode(petClinic.instagram)
+                            }/${
+                                Uri.encode(petClinic.link)
+                            }"
+
+                        )
                     }
                 )
-
             }
         }
     }
@@ -82,11 +142,9 @@ fun PetClinicScreen(navController: NavController? = null) {
 fun PetClinicItem(
     imageId: Int,
     title: String,
-    rating: String,
-    consultation: String,
     location: String,
     fontFamily: FontFamily = CustomFontFamily,
-    onClick: () -> Unit
+    onItemClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -94,8 +152,9 @@ fun PetClinicItem(
             .height(108.dp)
             .shadow(5.dp, RoundedCornerShape(16.dp))
             .background(Color(0xFFFFE8D8), shape = RoundedCornerShape(20.dp))
-
+            .clickable { onItemClick() }
     ) {
+        // Gambar tetap ditampilkan
         Image(
             painter = painterResource(id = imageId),
             contentDescription = "Pet Boarding Image",
@@ -105,14 +164,12 @@ fun PetClinicItem(
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        // Text information
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 13.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            // Title
             Text(
                 text = title,
                 fontSize = 18.sp,
@@ -142,6 +199,7 @@ fun PetClinicItem(
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable

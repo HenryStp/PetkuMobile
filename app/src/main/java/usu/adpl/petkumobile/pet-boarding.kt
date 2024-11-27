@@ -21,9 +21,60 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.font.FontFamily
 import androidx.navigation.NavController
+import com.google.firebase.firestore.FirebaseFirestore
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.foundation.lazy.items
+import android.net.Uri
+
+
+
+data class PetBoarding(
+    val nama: String = "",
+    val alamat: String = "",
+    val telepon: String = "",
+    val instagram: String = "",
+    val link: String = ""
+)
+
 
 @Composable
 fun PetBoardingScreen(navController: NavController? = null) {
+    val firestore = FirebaseFirestore.getInstance()
+    val petBoardingList = remember { mutableStateListOf<PetBoarding>() }
+
+    // Fetch data from Firestore
+    LaunchedEffect(Unit) {
+        firestore.collection("pet_boarding")
+            .get()
+            .addOnSuccessListener { documents ->
+                petBoardingList.clear()
+                for (document in documents) {
+                    val name = document.getString("nama") ?: ""
+                    val address = document.getString("alamat") ?: ""
+                    val phone = document.getString("telepon") ?: ""
+                    val instagram = document.getString("instagram") ?: ""
+                    val link = document.getString("link") ?: ""
+
+                    // Add PetBoarding item with complete data
+                    petBoardingList.add(
+                        PetBoarding(
+                            nama = name,
+                            alamat = address,
+                            telepon = phone,
+                            instagram = instagram,
+                            link = link
+                        )
+                    )
+                }
+            }
+            .addOnFailureListener {
+                // Handle error
+            }
+    }
+
+    // UI
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -31,7 +82,6 @@ fun PetBoardingScreen(navController: NavController? = null) {
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Header
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -57,17 +107,31 @@ fun PetBoardingScreen(navController: NavController? = null) {
 
         Spacer(modifier = Modifier.height(15.dp))
 
-        // List of pet boarding options
+        // LazyColumn to Display Data
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            items(6) {
+            items(petBoardingList) { petBoarding ->
                 PetBoardingItem(
-                    imageId = R.drawable.gambar_pet_boarding,
-                    title = "Happy Paws Pet Hotel",
-                    rating = "4.8",
-                    price = "IDR 150,000 / day",
-                    location = "Jl. Mawar No. 10, Medan",
+                    imageId = R.drawable.gambar_pet_boarding,  // Gambar tetap ada
+                    title = petBoarding.nama,
+                    location = petBoarding.alamat,
+                    onItemClick = {
+                        // Navigasi ke halaman detail pet boarding
+                        navController?.navigate(
+                            "pet-boarding-profile/${
+                                Uri.encode(petBoarding.nama)
+                            }/${
+                                Uri.encode(petBoarding.alamat)
+                            }/${
+                                Uri.encode(petBoarding.telepon)
+                            }/${
+                                Uri.encode(petBoarding.instagram)
+                            }/${
+                                Uri.encode(petBoarding.link)
+                            }"
+                        )
+                    }
                 )
             }
         }
@@ -78,19 +142,19 @@ fun PetBoardingScreen(navController: NavController? = null) {
 fun PetBoardingItem(
     imageId: Int,
     title: String,
-    rating: String,
-    price: String,
     location: String,
     fontFamily: FontFamily = CustomFontFamily,
-    ) {
+    onItemClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .width(299.dp)
             .height(108.dp)
             .shadow(5.dp, RoundedCornerShape(16.dp))
             .background(Color(0xFFFFE8D8), shape = RoundedCornerShape(20.dp))
-
+            .clickable { onItemClick() }
     ) {
+        // Gambar tetap ditampilkan
         Image(
             painter = painterResource(id = imageId),
             contentDescription = "Pet Boarding Image",
@@ -135,6 +199,8 @@ fun PetBoardingItem(
         }
     }
 }
+
+
 
 @Preview(showBackground = true)
 @Composable

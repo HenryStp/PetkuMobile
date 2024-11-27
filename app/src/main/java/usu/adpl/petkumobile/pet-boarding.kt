@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -86,6 +87,7 @@ fun PetBoardingItem(
         modifier = Modifier
             .width(299.dp)
             .height(108.dp)
+            .shadow(5.dp, RoundedCornerShape(16.dp))
             .background(Color(0xFFFFE8D8), shape = RoundedCornerShape(20.dp))
 
     ) {
@@ -93,21 +95,17 @@ fun PetBoardingItem(
             painter = painterResource(id = imageId),
             contentDescription = "Pet Boarding Image",
             modifier = Modifier
-                .size(108.dp)
                 .clip(RoundedCornerShape(20.dp))
-                .offset(x = (2).dp)
         )
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        // Text information
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 13.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            // Title
             Text(
                 text = title,
                 fontSize = 18.sp,
@@ -116,39 +114,8 @@ fun PetBoardingItem(
                 fontFamily = fontFamily,
             )
 
-            // Rating and Price
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                // Rating Icon and Text
-                Image(
-                    painter = painterResource(id = R.drawable.ic_rating),
-                    contentDescription = "Rating Icon",
-                    modifier = Modifier.size(9.dp)
-                )
-                Text(
-                    text = rating,
-                    fontSize = 10.sp,
-                    color = Color.Gray,
-                    fontFamily = fontFamily
+            Spacer(modifier = Modifier.width(10.dp))
 
-                )
-                Text(
-                    text = "|",
-                    fontSize = 10.sp,
-                    color = Color.Gray,
-                    fontFamily = fontFamily
-                )
-                Text(
-                    text = price,
-                    fontSize = 10.sp,
-                    color = Color.Gray,
-                    fontFamily = fontFamily
-                )
-            }
-
-            // Location
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {

@@ -41,7 +41,7 @@ fun LostPet2(
         // Tombol Back
         IconButton(onClick = { /* Kembali ke halaman sebelumnya */ }) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_back),
+                painter = painterResource(id = R.drawable.back_black),
                 contentDescription = "Back",
                 tint = Color.Black
             )

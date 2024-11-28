@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.*
+import androidx.compose.ui.zIndex
 
 @Composable
 fun LostPetDetail() {
@@ -31,40 +32,39 @@ fun LostPetDetail() {
             .background(Color(0xFFC9A9E2)) // Latar belakang ungu muda
             .padding(16.dp)
     ) {
-        Spacer(modifier = Modifier.height(8.dp))
-        // Header dengan tombol kembali
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color(0xFFD3C0E8)) // Warna header ungu muda
-                .padding(16.dp)
-        ) {
-            IconButton(onClick = { /* Navigasi ke halaman sebelumnya */ }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_back),
-                    contentDescription = "Back",
-                    tint = Color.Black
-                )
-            }
-        }
-
-        // Gambar hewan peliharaan
+        Spacer(modifier = Modifier.height(16.dp))
+        // Bagian gambar dan ikon back
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(250.dp)
-                .background(Color(0xFFD3C0E8)), // Warna latar belakang
-            contentAlignment = Alignment.Center
         ) {
+            // Gambar hewan peliharaan
             Image(
                 painter = painterResource(id = R.drawable.sample_pet_image), // Gambar hewan
                 contentDescription = "Lost Pet",
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(8.dp)
+                    .background(Color.White, shape = RoundedCornerShape(16.dp))
             )
+
+            // Ikon Back di atas gambar
+            IconButton(
+                onClick = { /* Kembali ke halaman sebelumnya */ },
+                modifier = Modifier
+                    .align(Alignment.TopStart) // Menempatkan ikon di pojok kiri atas
+                    .padding(16.dp) // Menambahkan padding dari tepi gambar
+                    .zIndex(1f) // Menjamin ikon berada di atas gambar
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.back_black),
+                    contentDescription = "Back",
+                    tint = Color.Gray
+                )
+            }
         }
 
+        Spacer(modifier = Modifier.height(8.dp))
         // Nama dan status
         Column(
             modifier = Modifier
@@ -75,7 +75,7 @@ fun LostPetDetail() {
             Text(
                 text = "MAX - SPHYNX CAT",
                 fontFamily = customFontFamily,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.ExtraBold,
                 fontSize = 20.sp,
                 color = Color.Black
             )

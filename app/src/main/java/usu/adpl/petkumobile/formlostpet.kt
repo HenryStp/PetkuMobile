@@ -23,12 +23,22 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
+import androidx.compose.material3.AlertDialog
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.material3.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.*
+import androidx.compose.ui.text.style.TextAlign
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FormLostPet(modifier: Modifier = Modifier) {
     val scrollState = rememberScrollState() // Mengingat status scroll
+    val showDialog = remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -45,7 +55,7 @@ fun FormLostPet(modifier: Modifier = Modifier) {
         ) {
             IconButton(onClick = { /* Kembali ke halaman sebelumnya */ }) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_back),
+                    painter = painterResource(id = R.drawable.back_black),
                     contentDescription = "Back",
                     tint = Color.Black
                 )
@@ -171,10 +181,67 @@ fun FormLostPet(modifier: Modifier = Modifier) {
                 color = Color.Red
             )
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        Spacer(modifier = Modifier.height(16.dp))
+        // Dialog pop-up
+        if (showDialog.value) {
+            BasicAlertDialog(onDismissRequest = { showDialog.value = false }) {
+                // Konten Dialog
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.White, shape = RoundedCornerShape(16.dp))
+                        .padding(16.dp)
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        // Ikon centang
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_check_circle), // Ganti dengan ikon yang sesuai
+                            contentDescription = "Success",
+                            tint = Color(0xFF4CAF50),
+                            modifier = Modifier.size(64.dp)
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Teks berhasil
+                        Text(
+                            text = "Successfully Submitted!",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            textAlign = TextAlign.Center,
+                            color = Color.Black
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = "Your report has been shared in the Lost Pet Info!",
+                            fontSize = 14.sp,
+                            textAlign = TextAlign.Center,
+                            color = Color.Gray
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Tombol View Report
+                        Button(
+                            onClick = {
+                                // Navigasi ke halaman report
+                                showDialog.value = false // Tutup dialog
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF48FB1))
+                        ) {
+                            Text(text = "View Report", color = Color.White)
+                        }
+                    }
+                }
+            }
+        }
     }
 }
+
 
 @Composable
 fun ChoiceButton(
@@ -201,7 +268,7 @@ fun ChoiceButton(
 
 
 @Composable
-fun InputField(label: String, isButton: Boolean = false, singleLine: Boolean = true, modifier: Modifier = Modifier) {
+fun InputField(modifier: Modifier = Modifier, label: String, isButton: Boolean = false, singleLine: Boolean = true) {
     val textState = remember { mutableStateOf(TextFieldValue()) }
 
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
@@ -230,7 +297,7 @@ fun InputField(label: String, isButton: Boolean = false, singleLine: Boolean = t
                     .background(Color.Transparent),
                 singleLine = singleLine,
                 shape = RoundedCornerShape(30.dp), // Mengatur lengkungan outline menjadi 25 dp
-                colors = TextFieldDefaults.outlinedTextFieldColors(
+                colors = OutlinedTextFieldDefaults.colors(
                     unfocusedBorderColor = Color.Black,
                     focusedBorderColor = Color.Black,
                     focusedTextColor = Color.Black,

@@ -146,7 +146,7 @@ fun LostPet2(
             ) {
                 items(3) { // Ubah sesuai jumlah data yang ada
                     LostPetCard(
-                        onViewDetailsClick = { /* Navigasi ke halaman detail */ }
+                        onViewDetailsClick = onViewDetailsClick // Diteruskan dari LostPet2
                     )
                 }
             }

@@ -125,9 +125,9 @@ fun FormLostPet(modifier: Modifier = Modifier) {
         InputField(label = "Color & Features", modifier = Modifier.fillMaxWidth())
 
         // Input field for Last Seen Location with increased height
-        InputField(label = "Last Seen Location", modifier = Modifier
+        InputField(label = "Last Seen Location", singleLine = false, modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp))
+            .height(120.dp))
         InputField(label = "Date & Time Lost", modifier = Modifier.fillMaxWidth())
         // Input field for Additional Information with increased height
         InputField(label = "Additional Information", singleLine = false, modifier = Modifier
@@ -161,7 +161,7 @@ fun FormLostPet(modifier: Modifier = Modifier) {
                     shape = RoundedCornerShape(32.dp) // Outline bulat sama dengan tombol
                 )
                 .height(40.dp) // Tinggi tombol
-                .width(200.dp) // Lebar tombol
+                .width(400.dp) // Lebar tombol
         ) {
             Text(
                 text = "Submit",

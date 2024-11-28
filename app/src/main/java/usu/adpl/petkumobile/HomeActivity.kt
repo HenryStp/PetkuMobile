@@ -25,14 +25,23 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.clickable
 import android.content.Intent
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
+import com.google.firebase.firestore.FirebaseFirestore
+import androidx.compose.runtime.LaunchedEffect
+import com.google.firebase.firestore.QueryDocumentSnapshot
+import com.google.firebase.firestore.ktx.toObject
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 
+
+data class PetShopData(val nama: String = "")
+data class PetClinicData(val nama: String = "")
 
 class HomeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         val username = intent.getStringExtra("username") ?: "Unknown User"
-
         setContent {
             HomeScreen(username)
         }
@@ -40,8 +49,30 @@ class HomeActivity : ComponentActivity() {
 }
 
 @Composable
-
 fun HomeScreen(username: String) {
+    val petShops = remember { mutableStateListOf<PetShopData>() }
+    val petClinics = remember { mutableStateListOf<PetClinicData>() }
+
+    LaunchedEffect(true) {
+        // Ambil data Pet Shop dan Pet Clinic dari Firestore
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("pet_shop").get().addOnSuccessListener { result ->
+            petShops.clear()
+            for (document in result) {
+                val petShop = document.toObject<PetShopData>()
+                petShops.add(petShop)
+            }
+        }
+
+        db.collection("pet_clinic").get().addOnSuccessListener { result ->
+            petClinics.clear()
+            for (document in result) {
+                val petClinic = document.toObject<PetClinicData>()
+                petClinics.add(petClinic)
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -54,14 +85,13 @@ fun HomeScreen(username: String) {
         ReminderSection()
         CategoriesSection()
         LostPetSection()
-        PetShopSection()
-        PetClinicSection()
+        PetShopSection(petShops = petShops)
+        PetClinicSection(petClinics = petClinics)
     }
 }
 
 @Composable
 fun GreetingSection(username: String) {
-
     Text(
         text = "Heloo, $username! 👋",
         fontSize = 20.sp,
@@ -168,7 +198,6 @@ fun CategoriesSection() {
     }
 }
 
-
 @Composable
 fun CategoryItem(name: String, iconResId: Int) {
     Row( // Menggunakan Row agar ikon berada di samping teks
@@ -196,9 +225,6 @@ fun CategoryItem(name: String, iconResId: Int) {
     }
 }
 
-
-
-
 @Composable
 fun LostPetSection() {
     SectionHeader(title = "Lost Pet")
@@ -210,24 +236,28 @@ fun LostPetSection() {
 }
 
 @Composable
-fun PetShopSection() {
+fun PetShopSection(petShops: List<PetShopData>) {
     SectionHeader(title = "Pet Shop")
     LazyRow {
-        items(5) { // Dummy data count
-            ShopCard(name = "Pet Paradise Store")
+        items(petShops.size) { index -> // Pass the size of the list instead of the list itself
+            ShopCard(name = petShops[index].nama) // Use the item at this index
         }
     }
 }
 
+
 @Composable
-fun PetClinicSection() {
+fun PetClinicSection(petClinics: List<PetClinicData>) {
     SectionHeader(title = "Pet Clinic")
     LazyRow {
-        items(5) { // Dummy data count
-            ClinicCard(name = "Praktik Dokter Hewan")
+        items(petClinics.size) { index -> // Pass the size of the list instead of the list itself
+            val clinic = petClinics[index] // Use the item at this index
+            ClinicCard(name = clinic.nama) // Pass the clinic name to the ClinicCard
         }
     }
 }
+
+
 
 @Composable
 fun SectionHeader(title: String) {
@@ -249,7 +279,7 @@ fun SectionHeader(title: String) {
 fun PetCard(name: String) {
     Box(
         modifier = Modifier
-            .size(120.dp)
+            .size(100.dp)
             .padding(8.dp)
             .background(Color(0xFFF3F1F5), RoundedCornerShape(16.dp)),
         contentAlignment = Alignment.Center
@@ -258,7 +288,7 @@ fun PetCard(name: String) {
             // Replace with actual image resource
             Image(painter = painterResource(id = R.drawable.pet), contentDescription = null, modifier = Modifier.size(60.dp))
             Text(text = name, fontSize = 8.sp, fontFamily = CustomFontFamily,
-                fontWeight = FontWeight.Medium, textAlign = TextAlign.Center, modifier = Modifier.padding(4.dp))
+                fontWeight = FontWeight.Medium, textAlign = TextAlign.Center, modifier = Modifier.padding(8.dp))
         }
     }
 }
@@ -268,32 +298,64 @@ fun ShopCard(name: String) {
     Box(
         modifier = Modifier
             .size(120.dp)
-            .padding(8.dp)
-            .background(Color(0xFFF3F1F5), RoundedCornerShape(16.dp)),
+            .padding(4.dp)
+            .background(Color(0x703E9880), RoundedCornerShape(16.dp)),
         contentAlignment = Alignment.Center
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            // Replace with actual image resource
-            Image(painter = painterResource(id = R.drawable.shop), contentDescription = null, modifier = Modifier.size(60.dp))
-            Text(text = name, fontSize = 8.sp,fontFamily = CustomFontFamily,
-                fontWeight = FontWeight.Medium, textAlign = TextAlign.Center, modifier = Modifier.padding(4.dp))
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxSize() // Column menyesuaikan dengan ukuran Box
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.shop),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth() // Gambar memenuhi lebar kolom
+                    .weight(1f) // Gambar mengambil ruang yang tersedia dalam kolom
+                    .clip(RoundedCornerShape(16.dp)), // Tambahkan clipping agar sesuai dengan Box
+                contentScale = ContentScale.Crop // Skala gambar
+            )
+            Text(
+                text = name,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(8.dp) // Tambahkan jarak dari gambar ke teks
+            )
         }
     }
 }
+
 
 @Composable
 fun ClinicCard(name: String) {
     Box(
         modifier = Modifier
             .size(120.dp)
-            .padding(8.dp)
-            .background(Color(0xFFF3F1F5), RoundedCornerShape(16.dp)),
+            .padding(4.dp)
+            .background(Color(0x703E9880), RoundedCornerShape(16.dp)),
         contentAlignment = Alignment.Center
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            // Replace with actual image resource
-            Image(painter = painterResource(id = R.drawable.clinic), contentDescription = null, modifier = Modifier.size(60.dp))
-            Text(text = name, fontSize = 8.sp, textAlign = TextAlign.Center, modifier = Modifier.padding(4.dp))
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxSize() // Column menyesuaikan dengan ukuran Box
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.clinic),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth() // Gambar memenuhi lebar kolom
+                    .weight(1f) // Gambar mengambil ruang yang tersedia dalam kolom
+                    .clip(RoundedCornerShape(16.dp)), // Tambahkan clipping agar sesuai dengan Box
+                contentScale = ContentScale.Crop // Skala gambar
+            )
+            Text(
+                text = name,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(8.dp) // Tambahkan jarak dari gambar ke teks
+            )
         }
     }
 }
@@ -302,8 +364,3 @@ fun ClinicCard(name: String) {
 fun HomeScreenPreview() {
     HomeScreen(username = "User") // Memberikan nilai default "User" untuk preview
 }
-
-
-
-
-

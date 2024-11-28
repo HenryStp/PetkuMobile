@@ -79,7 +79,7 @@ fun PetShopProfileScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = nama.ifEmpty { "Unknown Pet Hotel" },
+            text = nama.ifEmpty { "Unknown Pet Shop" },
             fontSize = 25.sp,
             fontWeight = FontWeight.Bold,
             fontFamily = CustomFontFamily,
@@ -87,13 +87,11 @@ fun PetShopProfileScreen(
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-
-
-
         Card(
             modifier = Modifier.fillMaxWidth(),
             elevation = 3.dp,
             shape = RoundedCornerShape(10.dp)
+
         ) {
             Row(
                 modifier = Modifier.padding(16.dp),
@@ -105,7 +103,7 @@ fun PetShopProfileScreen(
                     modifier = Modifier.size(24.dp),
                     tint = Color(0xFF6A1B9A)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(16.dp))
                 Text(
                     text = alamat,
                     fontSize = 15.sp,
@@ -132,7 +130,7 @@ fun PetShopProfileScreen(
                     modifier = Modifier.size(24.dp),
                     tint = Color(0xFF388E3C)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(16.dp))
                 Text(
                     text = telepon,
                     fontSize = 15.sp,
@@ -160,7 +158,7 @@ fun PetShopProfileScreen(
                     contentScale = ContentScale.Fit // Menjaga proporsi asli gambar
                 )
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(16.dp))
                 Text(
                     text = instagram,
                     fontSize = 15.sp,
@@ -171,7 +169,6 @@ fun PetShopProfileScreen(
         }
 
         Spacer(modifier = Modifier.height(64.dp))
-
 
         Button(
             onClick = {

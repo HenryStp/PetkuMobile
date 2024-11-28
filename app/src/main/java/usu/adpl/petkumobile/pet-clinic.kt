@@ -40,7 +40,7 @@ data class PetClinic(
 @Composable
 fun PetClinicScreen(navController: NavController? = null) {
         val firestore = FirebaseFirestore.getInstance()
-        val petClinicList = remember { mutableStateListOf<PetBoarding>() }
+        val petClinicList = remember { mutableStateListOf<PetClinic>() }
 
         // Fetch data from Firestore
         LaunchedEffect(Unit) {
@@ -55,9 +55,9 @@ fun PetClinicScreen(navController: NavController? = null) {
                         val instagram = document.getString("instagram") ?: ""
                         val link = document.getString("link") ?: ""
 
-                        // Add PetBoarding item with complete data
+                        // Add PetClinic item with complete data
                         petClinicList.add(
-                            PetBoarding(
+                            PetClinic(
                                 nama = name,
                                 alamat = address,
                                 telepon = phone,

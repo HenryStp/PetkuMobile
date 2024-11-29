@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -191,20 +192,27 @@ fun CategoriesSection() {
                 .padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceAround
         ) {
-            CategoryItem(name = "Calendar", iconResId = R.drawable.calendar)
-            CategoryItem(name = "Service", iconResId = R.drawable.service)
-            CategoryItem(name = "Lost Pet", iconResId = R.drawable.lost_pet)
+            CategoryItem(name = "Calendar", iconResId = R.drawable.calendar,destinationActivity = CalendarActivity::class.java)
+            CategoryItem(name = "Service", iconResId = R.drawable.service,destinationActivity = CalendarActivity::class.java)
+            CategoryItem(name = "Lost Pet", iconResId = R.drawable.lost_pet,destinationActivity = CalendarActivity::class.java)
         }
     }
 }
 
 @Composable
-fun CategoryItem(name: String, iconResId: Int) {
+fun CategoryItem(name: String, iconResId: Int,destinationActivity : Class<*>) {
+    val context = LocalContext.current
+
     Row( // Menggunakan Row agar ikon berada di samping teks
         verticalAlignment = Alignment.CenterVertically, // Menyelaraskan ikon dan teks secara vertikal
         modifier = Modifier
             .background(Color(0x703E9880), RoundedCornerShape(36.dp))
-            .padding(10.dp),
+            .padding(10.dp)
+            .clickable {
+                val intent = Intent(context,destinationActivity)
+                intent.putExtra("Category Name",name)
+                context.startActivity(intent)
+            }
     ) {
         // Box untuk latar belakang putih pada ikon
         Box(

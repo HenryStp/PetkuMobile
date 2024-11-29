@@ -31,11 +31,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.text.style.TextAlign
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FormLostPet(modifier: Modifier = Modifier) {
+fun FormLostPet(navController: NavHostController, modifier: Modifier = Modifier) {
     val scrollState = rememberScrollState() // Mengingat status scroll
     val showDialog = remember { mutableStateOf(false) }
 
@@ -53,7 +55,7 @@ fun FormLostPet(modifier: Modifier = Modifier) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
-            IconButton(onClick = { /* Kembali ke halaman sebelumnya */ }) {
+            IconButton(onClick = { navController.popBackStack() }) {
                 Icon(
                     painter = painterResource(id = R.drawable.back_black),
                     contentDescription = "Back",
@@ -158,7 +160,8 @@ fun FormLostPet(modifier: Modifier = Modifier) {
 
         // Submit button
         Button(
-            onClick = { /* Submit form data */ },
+            onClick = { showDialog.value = true // Menampilkan dialog popup
+            },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF4B9B8)),
             shape = RoundedCornerShape(32.dp),
             contentPadding = PaddingValues(0.dp), // Menghilangkan padding default
@@ -208,6 +211,7 @@ fun FormLostPet(modifier: Modifier = Modifier) {
                         // Teks berhasil
                         Text(
                             text = "Successfully Submitted!",
+                            fontFamily = customFontFamily,
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp,
                             textAlign = TextAlign.Center,
@@ -218,6 +222,7 @@ fun FormLostPet(modifier: Modifier = Modifier) {
 
                         Text(
                             text = "Your report has been shared in the Lost Pet Info!",
+                            fontFamily = customFontFamily,
                             fontSize = 14.sp,
                             textAlign = TextAlign.Center,
                             color = Color.Gray
@@ -231,14 +236,15 @@ fun FormLostPet(modifier: Modifier = Modifier) {
                                 // Navigasi ke halaman report
                                 showDialog.value = false // Tutup dialog
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF48FB1))
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF4B9B8))
                         ) {
-                            Text(text = "View Report", color = Color.White)
+                            Text(text = "View Report", fontFamily = customFontFamily, color = Color.White)
                         }
                     }
                 }
             }
         }
+        Spacer(modifier = Modifier.height(32.dp))
     }
 }
 
@@ -313,5 +319,6 @@ fun InputField(modifier: Modifier = Modifier, label: String, isButton: Boolean =
 @Preview(showBackground = true)
 @Composable
 fun PreviewFormLostPet() {
-    FormLostPet(modifier = Modifier.padding(16.dp)) // Gunakan padding default untuk preview
+    val mockNavController = rememberNavController()
+    FormLostPet(navController = mockNavController, modifier = Modifier.padding(16.dp))
 }

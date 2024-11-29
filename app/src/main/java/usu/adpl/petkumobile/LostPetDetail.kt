@@ -22,9 +22,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.*
 import androidx.compose.ui.zIndex
+import androidx.navigation.NavHostController
 
 @Composable
-fun LostPetDetail() {
+fun LostPetDetail(navController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -50,7 +51,7 @@ fun LostPetDetail() {
 
             // Ikon Back di atas gambar
             IconButton(
-                onClick = { /* Kembali ke halaman sebelumnya */ },
+                onClick = { navController.popBackStack() },
                 modifier = Modifier
                     .align(Alignment.TopStart) // Menempatkan ikon di pojok kiri atas
                     .padding(16.dp) // Menambahkan padding dari tepi gambar
@@ -174,6 +175,7 @@ fun LostPetDetail() {
             )
             Spacer(modifier = Modifier.height(16.dp))
         }
+        Spacer(modifier = Modifier.height(32.dp))
     }
 }
 
@@ -181,5 +183,9 @@ fun LostPetDetail() {
 @Composable
 fun PreviewLostPetDetail() {
     LostPetDetail()
+}
+
+fun LostPetDetail() {
+    TODO("Not yet implemented")
 }
 

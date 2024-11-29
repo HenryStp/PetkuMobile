@@ -10,12 +10,7 @@ import androidx.navigation.compose.rememberNavController
 fun AppNavigation() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "home") {
-        composable("home") {
-            HomeScreen(
-                onLostPetClick = { navController.navigate("lostpet2") }
-            )
-        }
+    NavHost(navController = navController, startDestination = "lostpet2") {
         composable("lostpet2") {
             LostPet2(
                 onHomeClick = { /* Tidak perlu navigasi, tetap di halaman yang sama */ },
@@ -31,10 +26,10 @@ fun AppNavigation() {
             )
         }
         composable("formlostpet") {
-            FormLostPet() // Halaman FormLostPet
+            FormLostPet(navController = navController) // Halaman FormLostPet
         }
         composable("lostpetdetail") {
-            LostPetDetail() // Halaman LostPetDetail
+            LostPetDetail(navController = navController) // Halaman LostPetDetail
         }
     }
 }

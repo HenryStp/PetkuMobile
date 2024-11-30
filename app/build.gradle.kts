@@ -42,6 +42,9 @@ android {
 }
 
 dependencies {
+    implementation ("io.coil-kt:coil-compose:2.4.0")
+    implementation (platform("androidx.compose:compose-bom:2024.11.00"))
+
     implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
     implementation("com.google.firebase:firebase-analytics")
     // Firebase BoM

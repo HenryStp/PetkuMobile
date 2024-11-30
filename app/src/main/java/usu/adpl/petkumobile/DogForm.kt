@@ -1,5 +1,6 @@
 package usu.adpl.petkumobile
 
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,13 +25,14 @@ import com.google.firebase.database.DatabaseReference
 fun DogForm(navController: NavController) {
     var selectedButton by rememberSaveable { mutableStateOf("Dog") }
     var selectedAvatar by rememberSaveable { mutableStateOf<Int?>(null) }
-    var name by rememberSaveable { mutableStateOf("") }
-    var breed by rememberSaveable { mutableStateOf("") }
-    var age by rememberSaveable { mutableStateOf("") }
-    var weight by rememberSaveable { mutableStateOf("") }
-    var height by rememberSaveable { mutableStateOf("") }
-    var medicalInfo by rememberSaveable { mutableStateOf("") }
-    var additionalInfo by rememberSaveable { mutableStateOf("") }
+    var name by rememberSaveable { mutableStateOf<String?>(null) }
+    var breed by rememberSaveable { mutableStateOf<String?>(null) }
+    var age by rememberSaveable { mutableStateOf<String?>(null) }
+    var weight by rememberSaveable { mutableStateOf<Int?>(null) }
+    var height by rememberSaveable { mutableStateOf<Int?>(null) }
+    var medicalInfo by rememberSaveable { mutableStateOf<String?>(null) }
+    var additionalInfo by rememberSaveable { mutableStateOf<String?>(null) }
+    var gender by rememberSaveable { mutableStateOf("") } // Menambahkan variabel gender
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     // Menyimpan status dialog
@@ -99,7 +101,7 @@ fun DogForm(navController: NavController) {
                     }
                     item {
                         Spacer(modifier = Modifier.height(10.dp))
-                        GenderSelection()
+                        GenderSelection(gender) { gender = it }
                     }
                     item {
                         Spacer(modifier = Modifier.height(10.dp))
@@ -139,12 +141,17 @@ fun DogForm(navController: NavController) {
                                         name,
                                         breed,
                                         age,
-                                        selectedAvatar
+                                        weight,
+                                        height,
+                                        medicalInfo,
+                                        additionalInfo,
+                                        selectedAvatar,
+                                        gender
                                     )
                                 ) {
                                     errorMessage = null
                                     // Simpan data ke Realtime Database
-                                    saveToDatabase(name, breed, age, weight, height, medicalInfo, additionalInfo, selectedAvatar)
+                                    saveToDatabase(name, breed, age, weight, height, medicalInfo, additionalInfo, selectedAvatar, gender)
                                     // Menampilkan dialog saat form disubmit
                                     showDialog = true
                                 } else {
@@ -300,16 +307,25 @@ fun AvatarSection(selectedAvatar: Int?, onAvatarSelected: (Int) -> Unit) {
     }
 }
 
-fun validateInputs(name: String, breed: String, age: String, selectedAvatar: Int?): Boolean {
-    return name.isNotBlank() && breed.isNotBlank() && age.isNotBlank() && selectedAvatar != null
+fun validateInputs(
+    name: String?,
+    breed: String?,
+    age: String?,
+    weight: Int?,
+    height: Int?,
+    medicalInfo: String?,
+    additionalInfo: String?,
+    selectedAvatar: Int?,
+    gender: String // Menambahkan validasi gender
+): Boolean {
+    return name != null && breed!= null && age!= null && weight != null && height != null &&  medicalInfo!= null && additionalInfo!= null && selectedAvatar != null && gender.isNotBlank()
 }
-
 
 @Composable
 fun CustomTextFieldForDogForm(
     label: String,
-    value: String,
-    onValueChange: (String) -> Unit,
+    value: String?, // Tipe data untuk nilai String?
+    onValueChange: (String?) -> Unit, // Mengirim nilai String? setelah perubahan
     isMultiline: Boolean = false
 ) {
     Column(
@@ -326,14 +342,59 @@ fun CustomTextFieldForDogForm(
         Spacer(modifier = Modifier.height(5.dp))
 
         TextField(
-            value = value,
-            onValueChange = onValueChange,
+            value = value.orEmpty(), // Jika null, akan menggantikan dengan string kosong
+            onValueChange = { newText -> onValueChange(newText) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(if (isMultiline) 100.dp else 50.dp)
-                .clip(RoundedCornerShape(30.dp)) // Membulatkan sudut
-                .background(Color.White) // Warna latar belakang
-                .border(1.dp, Color.Black, RoundedCornerShape(30.dp)), // Garis tepi
+                .clip(RoundedCornerShape(30.dp))
+                .background(Color.White)
+                .border(1.dp, Color.Black, RoundedCornerShape(30.dp)),
+            maxLines = if (isMultiline) 5 else 1,
+            singleLine = !isMultiline,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
+            )
+        )
+    }
+}
+
+// Versi untuk menerima Integer? jika diperlukan
+@Composable
+fun CustomTextFieldForDogForm(
+    label: String,
+    value: Int?, // Menggunakan Int? untuk nilai angka
+    onValueChange: (Int?) -> Unit, // Mengirim nilai Int? setelah perubahan
+    isMultiline: Boolean = false
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+    ) {
+        Text(
+            text = label,
+            fontSize = 14.sp,
+            color = Color.Gray,
+            modifier = Modifier.padding(start = 20.dp)
+        )
+        Spacer(modifier = Modifier.height(5.dp))
+
+        TextField(
+            value = value?.toString().orEmpty(), // Mengonversi Int? menjadi String untuk TextField
+            onValueChange = { newText ->
+                val newValue = newText.toIntOrNull() // Mengonversi input menjadi Int? atau null
+                onValueChange(newValue) // Mengirimkan nilai baru
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(if (isMultiline) 100.dp else 50.dp)
+                .clip(RoundedCornerShape(30.dp))
+                .background(Color.White)
+                .border(1.dp, Color.Black, RoundedCornerShape(30.dp)),
             maxLines = if (isMultiline) 5 else 1,
             singleLine = !isMultiline,
             colors = TextFieldDefaults.colors(
@@ -348,9 +409,10 @@ fun CustomTextFieldForDogForm(
 
 
 @Composable
-fun GenderSelection() {
-    var selectedGender by remember { mutableStateOf<String?>(null) }
-
+fun GenderSelection(
+    selectedGender: String,
+    onGenderSelected: (String) -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -358,7 +420,7 @@ fun GenderSelection() {
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Button(
-            onClick = { selectedGender = "Female" },
+            onClick = { onGenderSelected("Female") },
             shape = RoundedCornerShape(50.dp),
             modifier = Modifier
                 .weight(1f)
@@ -372,7 +434,7 @@ fun GenderSelection() {
         }
 
         Button(
-            onClick = { selectedGender = "Male" },
+            onClick = { onGenderSelected("Male") },
             shape = RoundedCornerShape(50.dp),
             modifier = Modifier
                 .weight(1f)
@@ -388,37 +450,50 @@ fun GenderSelection() {
 }
 
 fun saveToDatabase(
-    name: String, breed: String, age: String, weight: String, height: String,
-    medicalInfo: String, additionalInfo: String, selectedAvatar: Int?
+    name: String?,
+    breed: String?,
+    age: String?,
+    weight: Int?,
+    height: Int?,
+    medicalInfo: String?,
+    additionalInfo: String?,
+    selectedAvatar: Int?,
+    gender: String
 ) {
-    val database: FirebaseDatabase = FirebaseDatabase.getInstance()
-    val reference: DatabaseReference = database.reference
+    val database: DatabaseReference = FirebaseDatabase.getInstance().getReference("pets")
 
-    // Membuat objek yang akan disimpan
-    val petData = PetData(name, breed, age, weight, height, medicalInfo, additionalInfo, selectedAvatar)
+    // Membuat petId unik menggunakan push()
+    val petId = database.push().key
+    if (petId != null) {
+        // Menyiapkan data yang akan disimpan
+        val petData = mapOf(
+            "name" to name,
+            "breed" to breed,
+            "age" to age,
+            "weight" to weight,
+            "height" to height,
+            "medicalInfo" to medicalInfo,
+            "additionalInfo" to additionalInfo,
+            "avatar" to selectedAvatar,
+            "gender" to gender
+        )
 
-    // Menyimpan data ke dalam database
-    reference.child("pets").push().setValue(petData)
-        .addOnSuccessListener {
-            // Data berhasil disimpan
-            println("Data berhasil disimpan!")
-        }
-        .addOnFailureListener { exception ->
-            // Gagal menyimpan data
-            println("Gagal menyimpan data: ${exception.message}")
-        }
+        // Menyimpan data ke path petId yang unik
+        database.child(petId).setValue(petData)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d("Firebase", "Data successfully saved!")
+                } else {
+                    Log.e("Firebase", "Failed to save data", task.exception)
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firebase", "Error saving data", e)
+            }
+    } else {
+        Log.e("Firebase", "Failed to generate petId")
+    }
 }
-
-data class PetData(
-    val name: String,
-    val breed: String,
-    val age: String,
-    val weight: String,
-    val height: String,
-    val medicalInfo: String,
-    val additionalInfo: String,
-    val selectedAvatar: Int?
-)
 
 @Preview
 @Composable

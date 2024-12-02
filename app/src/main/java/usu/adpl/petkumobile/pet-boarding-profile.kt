@@ -22,9 +22,37 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import android.content.Intent
 import android.net.Uri
+import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.navigation.compose.rememberNavController
 
+class PetBoardingProfileActivity : ComponentActivity() {
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // Ambil data yang dikirimkan melalui Intent
+        val nama = intent.getStringExtra("nama") ?: "Unknown"
+        val alamat = intent.getStringExtra("alamat") ?: "Alamat tidak tersedia"
+        val telepon = intent.getStringExtra("telepon") ?: "Telepon tidak tersedia"
+        val instagram = intent.getStringExtra("instagram") ?: "Instagram tidak tersedia"
+        val link = intent.getStringExtra("link") ?: ""
+
+        setContent {
+            val navController = rememberNavController() // NavController untuk navigasi lokal
+            PetBoardingProfileScreen(
+                nama = nama,
+                alamat = alamat,
+                telepon = telepon,
+                instagram = instagram,
+                link = link,
+                navController = navController
+            )
+        }
+    }
+}
 
 @Composable
 fun PetBoardingProfileScreen(

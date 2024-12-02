@@ -72,11 +72,50 @@
         </activity>
 
         <!-- Main Activity -->
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.PetkuMobile">
         </activity>
+        <activity
+            android:name=".PetServiceActivity"
+            android:exported="true"
+            android:theme="@style/Theme.PetkuMobile">
+        </activity>
+        <activity
+            android:name=".PetShopActivity"
+            android:exported="true"
+            android:theme="@style/Theme.PetkuMobile">
+        </activity>
+
+        <activity
+            android:name=".PetClinicActivity"
+            android:exported="true"
+            android:theme="@style/Theme.PetkuMobile">
+        </activity>
+        <activity
+            android:name=".PetBoardingActivity"
+            android:exported="true"
+            android:theme="@style/Theme.PetkuMobile">
+        </activity>
+
+        <activity
+            android:name=".PetClinicProfileActivity"
+            android:exported="true"
+            android:theme="@style/Theme.PetkuMobile">
+        </activity>
+        <activity
+            android:name=".PetShopProfileActivity"
+            android:exported="true"
+            android:theme="@style/Theme.PetkuMobile">
+        </activity>
+        <activity
+            android:name=".PetBoardingProfileActivity"
+            android:exported="true"
+            android:theme="@style/Theme.PetkuMobile">
+        </activity>
+
         <activity android:name=".CalendarActivity" />
     </application>
 

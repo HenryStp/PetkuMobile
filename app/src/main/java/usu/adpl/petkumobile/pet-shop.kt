@@ -27,7 +27,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.foundation.lazy.items
 import android.net.Uri
-
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import android.os.Bundle
+import android.content.Intent
+import androidx.compose.ui.platform.LocalContext
 
 data class PetShop(
     val nama: String = "",
@@ -37,9 +41,17 @@ data class PetShop(
     val link: String = ""
 )
 
-
+class PetShopActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            PetShopScreen()
+        }
+    }
+}
 @Composable
 fun PetShopScreen(navController: NavController? = null) {
+    val context = LocalContext.current
     val firestore = FirebaseFirestore.getInstance()
     val petShopList = remember { mutableStateListOf<PetShop>() }
 
@@ -94,7 +106,6 @@ fun PetShopScreen(navController: NavController? = null) {
                 modifier = Modifier
                     .size(25.dp)
                     .align(Alignment.CenterStart)
-                    .clickable { /* Handle back click */ }
                     .clickable { navController?.popBackStack() }
             )
             Text(
@@ -118,6 +129,14 @@ fun PetShopScreen(navController: NavController? = null) {
                     title = petShop.nama,
                     location = petShop.alamat,
                     onItemClick = {
+                        val intent = Intent(context, PetShopProfileActivity::class.java).apply {
+                            putExtra("nama", petShop.nama)
+                            putExtra("alamat", petShop.alamat)
+                            putExtra("telepon", petShop.telepon)
+                            putExtra("instagram", petShop.instagram)
+                            putExtra("link", petShop.link)
+                        }
+                        context.startActivity(intent)
                         // Navigasi ke halaman detail pet shop
                         navController?.navigate(
                             "pet-shop-profile/${

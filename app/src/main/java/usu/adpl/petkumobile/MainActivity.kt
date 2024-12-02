@@ -21,8 +21,8 @@ class MainActivity : ComponentActivity() {
             MaterialTheme {
                 Surface(color = MaterialTheme.colorScheme.background) {
                     val navController = rememberNavController()
-                    NavHost(navController = navController, startDestination = "service") {
-                        composable("service") {
+                    NavHost(navController = navController, startDestination = "pet-care-service-activity-1") {
+                        composable("pet-care-service-activity-1") {
                             ServiceScreen(navController = navController)
                         }
                         composable("pet-boarding") {

@@ -22,8 +22,39 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import android.content.Intent
 import android.net.Uri
+import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.navigation.compose.rememberNavController
 
+
+class PetClinicProfileActivity : ComponentActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // Ambil data yang dikirimkan melalui Intent
+        val nama = intent.getStringExtra("nama") ?: "Unknown"
+        val alamat = intent.getStringExtra("alamat") ?: "Alamat tidak tersedia"
+        val telepon = intent.getStringExtra("telepon") ?: "Telepon tidak tersedia"
+        val instagram = intent.getStringExtra("instagram") ?: "Instagram tidak tersedia"
+        val link = intent.getStringExtra("link") ?: ""
+
+        setContent {
+            val navController = rememberNavController() // NavController untuk navigasi lokal
+            PetClinicProfileScreen(
+                nama = nama,
+                alamat = alamat,
+                telepon = telepon,
+                instagram = instagram,
+                link = link,
+                navController = navController
+            )
+
+        }
+    }
+}
 
 @Composable
 fun PetClinicProfileScreen(
@@ -62,7 +93,8 @@ fun PetClinicProfileScreen(
             TopAppBar(
                 title = {},
                 navigationIcon = {
-                    IconButton(onClick = {  navController.popBackStack() }) {
+                    IconButton(onClick =
+                    {  navController.popBackStack() }) {
                         Image(
                             painter = painterResource(id = R.drawable.back_white),
                             contentDescription = "Back",

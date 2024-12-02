@@ -21,6 +21,10 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 
 
 val CustomFontFamily = FontFamily(
@@ -30,6 +34,14 @@ val CustomFontFamily = FontFamily(
     Font(R.font.sen_bold, FontWeight.Bold),
     Font(R.font.sen_extrabold, FontWeight.ExtraBold)
 )
+class PetServiceActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            ServiceScreen() // Menampilkan UI dari PetCareService1Screen
+        }
+    }
+}
 
 
 @Composable
@@ -54,7 +66,8 @@ fun ServiceScreen(navController: NavController? = null) {
                 modifier = Modifier
                     .size(25.dp)
                     .align(Alignment.CenterStart)
-                    .clickable { /* Handle back click */ }
+                    .clickable {
+                        navController?.popBackStack() }
             )
 
             Text(

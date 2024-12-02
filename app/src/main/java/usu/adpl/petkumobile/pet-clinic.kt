@@ -1,5 +1,6 @@
 package usu.adpl.petkumobile
 
+import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,6 +28,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.foundation.lazy.items
 import android.net.Uri
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.ui.platform.LocalContext
 
 data class PetClinic(
     val nama: String = "",
@@ -36,9 +41,18 @@ data class PetClinic(
     val link: String = ""
 )
 
+class PetClinicActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            PetClinicScreen()
+        }
+    }
+}
 
 @Composable
 fun PetClinicScreen(navController: NavController? = null) {
+        val context = LocalContext.current
         val firestore = FirebaseFirestore.getInstance()
         val petClinicList = remember { mutableStateListOf<PetClinic>() }
 
@@ -116,6 +130,14 @@ fun PetClinicScreen(navController: NavController? = null) {
                     title = petClinic.nama,
                     location = petClinic.alamat,
                     onItemClick = {
+                        val intent = Intent(context, PetShopProfileActivity::class.java).apply {
+                            putExtra("nama", petClinic.nama)
+                            putExtra("alamat", petClinic.alamat)
+                            putExtra("telepon", petClinic.telepon)
+                            putExtra("instagram", petClinic.instagram)
+                            putExtra("link", petClinic.link)
+                        }
+                        context.startActivity(intent)
                         // Navigasi ke halaman detail pet boarding
                         navController?.navigate(
                             "pet-clinic-profile/${

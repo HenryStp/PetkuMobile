@@ -34,6 +34,13 @@ import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.ktx.toObject
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+
+
+
+
+
 
 
 data class PetShopData(val nama: String = "")
@@ -44,13 +51,39 @@ class HomeActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val username = intent.getStringExtra("username") ?: "Unknown User"
         setContent {
-            HomeScreen(username)
+            HomeScreen(username, navController = rememberNavController())
         }
     }
 }
 
 @Composable
-fun HomeScreen(username: String) {
+fun SectionHeader(title: String, onSeeAllClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            fontSize = 15.sp,
+            fontFamily = CustomFontFamily,
+            fontWeight = FontWeight.Medium
+        )
+        Text(
+            text = "see all",
+            color = Color.Gray,
+            fontSize = 10.sp,
+            fontFamily = CustomFontFamily,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.clickable { onSeeAllClick() } // Tambahkan aksi klik
+        )
+    }
+}
+
+@Composable
+fun HomeScreen(username: String, navController: NavController) {
     val petShops = remember { mutableStateListOf<PetShopData>() }
     val petClinics = remember { mutableStateListOf<PetClinicData>() }
 
@@ -193,7 +226,7 @@ fun CategoriesSection() {
             horizontalArrangement = Arrangement.SpaceAround
         ) {
             CategoryItem(name = "Calendar", iconResId = R.drawable.calendar,destinationActivity = CalendarActivity::class.java)
-            CategoryItem(name = "Service", iconResId = R.drawable.service,destinationActivity = CalendarActivity::class.java)
+            CategoryItem(name = "Service", iconResId = R.drawable.service,destinationActivity = MainActivity::class.java )
             CategoryItem(name = "Lost Pet", iconResId = R.drawable.lost_pet,destinationActivity = CalendarActivity::class.java)
         }
     }
@@ -209,8 +242,7 @@ fun CategoryItem(name: String, iconResId: Int,destinationActivity : Class<*>) {
             .background(Color(0x703E9880), RoundedCornerShape(36.dp))
             .padding(10.dp)
             .clickable {
-                val intent = Intent(context,destinationActivity)
-                intent.putExtra("Category Name",name)
+                val intent = Intent(context, destinationActivity) // Menggunakan parameter destinationActivity
                 context.startActivity(intent)
             }
     ) {
@@ -245,22 +277,48 @@ fun LostPetSection() {
 
 @Composable
 fun PetShopSection(petShops: List<PetShopData>) {
-    SectionHeader(title = "Pet Shop")
+    val context = LocalContext.current // Mendapatkan konteks
+
+    SectionHeader(
+        title = "Pet Shop",
+        onSeeAllClick = {
+            val intent = Intent(context, PetShopActivity::class.java)
+            context.startActivity(intent)
+        }
+    )
     LazyRow {
-        items(petShops.size) { index -> // Pass the size of the list instead of the list itself
-            ShopCard(name = petShops[index].nama) // Use the item at this index
+        items(petShops.size) { index ->
+            ShopCard(name = petShops[index].nama,
+                onClick = {
+                val intent = Intent(context, PetClinicActivity::class.java)
+                context.startActivity(intent)  // Arahkan ke PetClinicActivity
+            })
         }
     }
 }
 
 
+
 @Composable
 fun PetClinicSection(petClinics: List<PetClinicData>) {
-    SectionHeader(title = "Pet Clinic")
+    val context = LocalContext.current // Mendapatkan konteks
+
+    SectionHeader(
+        title = "Pet Clinic",
+        onSeeAllClick = {
+            val intent = Intent(context, PetClinicActivity::class.java)
+            context.startActivity(intent)
+        }
+    )
     LazyRow {
         items(petClinics.size) { index -> // Pass the size of the list instead of the list itself
             val clinic = petClinics[index] // Use the item at this index
-            ClinicCard(name = clinic.nama) // Pass the clinic name to the ClinicCard
+            ClinicCard(name = clinic.nama,
+                onClick = {
+                    val intent = Intent(context, PetClinicActivity::class.java)
+                    context.startActivity(intent)  // Arahkan ke PetClinicActivity
+                }
+            ) // Pass the clinic name to the ClinicCard
         }
     }
 }
@@ -302,12 +360,13 @@ fun PetCard(name: String) {
 }
 
 @Composable
-fun ShopCard(name: String) {
+fun ShopCard(name: String, onClick: () -> Unit ) {
     Box(
         modifier = Modifier
             .size(120.dp)
             .padding(4.dp)
-            .background(Color(0x703E9880), RoundedCornerShape(16.dp)),
+            .background(Color(0x703E9880), RoundedCornerShape(16.dp))
+            .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -336,12 +395,13 @@ fun ShopCard(name: String) {
 
 
 @Composable
-fun ClinicCard(name: String) {
+fun ClinicCard(name: String, onClick: () -> Unit ) {
     Box(
         modifier = Modifier
             .size(120.dp)
             .padding(4.dp)
-            .background(Color(0x703E9880), RoundedCornerShape(16.dp)),
+            .background(Color(0x703E9880), RoundedCornerShape(16.dp))
+            .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -370,5 +430,5 @@ fun ClinicCard(name: String) {
 @Composable
 @Preview(showBackground = true)
 fun HomeScreenPreview() {
-    HomeScreen(username = "User") // Memberikan nilai default "User" untuk preview
+    //HomeScreen(username = "User") // Memberikan nilai default "User" untuk preview
 }

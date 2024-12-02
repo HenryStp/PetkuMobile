@@ -174,6 +174,7 @@ fun AddPetSection() {
     }
 }
 
+@Preview
 @Composable
 fun ReminderSection() {
     Column(
@@ -226,7 +227,7 @@ fun CategoriesSection() {
             horizontalArrangement = Arrangement.SpaceAround
         ) {
             CategoryItem(name = "Calendar", iconResId = R.drawable.calendar,destinationActivity = CalendarActivity::class.java)
-            CategoryItem(name = "Service", iconResId = R.drawable.service,destinationActivity = MainActivity::class.java )
+            CategoryItem(name = "Service", iconResId = R.drawable.service,destinationActivity = ProfilScreen::class.java )
             CategoryItem(name = "Lost Pet", iconResId = R.drawable.lost_pet,destinationActivity = CalendarActivity::class.java)
         }
     }

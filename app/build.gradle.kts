@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-
     id("com.google.gms.google-services")
 
 }
@@ -118,5 +117,10 @@ dependencies {
 
     implementation ("androidx.navigation:navigation-compose:2.7.3")
     implementation ("androidx.appcompat:appcompat:1.6.1")// Use the latest version available
+
+    implementation("com.maxkeppeler.sheets-compose-dialogs:calendar:1.0.2")
+    implementation("com.maxkeppeler.sheets-compose-dialogs:core:1.0.2")
+    implementation("com.maxkeppeler.sheets-compose-dialogs:clock:1.0.2")
+
 
 }

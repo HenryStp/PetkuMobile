@@ -226,4 +226,3 @@ fun ProfileSection(label: String, value: String) {
 fun PreviewProfileLostPet() {
     ProfileLostPet()
 }
-

@@ -2,6 +2,10 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+//    id("com.android.application")
+//    id("org.jetbrains.kotlin.android")
+    id("com.google.gms.google-services")// Untuk Firebase
+
 }
 
 android {
@@ -65,4 +69,17 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(platform("com.google.firebase:firebase-bom:32.2.0")) // Firebase BOM
+    implementation("com.google.firebase:firebase-firestore-ktx") // Firestore KTX
+//    implementation ("com.google.firebase:firebase-database:21.0.0")
+    implementation ("com.google.firebase:firebase-database-ktx")
+    implementation ("com.google.firebase:firebase-firestore-ktx")
+    implementation ("com.google.firebase:firebase-auth-ktx")
+    implementation ("com.google.firebase:firebase-storage-ktx")
+    implementation ("com.github.bumptech.glide:glide:4.15.1")
+    implementation ("com.github.bumptech.glide:compose:1.0.0-alpha.1")
+    implementation ("com.google.accompanist:accompanist-glide:0.24.13-rc")
+    // Or use the newer coil library if preferred
+    implementation ("io.coil-kt:coil-compose:2.0.0")
+    implementation ("androidx.activity:activity-ktx:1.7.0")
 }

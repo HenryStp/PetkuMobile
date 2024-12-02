@@ -33,13 +33,53 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.database.FirebaseDatabase
+import androidx.compose.material3.OutlinedTextField
 
+
+data class LostPet(
+    val petType: String = "",
+    val photo: String = "",
+    val name: String = "",
+    val breed: String = "",
+    val age: String = "",
+    val gender: String = "",
+    val weight: String = "",
+    val height: String = "",
+    val colorAndFeatures: String = "",
+    val lastSeenLocation: String = "",
+    val dateTimeLost: String = "",
+    val additionalInfo: String = "",
+    val ownerName: String = "",
+    val ownerPhone: String = "",
+    val ownerEmail: String = "",
+    val ownerInstagram: String = "",
+    val reward: String = ""
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FormLostPet(navController: NavHostController, modifier: Modifier = Modifier) {
     val scrollState = rememberScrollState() // Mengingat status scroll
     val showDialog = remember { mutableStateOf(false) }
+
+// State untuk setiap input field
+    val nameState = remember { mutableStateOf("") }
+    val breedState = remember { mutableStateOf("") }
+    val ageState = remember { mutableStateOf("") }
+    val weightState = remember { mutableStateOf("") }
+    val heightState = remember { mutableStateOf("") }
+    val colorFeaturesState = remember { mutableStateOf("") }
+    val lastSeenLocationState = remember { mutableStateOf("") }
+    val dateTimeLostState = remember { mutableStateOf("") }
+    val additionalInfoState = remember { mutableStateOf("") }
+    val ownerNameState = remember { mutableStateOf("") }
+    val ownerPhoneState = remember { mutableStateOf("") }
+    val ownerEmailState = remember { mutableStateOf("") }
+    val ownerInstagramState = remember { mutableStateOf("") }
+    val rewardState = remember { mutableStateOf("") }
+    val selectedPetType = remember { mutableStateOf("Cat") }
+    val selectedGender = remember { mutableStateOf("Female") }
 
     Column(
         modifier = Modifier
@@ -82,7 +122,7 @@ fun FormLostPet(navController: NavHostController, modifier: Modifier = Modifier)
             color = Color.Gray,
             modifier = Modifier.padding(start = 15.dp))
         // Pet type (Cat/Dog)
-        val selectedPetType = remember { mutableStateOf("Cat") }
+
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth()
@@ -101,10 +141,18 @@ fun FormLostPet(navController: NavHostController, modifier: Modifier = Modifier)
 
 
         // Input fields for pet details
-        InputField(label = "Photo", isButton = true, modifier = Modifier.fillMaxWidth())
-        InputField(label = "Name", modifier = Modifier.fillMaxWidth())
-        InputField(label = "Breed", modifier = Modifier.fillMaxWidth())
-        InputField(label = "Age", modifier = Modifier.fillMaxWidth())
+        //InputField(label = "Photo", isButton = true, modifier = Modifier.fillMaxWidth())
+        InputField( value = nameState.value,
+            onValueChange = { nameState.value = it },
+            label = "Name", modifier = Modifier.fillMaxWidth())
+        InputField(
+            value = breedState.value,
+            onValueChange = { breedState.value = it },
+            label = "Breed", modifier = Modifier.fillMaxWidth())
+        InputField(
+            value = ageState.value,
+            onValueChange = { ageState.value = it },
+            label = "Age", modifier = Modifier.fillMaxWidth())
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -114,7 +162,7 @@ fun FormLostPet(navController: NavHostController, modifier: Modifier = Modifier)
             color = Color.Gray,
             modifier = Modifier.padding(start = 15.dp))
 
-        val selectedGender = remember { mutableStateOf("Female") }
+
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth()
@@ -132,35 +180,98 @@ fun FormLostPet(navController: NavHostController, modifier: Modifier = Modifier)
         }
 
 
-        InputField(label = "Weight", modifier = Modifier.fillMaxWidth())
-        InputField(label = "Height", modifier = Modifier.fillMaxWidth())
-        InputField(label = "Color & Features", modifier = Modifier.fillMaxWidth())
+        InputField(
+            value = weightState.value,
+            onValueChange = { weightState.value = it },
+            label = "Weight", modifier = Modifier.fillMaxWidth())
+        InputField(
+            value = heightState.value,
+            onValueChange = { heightState.value = it },
+            label = "Height", modifier = Modifier.fillMaxWidth())
+        InputField(
+            value = colorFeaturesState.value,
+            onValueChange = { colorFeaturesState.value = it },
+            label = "Color & Features", modifier = Modifier.fillMaxWidth())
 
         // Input field for Last Seen Location with increased height
-        InputField(label = "Last Seen Location", singleLine = false, modifier = Modifier
-            .fillMaxWidth()
-            .height(120.dp))
-        InputField(label = "Date & Time Lost", modifier = Modifier.fillMaxWidth())
+        InputField(
+            value = lastSeenLocationState.value,
+            onValueChange = { lastSeenLocationState.value = it },
+            label = "Last Seen Location", singleLine = false, modifier = Modifier
+                .fillMaxWidth()
+                .height(120.dp))
+
+        InputField(
+            value = dateTimeLostState.value,
+            onValueChange = { dateTimeLostState.value = it },
+            label = "Date & Time Lost", modifier = Modifier.fillMaxWidth())
+
         // Input field for Additional Information with increased height
-        InputField(label = "Additional Information", singleLine = false, modifier = Modifier
-            .fillMaxWidth()
-            .height(120.dp))
+        InputField(
+            value = additionalInfoState.value,
+            onValueChange = { additionalInfoState.value = it },
+            label = "Additional Information", singleLine = false, modifier = Modifier
+                .fillMaxWidth()
+                .height(120.dp))
 
         Spacer(modifier = Modifier.height(16.dp))
 
         // Owner contact information
-        Text(text = "Owner Contact:",fontFamily = customFontFamily, fontWeight = FontWeight.Bold)
-        InputField(label = "Name", modifier = Modifier.fillMaxWidth())
-        InputField(label = "Phone", modifier = Modifier.fillMaxWidth())
-        InputField(label = "Email", modifier = Modifier.fillMaxWidth())
-        InputField(label = "Instagram", modifier = Modifier.fillMaxWidth())
-        InputField(label = "Reward (Optional)", modifier = Modifier.fillMaxWidth())
+        Text(text = "Owner Contact:", fontFamily = customFontFamily, fontWeight = FontWeight.Bold)
+        InputField(
+            value = ownerNameState.value,
+            onValueChange = { ownerNameState.value = it },
+            label = "Name", modifier = Modifier.fillMaxWidth())
+        InputField(
+            value = ownerPhoneState.value,
+            onValueChange = { ownerPhoneState.value = it },
+            label = "Phone", modifier = Modifier.fillMaxWidth())
+        InputField(
+            value = ownerEmailState.value,
+            onValueChange = { ownerEmailState.value = it },
+            label = "Email", modifier = Modifier.fillMaxWidth())
+        InputField(
+            value = ownerInstagramState.value,
+            onValueChange = { ownerInstagramState.value = it },
+            label = "Instagram", modifier = Modifier.fillMaxWidth())
+        InputField(
+            value = rewardState.value,
+            onValueChange = { rewardState.value = it },
+            label = "Reward (Optional)", modifier = Modifier.fillMaxWidth())
+
 
         Spacer(modifier = Modifier.height(16.dp))
 
         // Submit button
         Button(
-            onClick = { showDialog.value = true // Menampilkan dialog popup
+            onClick = {
+                // Kumpulkan data dari input
+                val lostPet = LostPet(
+                    petType = selectedPetType.value,
+                    photo = "Photo URL if available", // Implementasikan upload foto
+                    name = nameState.value, // Menggunakan nilai langsung karena state sekarang adalah String
+                    breed = breedState.value,
+                    age = ageState.value,
+                    gender = selectedGender.value,
+                    weight = weightState.value,
+                    height = heightState.value,
+                    colorAndFeatures = colorFeaturesState.value,
+                    lastSeenLocation = lastSeenLocationState.value,
+                    dateTimeLost = dateTimeLostState.value,
+                    additionalInfo = additionalInfoState.value,
+                    ownerName = ownerNameState.value,
+                    ownerPhone = ownerPhoneState.value,
+                    ownerEmail = ownerEmailState.value,
+                    ownerInstagram = ownerInstagramState.value,
+                    reward = rewardState.value
+                )
+
+
+                // Simpan data ke Firebase
+                submitLostPetData(lostPet)
+
+                // Tampilkan dialog sukses
+                showDialog.value = true
             },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF4B9B8)),
             shape = RoundedCornerShape(32.dp),
@@ -247,7 +358,21 @@ fun FormLostPet(navController: NavHostController, modifier: Modifier = Modifier)
         Spacer(modifier = Modifier.height(32.dp))
     }
 }
+fun submitLostPetData(lostPet: LostPet) {
+    val database = FirebaseDatabase.getInstance()
+    val reference = database.getReference("lostPets")
 
+    // Push data ke database
+    reference.push().setValue(lostPet)
+        .addOnSuccessListener {
+            // Data berhasil disimpan
+            println("Data berhasil disimpan ke Firebase")
+        }
+        .addOnFailureListener {
+            // Gagal menyimpan data
+            println("Gagal menyimpan data ke Firebase: ${it.message}")
+        }
+}
 
 @Composable
 fun ChoiceButton(
@@ -274,8 +399,14 @@ fun ChoiceButton(
 
 
 @Composable
-fun InputField(modifier: Modifier = Modifier, label: String, isButton: Boolean = false, singleLine: Boolean = true) {
-    val textState = remember { mutableStateOf(TextFieldValue()) }
+fun InputField(
+    value: String, // Menambahkan value sebagai parameter
+    onValueChange: (String) -> Unit, // Menambahkan onValueChange untuk update state
+    modifier: Modifier = Modifier,
+    label: String,
+    isButton: Boolean = false,
+    singleLine: Boolean = true
+){
 
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
         // Padding kiri untuk teks label
@@ -297,8 +428,8 @@ fun InputField(modifier: Modifier = Modifier, label: String, isButton: Boolean =
             }
         } else {
             OutlinedTextField(
-                value = textState.value,
-                onValueChange = { textState.value = it },
+                value = value,
+                onValueChange = onValueChange,
                 modifier = modifier
                     .background(Color.Transparent),
                 singleLine = singleLine,

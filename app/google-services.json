@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "268229420443",
+    "firebase_url": "https://petku-ce2a7-default-rtdb.firebaseio.com",
+    "project_id": "petku-ce2a7",
+    "storage_bucket": "petku-ce2a7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:268229420443:android:01da9c996f4f5135cb6d3e",
+        "android_client_info": {
+          "package_name": "usu.adpl.petkumobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTOGSjHiHT7hSysRbZbKu2KM8pNK27_Nk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

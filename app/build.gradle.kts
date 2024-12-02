@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 
     id("com.google.gms.google-services")
+
 }
 
 android {
@@ -42,12 +43,44 @@ android {
 }
 
 dependencies {
+    implementation ("io.coil-kt:coil-compose:2.4.0")
+    implementation (platform("androidx.compose:compose-bom:2024.11.00"))
+
+    implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    // Firebase BoM
+    //implementation(platform(libs.androidx.compose.bom))
+    //implementation(platform(libs.firebase.bom))
+
+    // Firebase dependencies
+    implementation(libs.firebase.database.ktx)
+    implementation(libs.firebase.auth.ktx)
+
+    // Dependencies untuk Jetpack Compose
+    implementation (libs.androidx.compose.ui)
+    implementation (libs.androidx.compose.material3)
+    implementation (libs.androidx.compose.ui.tooling.preview)
+    implementation (libs.androidx.compose.runtime)
+    implementation (libs.androidx.compose.foundation)
+    implementation (libs.androidx.compose.material)
+    implementation (libs.androidx.activity.compose)
+    implementation (libs.kotlin.stdlib)
+
+    // AndroidX dependencies
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+
+    // Dependencies untuk Navigation di Jetpack Compose
+    implementation(libs.androidx.navigation.compose)
+
+    // AndroidX dependencies
+    implementation(libs.androidx.lifecycle.runtime.ktx)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.ui)
+//    implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)

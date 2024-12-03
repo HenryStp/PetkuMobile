@@ -36,23 +36,45 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import android.util.Log
+import android.widget.Toast
 
+data class PetShopData(
+    val nama: String = "",
+    val alamat: String = "",
+    val telepon: String = "",
+    val instagram: String = "",
+    val link: String = "")
+data class PetClinicData(
+    val nama: String = "",
+    val alamat: String = "",
+    val telepon: String = "",
+    val instagram: String = "",
+    val link: String = ""
+)
 
-
-
-
-
-
-data class PetShopData(val nama: String = "")
-data class PetClinicData(val nama: String = "")
 
 class HomeActivity : ComponentActivity() {
+
+    private var backPressedTime: Long = 0 // Waktu saat tombol back pertama kali ditekan
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val username = intent.getStringExtra("username") ?: "Unknown User"
         setContent {
             HomeScreen(username, navController = rememberNavController())
         }
+    }
+    override fun onBackPressed() {
+        // Cek apakah tombol back sudah ditekan dua kali dalam waktu 2 detik
+        if (backPressedTime + 2000 > System.currentTimeMillis()) {
+            super.onBackPressed()  // Panggil super untuk menyelesaikan proses default
+            finishAffinity() // Menutup aplikasi dan semua activity        } else {
+        } else {
+            // Jika belum, tampilkan toast untuk memberi tahu pengguna untuk menekan sekali lagi untuk keluar
+            Toast.makeText(this, "Press back again to exit", Toast.LENGTH_SHORT).show()
+        }
+        backPressedTime = System.currentTimeMillis() // Simpan waktu saat tombol back pertama kali ditekan
     }
 }
 
@@ -227,7 +249,7 @@ fun CategoriesSection() {
             horizontalArrangement = Arrangement.SpaceAround
         ) {
             CategoryItem(name = "Calendar", iconResId = R.drawable.calendar,destinationActivity = CalendarActivity::class.java)
-            CategoryItem(name = "Service", iconResId = R.drawable.service,destinationActivity = ProfilScreen::class.java )
+            CategoryItem(name = "Service", iconResId = R.drawable.service,destinationActivity = PetServiceActivity::class.java )
             CategoryItem(name = "Lost Pet", iconResId = R.drawable.lost_pet,destinationActivity = CalendarActivity::class.java)
         }
     }
@@ -288,12 +310,23 @@ fun PetShopSection(petShops: List<PetShopData>) {
         }
     )
     LazyRow {
-        items(petShops.size) { index ->
-            ShopCard(name = petShops[index].nama,
+        items(petShops.take(5).size) { index ->
+            val shop = petShops[index]
+
+            ShopCard(
+                name = shop.nama,
                 onClick = {
-                val intent = Intent(context, PetClinicActivity::class.java)
-                context.startActivity(intent)  // Arahkan ke PetClinicActivity
-            })
+                    /*Log.d("PetShopSection", "Navigating to PetShopProfileActivity for: ${shop.nama}")*/
+                    val intent = Intent(context, PetShopProfileActivity::class.java)
+
+                    intent.putExtra("nama", shop.nama)
+                    intent.putExtra("alamat", shop.alamat)
+                    intent.putExtra("telepon", shop.telepon)
+                    intent.putExtra("instagram", shop.instagram)
+                    intent.putExtra("link", shop.link)
+                    context.startActivity(intent)
+                }
+            )
         }
     }
 }
@@ -312,13 +345,23 @@ fun PetClinicSection(petClinics: List<PetClinicData>) {
         }
     )
     LazyRow {
-        items(petClinics.size) { index -> // Pass the size of the list instead of the list itself
+        items(petClinics.take(5).size) { index -> // Pass the size of the list instead of the list itself
             val clinic = petClinics[index] // Use the item at this index
-            ClinicCard(name = clinic.nama,
+            ClinicCard(
+                name = clinic.nama,
                 onClick = {
-                    val intent = Intent(context, PetClinicActivity::class.java)
-                    context.startActivity(intent)  // Arahkan ke PetClinicActivity
+                    val intent = Intent(context, PetClinicProfileActivity::class.java)
+                    // Mengirimkan lebih banyak data melalui Intent
+                    intent.putExtra("nama", clinic.nama)
+                    intent.putExtra("alamat", clinic.alamat)
+                    intent.putExtra("telepon", clinic.telepon)
+                    intent.putExtra("instagram", clinic.instagram)
+                    intent.putExtra("link", clinic.link)
+
+                    context.startActivity(intent)
                 }
+
+
             ) // Pass the clinic name to the ClinicCard
         }
     }

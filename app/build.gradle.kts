@@ -84,7 +84,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
-   
+
 
     implementation ("androidx.compose.material:material-icons-core:1.3.1")
     implementation ("androidx.compose.material:material-icons-extended:1.3.1")
@@ -92,7 +92,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation ("com.google.firebase:firebase-bom:32.1.0")
     implementation ("com.google.firebase:firebase-firestore:25.1.1")
-    
+
     implementation(libs.firebase.auth)
     implementation ("com.google.firebase:firebase-auth:23.1.0")
     implementation(libs.firebase.database.ktx)

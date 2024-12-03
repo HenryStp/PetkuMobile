@@ -33,6 +33,9 @@ import com.maxkeppeler.sheets.clock.ClockDialog
 import com.maxkeppeler.sheets.clock.models.ClockConfig
 import com.maxkeppeler.sheets.clock.models.ClockSelection
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
+import java.util.Locale
 
 class CalendarActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,6 +54,12 @@ data class Schedule(
     val date: String = "",
     val time: String = ""
 )
+
+fun getDayName(dateString: String): String {
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    val date = LocalDate.parse(dateString, formatter)
+    return date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()) // Contoh: "Wed"
+}
 
 fun savedDataSchedule(
     schedule: Schedule,
@@ -127,7 +136,7 @@ fun ScheduleView() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 10.dp, top = 10.dp, bottom = 15.dp),
-            ) {
+        ) {
             Image(
                 modifier = Modifier
                     .size(30.dp)
@@ -259,21 +268,28 @@ fun ScheduleView() {
         Spacer(modifier = Modifier.weight(1f)) // Agar agenda mingguan berada di bagian bawah
         WeeklySchedule() // Tambahkan tampilan agenda mingguan di sini
     }
+    SnackbarHost(hostState = snackbarHostState)
 }
 
-@Composable
-fun WeeklySchedule() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .background(Color.White)
-    ) {
-        ScheduleItem(day = "Wed", date = "2", title = "Training Session", subtitle = "Let's learn something new!", backgroundColor = Color(0xFFD3EED8))
-        ScheduleItem(day = "Sat", date = "5", title = "Walk Time", subtitle = "Let's get moving!", backgroundColor = Color(0xFFF9E0D8))
-        ScheduleItem(day = "Sun", date = "6", title = "Teeth Cleaning", subtitle = "Keep that smile Bright!", backgroundColor = Color(0xFFF6D8DA))
+fun fetchSchedulesFromFirebase(
+    onSuccess: (List<Schedule>) -> Unit,
+    onFailure: (Exception) -> Unit
+) {
+    val database = FirebaseDatabase.getInstance()
+    val scheduleRef = database.getReference("schedule")
+
+    scheduleRef.get().addOnSuccessListener { dataSnapshot ->
+        val schedules = mutableListOf<Schedule>()
+        dataSnapshot.children.forEach { snapshot ->
+            val schedule = snapshot.getValue(Schedule::class.java)
+            if (schedule != null) {
+                schedules.add(schedule)
+            }
+        }
+        onSuccess(schedules)
+    }.addOnFailureListener { exception ->
+        onFailure(exception)
     }
-    SnackbarHost(hostState = snackbarHostState)
 }
 
 @Composable
@@ -306,8 +322,52 @@ fun ScheduleItem(
     }
 }
 
-@Preview(showBackground = true)
+
 @Composable
-fun PreviewScheduleView() {
-    ScheduleView()
+fun WeeklySchedule() {
+    var schedules by remember { mutableStateOf<List<Schedule>>(emptyList()) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        fetchSchedulesFromFirebase(
+            onSuccess = { fetchedSchedules ->
+                schedules = fetchedSchedules
+            },
+            onFailure = { exception ->
+                errorMessage = exception.message
+            }
+        )
+    }
+
+    if (errorMessage != null) {
+        Text(
+            text = "Error: $errorMessage",
+            color = Color.Red,
+            modifier = Modifier.padding(16.dp)
+        )
+    } else if (schedules.isEmpty()) {
+        Text(
+            text = "No schedules available",
+            modifier = Modifier.padding(16.dp),
+            color = Color.Gray
+        )
+    } else {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .background(Color.White)
+        ) {
+            schedules.forEach { schedule ->
+                ScheduleItem(
+                    day = getDayName(schedule.date),
+                    date = schedule.date.split("-").last(),
+                    title = schedule.title,
+                    subtitle = schedule.notes,
+                    backgroundColor = Color(0xFFD3EED8)
+                )
+
+            }
+        }
+    }
 }

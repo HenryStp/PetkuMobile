@@ -19,6 +19,9 @@
       <SelectionState runConfigName="AndroidStudioProjects.PetkuMobile.app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+      <SelectionState runConfigName="LENOVO.AndroidStudioProjects.PetkuMobile.app">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>

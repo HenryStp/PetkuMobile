@@ -22,6 +22,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+
+import com.google.firebase.database.FirebaseDatabase
 import com.maxkeppeker.sheets.core.models.base.rememberSheetState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
 import com.maxkeppeler.sheets.calendar.models.CalendarConfig
@@ -41,14 +43,54 @@ class CalendarActivity : ComponentActivity() {
     }
 }
 
+
+data class Schedule(
+    val id: String? = null,
+    val title: String = "",
+    val notes: String = "",
+    val date: String = "",
+    val time: String = ""
+)
+
+fun savedDataSchedule(
+    schedule: Schedule,
+    onSucces : () -> Unit,
+    onFailure : (Exception) -> Unit
+){
+    val database = FirebaseDatabase.getInstance()
+    val scheduleRef = database.getReference("schedule")
+
+    val scheduleId = scheduleRef.push().key ?: return
+
+    scheduleRef.child(scheduleId).setValue(schedule)
+        .addOnSuccessListener {
+            onSucces()
+        }
+        .addOnFailureListener{ exception ->
+            onFailure(exception)
+        }
+}
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleView() {
     var title by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
+    var selectedDate by remember { mutableStateOf("") }
+    var selectedTime by remember { mutableStateOf("") }
+    var message by remember { mutableStateOf("") }
+
     val calendarState = rememberSheetState()
     val clockState = rememberSheetState()
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(message) {
+        if (message.isNotEmpty()) {
+            snackbarHostState.showSnackbar(message)
+        }
+    }
 
     CalendarDialog(
         state = calendarState,
@@ -58,16 +100,20 @@ fun ScheduleView() {
             style = CalendarStyle.MONTH,
             disabledDates = listOf(LocalDate.now().minusDays(3))
         ),
-        selection = CalendarSelection.Date { date ->
-            Log.d("Selected Date", "$date")
-        }
-    )
+
+        selection =CalendarSelection.Date{date ->
+            selectedDate = date.toString()
+
+        } )
+
 
     ClockDialog(
         state = clockState,
         config = ClockConfig(is24HourFormat = false),
-        selection = ClockSelection.HoursMinutes { hours, minutes ->
-            Log.d("Selected Time", "$hours:$minutes")
+        selection = ClockSelection.HoursMinutes {hours,minutes ->
+            selectedTime = "$hours:$minutes"
+
+
         }
     )
 
@@ -81,7 +127,7 @@ fun ScheduleView() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 10.dp, top = 10.dp, bottom = 15.dp),
-        ) {
+            ) {
             Image(
                 modifier = Modifier
                     .size(30.dp)
@@ -89,6 +135,7 @@ fun ScheduleView() {
                         val intent = Intent(context, HomeActivity::class.java)
                         context.startActivity(intent)
                     },
+
                 painter = painterResource(id = R.drawable.back_black),
                 contentDescription = "Back Image",
             )
@@ -179,7 +226,29 @@ fun ScheduleView() {
                 contentAlignment = Alignment.Center
             ) {
                 Button(
-                    onClick = { /* Aksi tombol */ },
+
+                    onClick = {
+                        val schedule = Schedule(
+                            title = title,
+                            notes = notes,
+                            date = selectedDate,
+                            time = selectedTime
+
+                        )
+                        savedDataSchedule(schedule,
+                            onSucces = {
+                                message = "Schedule Create Succesfully !"
+
+                                title = ""
+                                notes = ""
+                                selectedDate = ""
+                                selectedTime = ""
+                            },
+                            onFailure = { exception ->
+                                message = "Error: ${exception.message}"
+                            })
+                    },
+
                     modifier = Modifier
                 ) {
                     Text(text = "Create New Schedule")
@@ -204,6 +273,7 @@ fun WeeklySchedule() {
         ScheduleItem(day = "Sat", date = "5", title = "Walk Time", subtitle = "Let's get moving!", backgroundColor = Color(0xFFF9E0D8))
         ScheduleItem(day = "Sun", date = "6", title = "Teeth Cleaning", subtitle = "Keep that smile Bright!", backgroundColor = Color(0xFFF6D8DA))
     }
+    SnackbarHost(hostState = snackbarHostState)
 }
 
 @Composable

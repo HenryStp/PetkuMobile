@@ -259,6 +259,7 @@ fun ScheduleView() {
         Spacer(modifier = Modifier.weight(1f)) // Agar agenda mingguan berada di bagian bawah
         WeeklySchedule() // Tambahkan tampilan agenda mingguan di sini
     }
+    SnackbarHost(hostState = snackbarHostState)
 }
 
 @Composable
@@ -273,7 +274,6 @@ fun WeeklySchedule() {
         ScheduleItem(day = "Sat", date = "5", title = "Walk Time", subtitle = "Let's get moving!", backgroundColor = Color(0xFFF9E0D8))
         ScheduleItem(day = "Sun", date = "6", title = "Teeth Cleaning", subtitle = "Keep that smile Bright!", backgroundColor = Color(0xFFF6D8DA))
     }
-    SnackbarHost(hostState = snackbarHostState)
 }
 
 @Composable

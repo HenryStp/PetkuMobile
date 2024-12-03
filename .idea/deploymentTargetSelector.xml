@@ -13,6 +13,9 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
+      <SelectionState runConfigName="HomeScreenPreview">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
       <SelectionState runConfigName="AndroidStudioProjects.PetkuMobile.app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>

@@ -9,27 +9,9 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -89,8 +71,8 @@ fun savedDataSchedule(
         }
 }
 
+
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Composable
 fun ScheduleView() {
     var title by remember { mutableStateOf("") }
@@ -118,10 +100,12 @@ fun ScheduleView() {
             style = CalendarStyle.MONTH,
             disabledDates = listOf(LocalDate.now().minusDays(3))
         ),
+
         selection =CalendarSelection.Date{date ->
             selectedDate = date.toString()
 
         } )
+
 
     ClockDialog(
         state = clockState,
@@ -129,13 +113,15 @@ fun ScheduleView() {
         selection = ClockSelection.HoursMinutes {hours,minutes ->
             selectedTime = "$hours:$minutes"
 
+
         }
     )
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(5.dp)
-        .background(color = Color.White)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(5.dp)
+            .background(color = Color.White)
     ) {
         Row(
             modifier = Modifier
@@ -146,14 +132,13 @@ fun ScheduleView() {
                 modifier = Modifier
                     .size(30.dp)
                     .clickable {
-                        val intent = Intent(context,HomeActivity::class.java)
+                        val intent = Intent(context, HomeActivity::class.java)
                         context.startActivity(intent)
                     },
 
                 painter = painterResource(id = R.drawable.back_black),
                 contentDescription = "Back Image",
-
-                )
+            )
 
             Text(
                 modifier = Modifier
@@ -162,7 +147,6 @@ fun ScheduleView() {
                 text = "Calendar",
                 fontSize = 30.sp,
                 textAlign = TextAlign.Center
-
             )
         }
 
@@ -178,8 +162,6 @@ fun ScheduleView() {
                     .padding(start = 16.dp, top = 16.dp, bottom = 5.dp),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
-
-
             )
             Text(
                 text = "Whiskers's Day!",
@@ -194,40 +176,47 @@ fun ScheduleView() {
                 modifier = Modifier
                     .padding(start = 16.dp, top = 16.dp, bottom = 5.dp),
             )
-            OutlinedTextField(modifier = Modifier
-                .padding(start = 16.dp, bottom = 15.dp, end = 16.dp)
-                .fillMaxWidth(),
-                value = title ,
+            OutlinedTextField(
+                modifier = Modifier
+                    .padding(start = 16.dp, bottom = 15.dp, end = 16.dp)
+                    .fillMaxWidth(),
+                value = title,
                 onValueChange = { newTitle ->
                     title = newTitle
-                })
+                }
+            )
 
             Text(
                 text = "Notes",
                 modifier = Modifier
                     .padding(start = 16.dp, top = 16.dp, bottom = 5.dp),
             )
-            OutlinedTextField(modifier = Modifier
-                .padding(start = 16.dp, bottom = 15.dp, end = 16.dp)
-                .fillMaxWidth(),
-                value = notes ,
+            OutlinedTextField(
+                modifier = Modifier
+                    .padding(start = 16.dp, bottom = 15.dp, end = 16.dp)
+                    .fillMaxWidth(),
+                value = notes,
                 onValueChange = { newNotes ->
                     notes = newNotes
-                })
+                }
+            )
 
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 30.dp)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 30.dp)
             ) {
-                OutlinedButton(modifier = Modifier
-                    .padding(start = 25.dp, end = 30.dp),
+                OutlinedButton(
+                    modifier = Modifier
+                        .padding(start = 25.dp, end = 30.dp),
                     onClick = {
                         calendarState.show()
-                    }) { Text(text = "Date Picker") }
+                    }
+                ) { Text(text = "Date Picker") }
 
                 OutlinedButton(onClick = {
                     clockState.show()
-                }) { Text(text = "Time Picker", maxLines = 1)}
+                }) { Text(text = "Time Picker", maxLines = 1) }
             }
 
             Box(
@@ -267,8 +256,58 @@ fun ScheduleView() {
             }
         }
 
+        Spacer(modifier = Modifier.weight(1f)) // Agar agenda mingguan berada di bagian bawah
+        WeeklySchedule() // Tambahkan tampilan agenda mingguan di sini
     }
+}
 
+@Composable
+fun WeeklySchedule() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .background(Color.White)
+    ) {
+        ScheduleItem(day = "Wed", date = "2", title = "Training Session", subtitle = "Let's learn something new!", backgroundColor = Color(0xFFD3EED8))
+        ScheduleItem(day = "Sat", date = "5", title = "Walk Time", subtitle = "Let's get moving!", backgroundColor = Color(0xFFF9E0D8))
+        ScheduleItem(day = "Sun", date = "6", title = "Teeth Cleaning", subtitle = "Keep that smile Bright!", backgroundColor = Color(0xFFF6D8DA))
+    }
     SnackbarHost(hostState = snackbarHostState)
+}
 
+@Composable
+fun ScheduleItem(
+    day: String,
+    date: String,
+    title: String,
+    subtitle: String,
+    backgroundColor: Color
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .background(backgroundColor)
+            .padding(16.dp)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(end = 16.dp)
+        ) {
+            Text(text = day, fontWeight = FontWeight.Bold, fontSize = 20.sp, color = Color.Black)
+            Text(text = date, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color.Black)
+        }
+
+        Column {
+            Text(text = title, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
+            Text(text = subtitle, fontSize = 14.sp, color = Color.DarkGray)
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewScheduleView() {
+    ScheduleView()
 }

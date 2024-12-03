@@ -32,6 +32,7 @@ import androidx.activity.compose.setContent
 import android.os.Bundle
 import android.content.Intent
 import androidx.compose.ui.platform.LocalContext
+import android.app.Activity
 
 data class PetShop(
     val nama: String = "",
@@ -106,7 +107,7 @@ fun PetShopScreen(navController: NavController? = null) {
                 modifier = Modifier
                     .size(25.dp)
                     .align(Alignment.CenterStart)
-                    .clickable { navController?.popBackStack() }
+                    .clickable { (context as? Activity)?.finish()   }
             )
             Text(
                 text = "Pet Shop",
@@ -137,7 +138,7 @@ fun PetShopScreen(navController: NavController? = null) {
                             putExtra("link", petShop.link)
                         }
                         context.startActivity(intent)
-                        // Navigasi ke halaman detail pet shop
+                        /*// Navigasi ke halaman detail pet shop
                         navController?.navigate(
                             "pet-shop-profile/${
                                 Uri.encode(petShop.nama)
@@ -152,6 +153,10 @@ fun PetShopScreen(navController: NavController? = null) {
                             }"
 
                         )
+
+                        {
+
+                        }*/
                     }
                 )
             }
@@ -180,7 +185,7 @@ fun PetShopItem(
         // Gambar tetap ditampilkan
         Image(
             painter = painterResource(id = imageId),
-            contentDescription = "Pet Boarding Image",
+            contentDescription = "Pet Shop Image",
             modifier = Modifier
                 .clip(RoundedCornerShape(20.dp))
         )

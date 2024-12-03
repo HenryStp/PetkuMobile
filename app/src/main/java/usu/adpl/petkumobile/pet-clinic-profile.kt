@@ -27,7 +27,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.navigation.compose.rememberNavController
-
+import android.app.Activity
 
 class PetClinicProfileActivity : ComponentActivity() {
 
@@ -82,7 +82,7 @@ fun PetClinicProfileScreen(
         ) {
             Image(
                 painter = painterResource(id = R.drawable.gambar_pet_clinic),
-                contentDescription = "Pet Care Profile",
+                contentDescription = "Pet Clinic Profile",
                 modifier = Modifier
                     .fillMaxSize()
                     .shadow(5.dp, RoundedCornerShape(16.dp))
@@ -94,7 +94,7 @@ fun PetClinicProfileScreen(
                 title = {},
                 navigationIcon = {
                     IconButton(onClick =
-                    {  navController.popBackStack() }) {
+                    { (context as? Activity)?.finish()  }) {
                         Image(
                             painter = painterResource(id = R.drawable.back_white),
                             contentDescription = "Back",
@@ -110,7 +110,7 @@ fun PetClinicProfileScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = nama.ifEmpty { "Unknown Pet Hotel" },
+            text = nama.ifEmpty { "Unknown Pet Clinic" },
             fontSize = 25.sp,
             fontWeight = FontWeight.Bold,
             fontFamily = CustomFontFamily,

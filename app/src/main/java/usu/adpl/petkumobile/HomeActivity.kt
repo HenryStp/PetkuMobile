@@ -36,15 +36,22 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import android.util.Log
 
+data class PetShopData(
+    val nama: String = "",
+    val alamat: String = "",
+    val telepon: String = "",
+    val instagram: String = "",
+    val link: String = "")
+data class PetClinicData(
+    val nama: String = "",
+    val alamat: String = "",
+    val telepon: String = "",
+    val instagram: String = "",
+    val link: String = ""
+)
 
-
-
-
-
-
-data class PetShopData(val nama: String = "")
-data class PetClinicData(val nama: String = "")
 
 class HomeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -227,7 +234,7 @@ fun CategoriesSection() {
             horizontalArrangement = Arrangement.SpaceAround
         ) {
             CategoryItem(name = "Calendar", iconResId = R.drawable.calendar,destinationActivity = CalendarActivity::class.java)
-            CategoryItem(name = "Service", iconResId = R.drawable.service,destinationActivity = ProfilScreen::class.java )
+            CategoryItem(name = "Service", iconResId = R.drawable.service,destinationActivity = MainActivity::class.java )
             CategoryItem(name = "Lost Pet", iconResId = R.drawable.lost_pet,destinationActivity = CalendarActivity::class.java)
         }
     }
@@ -288,12 +295,23 @@ fun PetShopSection(petShops: List<PetShopData>) {
         }
     )
     LazyRow {
-        items(petShops.size) { index ->
-            ShopCard(name = petShops[index].nama,
+        items(petShops.take(5).size) { index ->
+            val shop = petShops[index]
+
+            ShopCard(
+                name = shop.nama,
                 onClick = {
-                val intent = Intent(context, PetClinicActivity::class.java)
-                context.startActivity(intent)  // Arahkan ke PetClinicActivity
-            })
+                    /*Log.d("PetShopSection", "Navigating to PetShopProfileActivity for: ${shop.nama}")*/
+                    val intent = Intent(context, PetShopProfileActivity::class.java)
+
+                        intent.putExtra("nama", shop.nama)
+                        intent.putExtra("alamat", shop.alamat)
+                        intent.putExtra("telepon", shop.telepon)
+                        intent.putExtra("instagram", shop.instagram)
+                        intent.putExtra("link", shop.link)
+                    context.startActivity(intent)
+                }
+            )
         }
     }
 }
@@ -312,13 +330,23 @@ fun PetClinicSection(petClinics: List<PetClinicData>) {
         }
     )
     LazyRow {
-        items(petClinics.size) { index -> // Pass the size of the list instead of the list itself
+        items(petClinics.take(5).size) { index -> // Pass the size of the list instead of the list itself
             val clinic = petClinics[index] // Use the item at this index
-            ClinicCard(name = clinic.nama,
+            ClinicCard(
+                name = clinic.nama,
                 onClick = {
-                    val intent = Intent(context, PetClinicActivity::class.java)
-                    context.startActivity(intent)  // Arahkan ke PetClinicActivity
+                    val intent = Intent(context, PetClinicProfileActivity::class.java)
+                    // Mengirimkan lebih banyak data melalui Intent
+                    intent.putExtra("nama", clinic.nama)
+                    intent.putExtra("alamat", clinic.alamat)
+                    intent.putExtra("telepon", clinic.telepon)
+                    intent.putExtra("instagram", clinic.instagram)
+                    intent.putExtra("link", clinic.link)
+
+                    context.startActivity(intent)
                 }
+
+
             ) // Pass the clinic name to the ClinicCard
         }
     }

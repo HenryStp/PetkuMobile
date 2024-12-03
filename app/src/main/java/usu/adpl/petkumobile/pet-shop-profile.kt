@@ -27,11 +27,13 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.navigation.compose.rememberNavController
+import android.app.Activity
 
 class PetShopProfileActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
 
         // Ambil data yang dikirimkan melalui Intent
         val nama = intent.getStringExtra("nama") ?: "Unknown"
@@ -80,7 +82,7 @@ fun PetShopProfileScreen(
         ) {
             Image(
                 painter = painterResource(id = R.drawable.gambar_pet_shop),
-                contentDescription = "Pet Care Profile",
+                contentDescription = "Pet Shop Profile",
                 modifier = Modifier
                     .fillMaxSize()
                     .shadow(5.dp, RoundedCornerShape(16.dp))
@@ -91,7 +93,7 @@ fun PetShopProfileScreen(
             TopAppBar(
                 title = {},
                 navigationIcon = {
-                    IconButton(onClick = {  navController.popBackStack() }) {
+                    IconButton(onClick = { (context as? Activity)?.finish()  }) {
                         Image(
                             painter = painterResource(id = R.drawable.back_white),
                             contentDescription = "Back",

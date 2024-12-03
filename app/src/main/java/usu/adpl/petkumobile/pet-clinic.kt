@@ -32,6 +32,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.ui.platform.LocalContext
+import android.app.Activity
 
 data class PetClinic(
     val nama: String = "",
@@ -52,39 +53,39 @@ class PetClinicActivity : ComponentActivity() {
 
 @Composable
 fun PetClinicScreen(navController: NavController? = null) {
-        val context = LocalContext.current
-        val firestore = FirebaseFirestore.getInstance()
-        val petClinicList = remember { mutableStateListOf<PetClinic>() }
+    val context = LocalContext.current
+    val firestore = FirebaseFirestore.getInstance()
+    val petClinicList = remember { mutableStateListOf<PetClinic>() }
 
-        // Fetch data from Firestore
-        LaunchedEffect(Unit) {
-            firestore.collection("pet_clinic")
-                .get()
-                .addOnSuccessListener { documents ->
-                    petClinicList.clear()
-                    for (document in documents) {
-                        val name = document.getString("nama") ?: ""
-                        val address = document.getString("alamat") ?: ""
-                        val phone = document.getString("telepon") ?: ""
-                        val instagram = document.getString("instagram") ?: ""
-                        val link = document.getString("link") ?: ""
+    // Fetch data from Firestore
+    LaunchedEffect(Unit) {
+        firestore.collection("pet_clinic")
+            .get()
+            .addOnSuccessListener { documents ->
+                petClinicList.clear()
+                for (document in documents) {
+                    val name = document.getString("nama") ?: ""
+                    val address = document.getString("alamat") ?: ""
+                    val phone = document.getString("telepon") ?: ""
+                    val instagram = document.getString("instagram") ?: ""
+                    val link = document.getString("link") ?: ""
 
-                        // Add PetClinic item with complete data
-                        petClinicList.add(
-                            PetClinic(
-                                nama = name,
-                                alamat = address,
-                                telepon = phone,
-                                instagram = instagram,
-                                link = link
-                            )
+                    // Add PetClinic item with complete data
+                    petClinicList.add(
+                        PetClinic(
+                            nama = name,
+                            alamat = address,
+                            telepon = phone,
+                            instagram = instagram,
+                            link = link
                         )
-                    }
+                    )
                 }
-                .addOnFailureListener {
-                    // Handle error
-                }
-        }
+            }
+            .addOnFailureListener {
+                // Handle error
+            }
+    }
 
 
     Column(
@@ -107,7 +108,7 @@ fun PetClinicScreen(navController: NavController? = null) {
                 modifier = Modifier
                     .size(25.dp)
                     .align(Alignment.CenterStart)
-                    .clickable { navController?.popBackStack() }
+                    .clickable { (context as? Activity)?.finish() }
             )
             Text(
                 text = "Pet Clinic",
@@ -130,7 +131,7 @@ fun PetClinicScreen(navController: NavController? = null) {
                     title = petClinic.nama,
                     location = petClinic.alamat,
                     onItemClick = {
-                        val intent = Intent(context, PetShopProfileActivity::class.java).apply {
+                        val intent = Intent(context, PetClinicProfileActivity::class.java).apply {
                             putExtra("nama", petClinic.nama)
                             putExtra("alamat", petClinic.alamat)
                             putExtra("telepon", petClinic.telepon)
@@ -138,7 +139,7 @@ fun PetClinicScreen(navController: NavController? = null) {
                             putExtra("link", petClinic.link)
                         }
                         context.startActivity(intent)
-                        // Navigasi ke halaman detail pet boarding
+                       /* // Navigasi ke halaman detail pet clinic
                         navController?.navigate(
                             "pet-clinic-profile/${
                                 Uri.encode(petClinic.nama)
@@ -152,7 +153,7 @@ fun PetClinicScreen(navController: NavController? = null) {
                                 Uri.encode(petClinic.link)
                             }"
 
-                        )
+                        )*/
                     }
                 )
             }
@@ -179,7 +180,7 @@ fun PetClinicItem(
         // Gambar tetap ditampilkan
         Image(
             painter = painterResource(id = imageId),
-            contentDescription = "Pet Boarding Image",
+            contentDescription = "Pet Clinic Image",
             modifier = Modifier
                 .clip(RoundedCornerShape(20.dp))
         )
@@ -228,4 +229,3 @@ fun PetClinicItem(
 fun PreviewPetClinicScreen() {
     PetClinicScreen()
 }
-

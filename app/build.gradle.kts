@@ -60,7 +60,8 @@ dependencies {
     
     implementation(libs.firebase.auth)
     implementation ("com.google.firebase:firebase-auth:23.1.0")
-    
+    implementation(libs.firebase.database.ktx)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

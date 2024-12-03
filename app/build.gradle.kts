@@ -95,6 +95,8 @@ dependencies {
     
     implementation(libs.firebase.auth)
     implementation ("com.google.firebase:firebase-auth:23.1.0")
+    implementation(libs.firebase.database.ktx)
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -110,6 +112,11 @@ dependencies {
     implementation ("androidx.compose.material:material:1.5.1")
     implementation("androidx.compose.foundation:foundation:1.5.1")
     implementation ("androidx.compose.ui:ui-tooling-preview:1.5.1")
+
+    implementation("com.maxkeppeler.sheets-compose-dialogs:calendar:1.0.2")
+    implementation("com.maxkeppeler.sheets-compose-dialogs:core:1.0.2")
+    implementation("com.maxkeppeler.sheets-compose-dialogs:clock:1.0.2")
+
 
 
     implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")

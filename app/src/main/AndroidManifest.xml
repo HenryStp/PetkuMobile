@@ -15,12 +15,18 @@
         android:theme="@style/Theme.PetkuMobile"
         tools:targetApi="31">
         <!-- Splash Activity as the launcher activity -->
-        <activity android:name=".SplashActivity"
+        <activity android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.PetkuMobile"
+            android:windowSoftInputMode="adjustResize">
         </activity>
         <!-- SplashScreen2Activity -->
         <activity
@@ -73,11 +79,11 @@
 
         <!-- Main Activity -->
 
-        <activity
+        <!--<activity
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.PetkuMobile">
-        </activity>
+        </activity>-->
         <activity
             android:name=".PetServiceActivity"
             android:exported="true"

@@ -37,6 +37,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import android.util.Log
+import android.widget.Toast
 
 data class PetShopData(
     val nama: String = "",
@@ -54,12 +55,26 @@ data class PetClinicData(
 
 
 class HomeActivity : ComponentActivity() {
+
+    private var backPressedTime: Long = 0 // Waktu saat tombol back pertama kali ditekan
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val username = intent.getStringExtra("username") ?: "Unknown User"
         setContent {
             HomeScreen(username, navController = rememberNavController())
         }
+    }
+    override fun onBackPressed() {
+        // Cek apakah tombol back sudah ditekan dua kali dalam waktu 2 detik
+        if (backPressedTime + 2000 > System.currentTimeMillis()) {
+            super.onBackPressed()  // Panggil super untuk menyelesaikan proses default
+            finishAffinity() // Menutup aplikasi dan semua activity        } else {
+        } else {
+            // Jika belum, tampilkan toast untuk memberi tahu pengguna untuk menekan sekali lagi untuk keluar
+            Toast.makeText(this, "Press back again to exit", Toast.LENGTH_SHORT).show()
+        }
+        backPressedTime = System.currentTimeMillis() // Simpan waktu saat tombol back pertama kali ditekan
     }
 }
 
@@ -234,7 +249,7 @@ fun CategoriesSection() {
             horizontalArrangement = Arrangement.SpaceAround
         ) {
             CategoryItem(name = "Calendar", iconResId = R.drawable.calendar,destinationActivity = CalendarActivity::class.java)
-            CategoryItem(name = "Service", iconResId = R.drawable.service,destinationActivity = MainActivity::class.java )
+            CategoryItem(name = "Service", iconResId = R.drawable.service,destinationActivity = PetServiceActivity::class.java )
             CategoryItem(name = "Lost Pet", iconResId = R.drawable.lost_pet,destinationActivity = CalendarActivity::class.java)
         }
     }

@@ -35,7 +35,7 @@ class SplashActivity : ComponentActivity() {
 
         // Redirect to SplashScreen2Activity after a delay
         CoroutineScope(Dispatchers.Main).launch {
-            delay(3000L) // Splash screen delay in milliseconds
+            delay(2000L) // Splash screen delay in milliseconds
             startActivity(Intent(this@SplashActivity, SplashScreen2Activity::class.java))
             finish()
         }

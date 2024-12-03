@@ -1,166 +1,45 @@
 package usu.adpl.petkumobile
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import android.util.Log
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.compose.composable
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.ui.Modifier
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.FirebaseApp
 import usu.adpl.petkumobile.ui.theme.PetkuMobileTheme
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.navArgument
-import androidx.navigation.NavType
-import androidx.navigation.NavController
-
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContent {
-                            MaterialTheme {
-                                Surface(color = MaterialTheme.colorScheme.background) {
-                                    val navController = rememberNavController()
-                                    NavHost(
-                                        navController = navController,
-                                        startDestination = "pet-care-service-activity-1"
-                                    ) {
-                                        composable("pet-care-service-activity-1") {
-                                            ServiceScreen(navController = navController)
-                                        }
-
-                                        composable("pet-boarding") {
-                                            PetBoardingScreen(navController = navController)
-                                        }
-                                        composable("pet-clinic") {
-                                            PetClinicScreen(navController = navController)
-                                        }
-                                        composable("pet-shop") {
-                                            PetShopScreen(navController = navController)
-                                        }
-                                        composable(
-                                            "pet-clinic-profile/{nama}/{alamat}/{telepon}/{instagram}/{link}",
-                                            arguments = listOf(
-                                                navArgument("nama") { type = NavType.StringType },
-                                                navArgument("alamat") { type = NavType.StringType },
-                                                navArgument("telepon") {
-                                                    type = NavType.StringType
-                                                },
-                                                navArgument("instagram") {
-                                                    type = NavType.StringType
-                                                },
-                                                navArgument("link") { type = NavType.StringType },
-                                            )
-                                        ) { backStackEntry ->
-                                            val nama =
-                                                backStackEntry.arguments?.getString("nama") ?: ""
-                                            val alamat =
-                                                backStackEntry.arguments?.getString("alamat") ?: ""
-                                            val telepon =
-                                                backStackEntry.arguments?.getString("telepon") ?: ""
-                                            val instagram =
-                                                backStackEntry.arguments?.getString("instagram")
-                                                    ?: ""
-                                            val link =
-                                                backStackEntry.arguments?.getString("link") ?: ""
-
-                                            PetClinicProfileScreen(
-                                                nama,
-                                                alamat,
-                                                telepon,
-                                                instagram,
-                                                link,
-                                                navController = navController
-                                            )
-                                        }
-
-                                        // Menambahkan destinasi untuk PetBoardingProfileScreen dengan argumen tambahan
-                                        composable(
-                                            "pet-boarding-profile/{nama}/{alamat}/{telepon}/{instagram}/{link}",
-                                            arguments = listOf(
-                                                navArgument("nama") { type = NavType.StringType },
-                                                navArgument("alamat") { type = NavType.StringType },
-                                                navArgument("telepon") {
-                                                    type = NavType.StringType
-                                                },
-                                                navArgument("instagram") {
-                                                    type = NavType.StringType
-                                                },
-                                                navArgument("link") { type = NavType.StringType },
-                                            )
-                                        ) { backStackEntry ->
-                                            val nama =
-                                                backStackEntry.arguments?.getString("nama") ?: ""
-                                            val alamat =
-                                                backStackEntry.arguments?.getString("alamat") ?: ""
-                                            val telepon =
-                                                backStackEntry.arguments?.getString("telepon") ?: ""
-                                            val instagram =
-                                                backStackEntry.arguments?.getString("instagram")
-                                                    ?: ""
-                                            val link =
-                                                backStackEntry.arguments?.getString("link") ?: ""
-
-                                            PetBoardingProfileScreen(
-                                                nama,
-                                                alamat,
-                                                telepon,
-                                                instagram,
-                                                link,
-                                                navController = navController
-                                            )
-                                        }
-
-                                        // Menambahkan destinasi untuk PetShopProfileScreen dengan argumen tambahan
-                                        composable(
-                                            "pet-shop-profile/{nama}/{alamat}/{telepon}/{instagram}/{link}",
-                                            arguments = listOf(
-                                                navArgument("nama") { type = NavType.StringType },
-                                                navArgument("alamat") { type = NavType.StringType },
-                                                navArgument("telepon") {
-                                                    type = NavType.StringType
-                                                },
-                                                navArgument("instagram") {
-                                                    type = NavType.StringType
-                                                },
-                                                navArgument("link") { type = NavType.StringType },
-                                            )
-                                        ) { backStackEntry ->
-                                            val nama =
-                                                backStackEntry.arguments?.getString("nama") ?: ""
-                                            val alamat =
-                                                backStackEntry.arguments?.getString("alamat") ?: ""
-                                            val telepon =
-                                                backStackEntry.arguments?.getString("telepon") ?: ""
-                                            val instagram =
-                                                backStackEntry.arguments?.getString("instagram")
-                                                    ?: ""
-                                            val link =
-                                                backStackEntry.arguments?.getString("link") ?: ""
-
-                                            PetShopProfileScreen(
-                                                nama,
-                                                alamat,
-                                                telepon,
-                                                instagram,
-                                                link,
-                                                navController = navController
-                                            )
-
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-           /* }
+        // Cek apakah aplikasi pertama kali dibuka
+        if (isFirstLaunch(this)) {
+            // Jika pertama kali, tampilkan SplashActivity
+            val intent = Intent(this, SplashActivity::class.java)
+            startActivity(intent)
+            finish()
+        } else {
+            // Jika bukan pertama kali, langsung menuju LoginActivity
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+            finish()
         }
     }
-}*/
+
+    // Fungsi untuk mengecek apakah aplikasi pertama kali dibuka
+    private fun isFirstLaunch(context: Context): Boolean {
+        val sharedPreferences = context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+        val isFirstLaunch = sharedPreferences.getBoolean("isFirstLaunch", true)
+
+        // Tambahkan log di sini untuk memeriksa nilai isFirstLaunch
+        Log.d("MainActivity", "isFirstLaunch: $isFirstLaunch")
+
+        // Jika ini pertama kali, set status menjadi false setelah pengecekan
+        if (isFirstLaunch) {
+            val editor = sharedPreferences.edit()
+            editor.putBoolean("isFirstLaunch", false)  // Update status menjadi false
+            editor.apply()  // Jangan lupa simpan perubahan
+        }
+        return isFirstLaunch  // Mengembalikan status pertama kali aplikasi dibuka
+    }
+}

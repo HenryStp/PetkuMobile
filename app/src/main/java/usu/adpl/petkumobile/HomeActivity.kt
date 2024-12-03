@@ -26,23 +26,87 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.clickable
 import android.content.Intent
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
+import com.google.firebase.firestore.FirebaseFirestore
+import androidx.compose.runtime.LaunchedEffect
+import com.google.firebase.firestore.QueryDocumentSnapshot
+import com.google.firebase.firestore.ktx.toObject
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 
+
+
+
+
+
+
+data class PetShopData(val nama: String = "")
+data class PetClinicData(val nama: String = "")
 
 class HomeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         val username = intent.getStringExtra("username") ?: "Unknown User"
-
         setContent {
-            HomeScreen(username)
+            HomeScreen(username, navController = rememberNavController())
         }
     }
 }
 
 @Composable
+fun SectionHeader(title: String, onSeeAllClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            fontSize = 15.sp,
+            fontFamily = CustomFontFamily,
+            fontWeight = FontWeight.Medium
+        )
+        Text(
+            text = "see all",
+            color = Color.Gray,
+            fontSize = 10.sp,
+            fontFamily = CustomFontFamily,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.clickable { onSeeAllClick() } // Tambahkan aksi klik
+        )
+    }
+}
 
-fun HomeScreen(username: String) {
+@Composable
+fun HomeScreen(username: String, navController: NavController) {
+    val petShops = remember { mutableStateListOf<PetShopData>() }
+    val petClinics = remember { mutableStateListOf<PetClinicData>() }
+
+    LaunchedEffect(true) {
+        // Ambil data Pet Shop dan Pet Clinic dari Firestore
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("pet_shop").get().addOnSuccessListener { result ->
+            petShops.clear()
+            for (document in result) {
+                val petShop = document.toObject<PetShopData>()
+                petShops.add(petShop)
+            }
+        }
+
+        db.collection("pet_clinic").get().addOnSuccessListener { result ->
+            petClinics.clear()
+            for (document in result) {
+                val petClinic = document.toObject<PetClinicData>()
+                petClinics.add(petClinic)
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -55,14 +119,13 @@ fun HomeScreen(username: String) {
         ReminderSection()
         CategoriesSection()
         LostPetSection()
-        PetShopSection()
-        PetClinicSection()
+        PetShopSection(petShops = petShops)
+        PetClinicSection(petClinics = petClinics)
     }
 }
 
 @Composable
 fun GreetingSection(username: String) {
-
     Text(
         text = "Heloo, $username! 👋",
         fontSize = 20.sp,
@@ -111,6 +174,7 @@ fun AddPetSection() {
     }
 }
 
+@Preview
 @Composable
 fun ReminderSection() {
     Column(
@@ -163,12 +227,11 @@ fun CategoriesSection() {
             horizontalArrangement = Arrangement.SpaceAround
         ) {
             CategoryItem(name = "Calendar", iconResId = R.drawable.calendar,destinationActivity = CalendarActivity::class.java)
-            CategoryItem(name = "Service", iconResId = R.drawable.service,destinationActivity = CalendarActivity::class.java)
+            CategoryItem(name = "Service", iconResId = R.drawable.service,destinationActivity = ProfilScreen::class.java )
             CategoryItem(name = "Lost Pet", iconResId = R.drawable.lost_pet,destinationActivity = CalendarActivity::class.java)
         }
     }
 }
-
 
 @Composable
 fun CategoryItem(name: String, iconResId: Int,destinationActivity : Class<*>) {
@@ -180,8 +243,7 @@ fun CategoryItem(name: String, iconResId: Int,destinationActivity : Class<*>) {
             .background(Color(0x703E9880), RoundedCornerShape(36.dp))
             .padding(10.dp)
             .clickable {
-                val intent = Intent(context,destinationActivity)
-                intent.putExtra("Category Name",name)
+                val intent = Intent(context, destinationActivity) // Menggunakan parameter destinationActivity
                 context.startActivity(intent)
             }
     ) {
@@ -204,9 +266,6 @@ fun CategoryItem(name: String, iconResId: Int,destinationActivity : Class<*>) {
     }
 }
 
-
-
-
 @Composable
 fun LostPetSection() {
     SectionHeader(title = "Lost Pet")
@@ -218,24 +277,54 @@ fun LostPetSection() {
 }
 
 @Composable
-fun PetShopSection() {
-    SectionHeader(title = "Pet Shop")
+fun PetShopSection(petShops: List<PetShopData>) {
+    val context = LocalContext.current // Mendapatkan konteks
+
+    SectionHeader(
+        title = "Pet Shop",
+        onSeeAllClick = {
+            val intent = Intent(context, PetShopActivity::class.java)
+            context.startActivity(intent)
+        }
+    )
     LazyRow {
-        items(5) { // Dummy data count
-            ShopCard(name = "Pet Paradise Store")
+        items(petShops.size) { index ->
+            ShopCard(name = petShops[index].nama,
+                onClick = {
+                val intent = Intent(context, PetClinicActivity::class.java)
+                context.startActivity(intent)  // Arahkan ke PetClinicActivity
+            })
         }
     }
 }
 
+
+
 @Composable
-fun PetClinicSection() {
-    SectionHeader(title = "Pet Clinic")
+fun PetClinicSection(petClinics: List<PetClinicData>) {
+    val context = LocalContext.current // Mendapatkan konteks
+
+    SectionHeader(
+        title = "Pet Clinic",
+        onSeeAllClick = {
+            val intent = Intent(context, PetClinicActivity::class.java)
+            context.startActivity(intent)
+        }
+    )
     LazyRow {
-        items(5) { // Dummy data count
-            ClinicCard(name = "Praktik Dokter Hewan")
+        items(petClinics.size) { index -> // Pass the size of the list instead of the list itself
+            val clinic = petClinics[index] // Use the item at this index
+            ClinicCard(name = clinic.nama,
+                onClick = {
+                    val intent = Intent(context, PetClinicActivity::class.java)
+                    context.startActivity(intent)  // Arahkan ke PetClinicActivity
+                }
+            ) // Pass the clinic name to the ClinicCard
         }
     }
 }
+
+
 
 @Composable
 fun SectionHeader(title: String) {
@@ -257,7 +346,7 @@ fun SectionHeader(title: String) {
 fun PetCard(name: String) {
     Box(
         modifier = Modifier
-            .size(120.dp)
+            .size(100.dp)
             .padding(8.dp)
             .background(Color(0xFFF3F1F5), RoundedCornerShape(16.dp)),
         contentAlignment = Alignment.Center
@@ -266,52 +355,81 @@ fun PetCard(name: String) {
             // Replace with actual image resource
             Image(painter = painterResource(id = R.drawable.pet), contentDescription = null, modifier = Modifier.size(60.dp))
             Text(text = name, fontSize = 8.sp, fontFamily = CustomFontFamily,
-                fontWeight = FontWeight.Medium, textAlign = TextAlign.Center, modifier = Modifier.padding(4.dp))
+                fontWeight = FontWeight.Medium, textAlign = TextAlign.Center, modifier = Modifier.padding(8.dp))
         }
     }
 }
 
 @Composable
-fun ShopCard(name: String) {
+fun ShopCard(name: String, onClick: () -> Unit ) {
     Box(
         modifier = Modifier
             .size(120.dp)
-            .padding(8.dp)
-            .background(Color(0xFFF3F1F5), RoundedCornerShape(16.dp)),
+            .padding(4.dp)
+            .background(Color(0x703E9880), RoundedCornerShape(16.dp))
+            .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            // Replace with actual image resource
-            Image(painter = painterResource(id = R.drawable.shop), contentDescription = null, modifier = Modifier.size(60.dp))
-            Text(text = name, fontSize = 8.sp,fontFamily = CustomFontFamily,
-                fontWeight = FontWeight.Medium, textAlign = TextAlign.Center, modifier = Modifier.padding(4.dp))
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxSize() // Column menyesuaikan dengan ukuran Box
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.shop),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth() // Gambar memenuhi lebar kolom
+                    .weight(1f) // Gambar mengambil ruang yang tersedia dalam kolom
+                    .clip(RoundedCornerShape(16.dp)), // Tambahkan clipping agar sesuai dengan Box
+                contentScale = ContentScale.Crop // Skala gambar
+            )
+            Text(
+                text = name,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(8.dp) // Tambahkan jarak dari gambar ke teks
+            )
         }
     }
 }
 
+
 @Composable
-fun ClinicCard(name: String) {
+fun ClinicCard(name: String, onClick: () -> Unit ) {
     Box(
         modifier = Modifier
             .size(120.dp)
-            .padding(8.dp)
-            .background(Color(0xFFF3F1F5), RoundedCornerShape(16.dp)),
+            .padding(4.dp)
+            .background(Color(0x703E9880), RoundedCornerShape(16.dp))
+            .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            // Replace with actual image resource
-            Image(painter = painterResource(id = R.drawable.clinic), contentDescription = null, modifier = Modifier.size(60.dp))
-            Text(text = name, fontSize = 8.sp, textAlign = TextAlign.Center, modifier = Modifier.padding(4.dp))
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxSize() // Column menyesuaikan dengan ukuran Box
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.clinic),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth() // Gambar memenuhi lebar kolom
+                    .weight(1f) // Gambar mengambil ruang yang tersedia dalam kolom
+                    .clip(RoundedCornerShape(16.dp)), // Tambahkan clipping agar sesuai dengan Box
+                contentScale = ContentScale.Crop // Skala gambar
+            )
+            Text(
+                text = name,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(8.dp) // Tambahkan jarak dari gambar ke teks
+            )
         }
     }
 }
 @Composable
 @Preview(showBackground = true)
 fun HomeScreenPreview() {
-    HomeScreen(username = "User") // Memberikan nilai default "User" untuk preview
+    //HomeScreen(username = "User") // Memberikan nilai default "User" untuk preview
 }
-
-
-
-
-

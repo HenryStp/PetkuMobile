@@ -2,6 +2,7 @@ package usu.adpl.petkumobile
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
@@ -22,9 +23,9 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,6 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+
 import com.google.firebase.database.FirebaseDatabase
 import com.maxkeppeker.sheets.core.models.base.rememberSheetState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
@@ -58,6 +60,7 @@ class CalendarActivity : ComponentActivity() {
         }
     }
 }
+
 
 data class Schedule(
     val id: String? = null,
@@ -117,6 +120,7 @@ fun ScheduleView() {
         ),
         selection =CalendarSelection.Date{date ->
             selectedDate = date.toString()
+
         } )
 
     ClockDialog(
@@ -124,6 +128,7 @@ fun ScheduleView() {
         config = ClockConfig(is24HourFormat = false),
         selection = ClockSelection.HoursMinutes {hours,minutes ->
             selectedTime = "$hours:$minutes"
+
         }
     )
 
@@ -144,7 +149,8 @@ fun ScheduleView() {
                         val intent = Intent(context,HomeActivity::class.java)
                         context.startActivity(intent)
                     },
-                painter = painterResource(id = R.drawable.img),
+
+                painter = painterResource(id = R.drawable.back_black),
                 contentDescription = "Back Image",
 
                 )
@@ -231,6 +237,7 @@ fun ScheduleView() {
                 contentAlignment = Alignment.Center
             ) {
                 Button(
+
                     onClick = {
                         val schedule = Schedule(
                             title = title,
@@ -252,6 +259,7 @@ fun ScheduleView() {
                                 message = "Error: ${exception.message}"
                             })
                     },
+
                     modifier = Modifier
                 ) {
                     Text(text = "Create New Schedule")
@@ -260,5 +268,7 @@ fun ScheduleView() {
         }
 
     }
+
     SnackbarHost(hostState = snackbarHostState)
+
 }

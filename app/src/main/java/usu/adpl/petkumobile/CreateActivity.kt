@@ -49,13 +49,13 @@ class CreateActivity : ComponentActivity() {
         }
     }
 }
-val CustomFontFamily = FontFamily(
+/*val CustomFontFamily = FontFamily(
     Font(R.font.sen_reguler, FontWeight.Normal),
     Font(R.font.sen_medium, FontWeight.Medium),
     Font(R.font.sen_medium, FontWeight.Normal),
     Font(R.font.sen_bold, FontWeight.Bold),
     Font(R.font.sen_extrabold, FontWeight.ExtraBold)
-)
+)*/
 
 
 

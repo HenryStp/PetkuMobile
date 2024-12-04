@@ -22,7 +22,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 
 @Composable
-fun CatForm(navController: NavController) {
+fun CatForm(navController: NavController, userId: String) {
     var selectedButton by rememberSaveable { mutableStateOf("Dog") }
     var selectedAvatar by rememberSaveable { mutableStateOf<Int?>(null) }
     var name by rememberSaveable { mutableStateOf<String?>(null) }
@@ -80,7 +80,9 @@ fun CatForm(navController: NavController) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                AvatarSectionCat(selectedAvatar) { selectedAvatar = it }
+                AvatarSectionCat(selectedAvatar) { newAvatar ->
+                    selectedAvatar = newAvatar // Sekarang 'selectedAvatar' adalah Int non-nullable
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -151,7 +153,7 @@ fun CatForm(navController: NavController) {
                                 ) {
                                     errorMessage = null
                                     // Simpan data ke Realtime Database
-                                    saveToDatabaseCat(name, breed, age, weight, height, medicalInfo, additionalInfo, selectedAvatar, gender)
+                                    saveToDatabaseCat(name, breed, age, weight, height, medicalInfo, additionalInfo, selectedAvatar, gender,userId)
                                     // Menampilkan dialog saat form disubmit
                                     showDialog = true
                                 } else {
@@ -221,13 +223,8 @@ fun PetTypeSelectionCat(
 
 @Composable
 fun AvatarSectionCat(selectedAvatar: Int?, onAvatarSelected: (Int) -> Unit) {
-    val dogAvatars = listOf(
-        R.drawable.avatar7,
-        R.drawable.avatar8,
-        R.drawable.avatar9,
-        R.drawable.avatar10,
-        R.drawable.avatar11,
-        R.drawable.avatar12
+    val catAvatars = listOf(
+        7, 8, 9, 10, 11, 12 // ID avatar sebagai angka 7-12
     )
 
     Spacer(modifier = Modifier.height(16.dp))
@@ -249,26 +246,29 @@ fun AvatarSectionCat(selectedAvatar: Int?, onAvatarSelected: (Int) -> Unit) {
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                dogAvatars.take(3).forEach { avatar ->
+                catAvatars.take(3).forEachIndexed { index, avatarId ->
                     Box(
                         modifier = Modifier
                             .size(80.dp)
                             .background(
-                                if (selectedAvatar == avatar) Color(0xFFFFC0CB) else Color.White,
+                                if (selectedAvatar == avatarId) Color(0xFFFFC0CB) else Color.White,
                                 shape = RoundedCornerShape(30.dp)
                             )
-                            .clickable { onAvatarSelected(avatar) }
+                            .clickable { onAvatarSelected(avatarId) }
                             .border(1.dp, Color.Black, RoundedCornerShape(30.dp))
                             .padding(5.dp)
                     ) {
-                        Image(
-                            painter = painterResource(id = avatar),
-                            contentDescription = "Cat Avatar",
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .align(Alignment.Center)
-                                .clip(RoundedCornerShape(30.dp))
-                        )
+                        val avatarDrawable = getAvatarDrawable(avatarId) // Mendapatkan drawable dari avatarId
+                        avatarDrawable?.let {
+                            Image(
+                                painter = painterResource(id = it),
+                                contentDescription = "Dog Avatar",
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .align(Alignment.Center)
+                                    .clip(RoundedCornerShape(30.dp))
+                            )
+                        }
                     }
                 }
             }
@@ -279,26 +279,29 @@ fun AvatarSectionCat(selectedAvatar: Int?, onAvatarSelected: (Int) -> Unit) {
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                dogAvatars.drop(3).forEach { avatar ->
+                catAvatars.drop(3).forEachIndexed { index, avatarId ->
                     Box(
                         modifier = Modifier
                             .size(80.dp)
                             .background(
-                                if (selectedAvatar == avatar) Color(0xFFFFC0CB) else Color.White,
+                                if (selectedAvatar == avatarId) Color(0xFFFFC0CB) else Color.White,
                                 shape = RoundedCornerShape(30.dp)
                             )
-                            .clickable { onAvatarSelected(avatar) }
+                            .clickable { onAvatarSelected(avatarId) }
                             .border(1.dp, Color.Black, RoundedCornerShape(30.dp))
                             .padding(5.dp)
                     ) {
-                        Image(
-                            painter = painterResource(id = avatar),
-                            contentDescription = "Cat Avatar",
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .align(Alignment.Center)
-                                .clip(RoundedCornerShape(30.dp))
-                        )
+                        val avatarDrawable = getAvatarDrawable(avatarId) // Mendapatkan drawable dari avatarId
+                        avatarDrawable?.let {
+                            Image(
+                                painter = painterResource(id = it),
+                                contentDescription = "Dog Avatar",
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .align(Alignment.Center)
+                                    .clip(RoundedCornerShape(30.dp))
+                            )
+                        }
                     }
                 }
             }
@@ -457,7 +460,8 @@ fun saveToDatabaseCat(
     medicalInfo: String?,
     additionalInfo: String?,
     selectedAvatar: Int?,
-    gender: String
+    gender: String,
+    userId: String
 ) {
     val database: DatabaseReference = FirebaseDatabase.getInstance().getReference("pets")
 
@@ -474,7 +478,8 @@ fun saveToDatabaseCat(
             "medicalInfo" to medicalInfo,
             "additionalInfo" to additionalInfo,
             "avatar" to selectedAvatar,
-            "gender" to gender
+            "gender" to gender,
+            "userId" to userId
         )
 
         // Menyimpan data ke path petId yang unik
@@ -498,5 +503,5 @@ fun saveToDatabaseCat(
 @Composable
 fun CatFormPreview() {
     val navController = rememberNavController()
-    CatForm(navController = navController)
+    //CatForm(navController = navController)
 }

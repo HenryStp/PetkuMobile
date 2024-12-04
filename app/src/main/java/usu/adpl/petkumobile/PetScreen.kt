@@ -16,9 +16,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.ui.platform.LocalContext
+import android.app.Activity
+
 
 @Composable
 fun PetScreen(navController: NavController) {
+    val context = LocalContext.current
+    val userId = (context as? Activity)?.intent?.getStringExtra("userId") ?: "Unknown User"
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -65,7 +71,7 @@ fun PetScreen(navController: NavController) {
 
                     // Tombol Dog
                     Button(
-                        onClick = { navController.navigate("dogForm") },
+                        onClick = { navController.navigate("dogForm/$userId") },
                         shape = RoundedCornerShape(50.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = if (isHoveredDog) Color(0xFFFFC0CB) else Color.White,
@@ -79,7 +85,7 @@ fun PetScreen(navController: NavController) {
 
                     // Tombol Cat
                     Button(
-                        onClick = { navController.navigate("catForm") },
+                        onClick = { navController.navigate("catForm/$userId") },
                         shape = RoundedCornerShape(50.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = if (isHoveredCat) Color(0xFFFFC0CB) else Color.White,

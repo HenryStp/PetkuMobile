@@ -162,7 +162,8 @@ fun CreateAccountScreen() {
                                 // Save data in Firestore
                                 val userData = hashMapOf(
                                     "username" to username,
-                                    "email" to email
+                                    "email" to email,
+                                    "userId" to userId
 
                                 )
 
@@ -173,6 +174,7 @@ fun CreateAccountScreen() {
                                         Toast.makeText(context, "Account created successfully", Toast.LENGTH_SHORT).show()
                                         val intent = Intent(context, HomeActivity::class.java).apply {
                                             putExtra("username", username) // Pass the username to HomeActivity
+                                            putExtra("userId", userId)
                                         }
                                         context.startActivity(intent)
                                     }

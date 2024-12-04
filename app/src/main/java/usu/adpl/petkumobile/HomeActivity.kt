@@ -38,6 +38,18 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.shape.CircleShape
+import coil.compose.rememberAsyncImagePainter
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+
 
 data class PetShopData(
     val nama: String = "",
@@ -60,9 +72,10 @@ class HomeActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val userId: String = intent.getStringExtra("userId") ?: "Unknown User"
         val username = intent.getStringExtra("username") ?: "Unknown User"
         setContent {
-            HomeScreen(username, navController = rememberNavController())
+            HomeScreen(username, userId, navController = rememberNavController())
         }
     }
     override fun onBackPressed() {
@@ -105,7 +118,7 @@ fun SectionHeader(title: String, onSeeAllClick: () -> Unit) {
 }
 
 @Composable
-fun HomeScreen(username: String, navController: NavController) {
+fun HomeScreen(username: String, userId: String, navController: NavController) {
     val petShops = remember { mutableStateListOf<PetShopData>() }
     val petClinics = remember { mutableStateListOf<PetClinicData>() }
 
@@ -137,7 +150,7 @@ fun HomeScreen(username: String, navController: NavController) {
             .verticalScroll(rememberScrollState()) // Menambahkan scrolling
     ) {
         GreetingSection(username)
-        AddPetSection()
+        AddPetSection(userId)
         ReminderSection()
         CategoriesSection()
         LostPetSection()
@@ -158,41 +171,149 @@ fun GreetingSection(username: String) {
 }
 
 @Composable
-fun AddPetSection() {
-    val context = LocalContext.current // Mendapatkan konteks di dalam fungsi
-    Box(
+fun AddPetSection(userId: String) {
+    val db = FirebaseDatabase.getInstance()
+    val petsRef = db.reference.child("pets")
+    val pets = remember { mutableStateListOf<Map<String, Any>>() }
+    val context = LocalContext.current // Mendapatkan konteks yang benar dalam Compose
+
+    // Fetch pets from Firebase Realtime Database
+    LaunchedEffect(userId) {
+        petsRef.orderByChild("userId").equalTo(userId)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    pets.clear()
+                    for (child in snapshot.children) {
+                        val pet = child.value as? Map<String, Any> ?: continue
+                        pets.add(pet)
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("AddPetSection", "Error fetching pets: ${error.message}")
+                }
+            })
+    }
+
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp) // Set height as needed
-            .padding(vertical = 8.dp)
-            .background(Color(0xFFD0B3EF), RoundedCornerShape(16.dp))
-            .clickable { // Menambahkan event klik
-                // Navigasi ke AddPetActivity
-                val intent = Intent(context, ProfilScreen::class.java)
-                context.startActivity(intent)
-            }
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
+            .padding(8.dp)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(120.dp) // Adjust height if needed
+                .padding(vertical = 4.dp)
+                .background(Color(0xFFD0B3EF), RoundedCornerShape(16.dp)),
+            contentAlignment = Alignment.Center
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_add), // Replace with your actual icon resource name
-                contentDescription = "Add Icon",
-                tint = Color.White,
-                modifier = Modifier.size(48.dp) // Adjust icon size as needed
-            )
-            Spacer(modifier = Modifier.width(8.dp)) // Space between icon and text
-            Text(
-                text = " Add Your Pet",
-                fontSize = 15.sp,
-                fontFamily = CustomFontFamily,
-                fontWeight = FontWeight.SemiBold,
-                color = Color.White
-            )
+            if (pets.isEmpty()) {
+                // If no pet exists, show Add Pet button
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .clickable {
+                            val intent = Intent(context, ProfilScreen::class.java).apply {
+                                putExtra("userId", userId)
+                            }
+                            context.startActivity(intent)
+                        }
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_add), // Replace with your icon resource
+                        contentDescription = "Add Icon",
+                        tint = Color.White,
+                        modifier = Modifier.size(48.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = " Add Your Pet",
+                        fontSize = 15.sp,
+                        fontFamily = CustomFontFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White
+                    )
+                }
+            } else {
+                // If pets exist, display pet's avatar and name
+                val pet = pets.first() // Assuming user can have only one pet
+                val petName = pet["name"] as? String ?: "Unknown"
+                val petAvatar = (pet["avatar"] as? Number)?.toInt() ?: 0
+                val avatarName = "avatar$petAvatar"
+
+                // Get avatar resource ID
+                val avatarResourceId = getDrawableResourceId(context, avatarName)
+
+                // Box wrapping both avatar and pet name
+                Box(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .background(Color.White.copy(alpha = 0.5f), RoundedCornerShape(12.dp)) // Warna putih dengan transparansi 80%
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                )
+                {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        // Avatar
+                        Box(
+                            modifier = Modifier
+                                .size(60.dp)
+
+                        ) {
+                            if (avatarResourceId != 0) {
+                                Image(
+                                    painter = painterResource(id = avatarResourceId),
+                                    contentDescription = "Pet Avatar",
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .clickable {
+                                            // Membuat Intent untuk membuka DisplayPet
+                                            val intent = Intent(context, DisplayPetActivity::class.java).apply {
+                                                // Kirim data jika diperlukan, misalnya petId
+                                                //putExtra("petId", pet["id"] as? String) // Ganti dengan ID atau data yang ingin dikirim
+                                            }
+                                            context.startActivity(intent) // Menjalankan aktivitas DisplayPet
+                                        }
+                                )
+                            } else {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_instagram), // Replace with placeholder
+                                    contentDescription = "Placeholder Avatar",
+                                    modifier = Modifier.fillMaxSize(),
+                                    tint = Color.Gray
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.width(5.dp))
+
+                        // Pet Name
+                        Text(
+                            text = petName,
+                            fontSize = 18.sp,
+                            fontFamily = CustomFontFamily,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                    }
+                }
+            }
         }
+    }
+}
+
+// Helper function to retrieve drawable resource ID
+private fun getDrawableResourceId(context: android.content.Context, name: String): Int {
+    return try {
+        context.resources.getIdentifier(name, "drawable", context.packageName)
+    } catch (e: Exception) {
+        Log.e("AddPetSection", "Error loading avatar image: ${e.message}")
+        0
     }
 }
 
@@ -290,10 +411,22 @@ fun CategoryItem(name: String, iconResId: Int,destinationActivity : Class<*>) {
 
 @Composable
 fun LostPetSection() {
-    SectionHeader(title = "Lost Pet")
+    val context = LocalContext.current
+
+    SectionHeader(title = "Lost Pet",
+        onSeeAllClick = {
+        val intent = Intent(context, CalendarActivity::class.java)
+        context.startActivity(intent)
+    })
     LazyRow {
         items(5) { // Dummy data count
-            PetCard(name = "Luna - Siamese Cat")
+            PetCard(
+                name = "Luna - Siamese Cat",
+                onClick = {
+                    val intent = Intent(context, CalendarActivity::class.java)
+                    context.startActivity(intent)
+                }
+            )
         }
     }
 }
@@ -318,12 +451,11 @@ fun PetShopSection(petShops: List<PetShopData>) {
                 onClick = {
                     /*Log.d("PetShopSection", "Navigating to PetShopProfileActivity for: ${shop.nama}")*/
                     val intent = Intent(context, PetShopProfileActivity::class.java)
-
-                        intent.putExtra("nama", shop.nama)
-                        intent.putExtra("alamat", shop.alamat)
-                        intent.putExtra("telepon", shop.telepon)
-                        intent.putExtra("instagram", shop.instagram)
-                        intent.putExtra("link", shop.link)
+                    intent.putExtra("nama", shop.nama)
+                    intent.putExtra("alamat", shop.alamat)
+                    intent.putExtra("telepon", shop.telepon)
+                    intent.putExtra("instagram", shop.instagram)
+                    intent.putExtra("link", shop.link)
                     context.startActivity(intent)
                 }
             )
@@ -351,7 +483,6 @@ fun PetClinicSection(petClinics: List<PetClinicData>) {
                 name = clinic.nama,
                 onClick = {
                     val intent = Intent(context, PetClinicProfileActivity::class.java)
-                    // Mengirimkan lebih banyak data melalui Intent
                     intent.putExtra("nama", clinic.nama)
                     intent.putExtra("alamat", clinic.alamat)
                     intent.putExtra("telepon", clinic.telepon)
@@ -386,12 +517,13 @@ fun SectionHeader(title: String) {
 }
 
 @Composable
-fun PetCard(name: String) {
+fun PetCard(name: String, onClick: () -> Unit ) {
     Box(
         modifier = Modifier
             .size(100.dp)
             .padding(8.dp)
-            .background(Color(0xFFF3F1F5), RoundedCornerShape(16.dp)),
+            .background(Color(0xFFF3F1F5), RoundedCornerShape(16.dp))
+            .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {

@@ -30,6 +30,7 @@ class ProfilScreen : ComponentActivity() {
 
         setContent {
             // Membuat NavController
+            val userId = intent.getStringExtra("user_id") ?: "Unknown User"
             val navController = rememberNavController()
 
             // Menggunakan NavHost untuk mengelola navigasi
@@ -43,11 +44,13 @@ class ProfilScreen : ComponentActivity() {
                         composable("petScreen") {
                             PetScreen(navController = navController) // Memanggil PetScreen
                         }
-                        composable("dogForm") {
-                            DogForm(navController = navController) // Memanggil dogForm
+                        composable("dogForm/{userId}") { backStackEntry ->
+                            val userId = backStackEntry.arguments?.getString("userId") ?: "Unknown User"
+                            DogForm(navController = navController, userId = userId) // Memanggil DogForm
                         }
-                        composable("catForm") {
-                            CatForm(navController = navController) // Memanggil CatForm
+                        composable("catForm/{userId}") { backStackEntry ->
+                            val userId = backStackEntry.arguments?.getString("userId") ?: "Unknown User"
+                            CatForm(navController = navController, userId = userId) // Memanggil CatForm
                         }
                         composable("petSaved") {
                             ProfileSaved(navController = navController) // Memanggil PetSaved

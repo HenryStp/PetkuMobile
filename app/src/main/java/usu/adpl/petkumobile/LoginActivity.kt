@@ -142,6 +142,7 @@ fun LoginActivityScreen() {
                                                     // Pindah ke HomeActivity dengan membawa username
                                                     val intent = Intent(context, HomeActivity::class.java)
                                                     intent.putExtra("username", username)
+                                                    intent.putExtra("userId", uid)
                                                     context.startActivity(intent)
                                                 } else {
                                                     Toast.makeText(context, "User data not found", Toast.LENGTH_SHORT).show()

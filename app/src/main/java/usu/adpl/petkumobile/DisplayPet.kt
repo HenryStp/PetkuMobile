@@ -1,6 +1,9 @@
 package usu.adpl.petkumobile
 
+import android.os.Bundle
 import android.util.Log
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -25,8 +28,19 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+
 //import usu.adpl.petkumobile.R
 //import usu.adpl.petkumobile.Pet
+
+class DisplayPetActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            val navController = rememberNavController() // Inisialisasi NavController
+            DisplayPet(navController = navController)
+        }
+    }
+}
 
 @Composable
 fun DisplayPet(navController: NavController) {
@@ -208,6 +222,24 @@ fun PetCard(pet: PetData) {
                 }
             }
         }
+    }
+}
+@Composable
+fun getAvatarDrawable(avatarIndex: Int): Int {
+    return when (avatarIndex) {
+        1 -> R.drawable.avatar1
+        2 -> R.drawable.avatar2
+        3 -> R.drawable.avatar3
+        4 -> R.drawable.avatar4
+        5 -> R.drawable.avatar5
+        6 -> R.drawable.avatar6
+        7 -> R.drawable.avatar7
+        8 -> R.drawable.avatar8
+        9 -> R.drawable.avatar9
+        10 -> R.drawable.avatar10
+        11 -> R.drawable.avatar11
+        12 -> R.drawable.avatar12
+        else -> throw IllegalArgumentException("Invalid avatar index: $avatarIndex") // Lemparkan exception jika avatarIndex tidak valid
     }
 }
 

@@ -123,6 +123,11 @@
         </activity>
 
         <activity android:name=".CalendarActivity" />
+        <activity
+            android:name=".DisplayPetActivity"
+            android:exported="true"
+            android:theme="@style/Theme.PetkuMobile">
+        </activity>
     </application>
 
 </manifest>

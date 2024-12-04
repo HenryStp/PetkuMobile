@@ -1,5 +1,6 @@
 package usu.adpl.petkumobile
 
+import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,6 +28,7 @@ import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -191,6 +193,7 @@ class PetServiceActivity : ComponentActivity() {
 
 @Composable
 fun ServiceScreen(navController: NavController? = null) {
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -212,7 +215,9 @@ fun ServiceScreen(navController: NavController? = null) {
                     .size(25.dp)
                     .align(Alignment.CenterStart)
                     .clickable {
-                        navController?.popBackStack() }
+                        val intent = Intent(context, HomeActivity::class.java)
+                        context.startActivity(intent)
+                    }
             )
 
             Text(

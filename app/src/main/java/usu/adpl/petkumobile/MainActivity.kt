@@ -42,4 +42,17 @@ class MainActivity : ComponentActivity() {
         }
         return isFirstLaunch  // Mengembalikan status pertama kali aplikasi dibuka
     }
+    // Fungsi untuk menyimpan userId ke session (SharedPreferences)
+    /*fun saveUserIdToSession(context: Context, userId: String) {
+        val sharedPreferences = context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putString("userId", userId)  // Simpan userId
+        editor.apply()  // Jangan lupa simpan perubahan
+    }*/
+
+    // Fungsi untuk mengambil userId dari session
+    fun getUserIdFromSession(context: Context): String? {
+        val sharedPreferences = context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+        return sharedPreferences.getString("userId", null)  // Mengambil userId jika ada, jika tidak null
+    }
 }

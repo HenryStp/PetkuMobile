@@ -22,7 +22,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.DatabaseReference
 
 @Composable
-fun DogForm(navController: NavController) {
+fun DogForm(navController: NavController, userId: String) {
     var selectedButton by rememberSaveable { mutableStateOf("Dog") }
     var selectedAvatar by rememberSaveable { mutableStateOf<Int?>(null) }
     var name by rememberSaveable { mutableStateOf<String?>(null) }
@@ -80,7 +80,9 @@ fun DogForm(navController: NavController) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                AvatarSection(selectedAvatar) { selectedAvatar = it }
+                AvatarSection(selectedAvatar) { newAvatar ->
+                    selectedAvatar = newAvatar // Sekarang 'selectedAvatar' adalah Int non-nullable
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -151,7 +153,7 @@ fun DogForm(navController: NavController) {
                                 ) {
                                     errorMessage = null
                                     // Simpan data ke Realtime Database
-                                    saveToDatabase(name, breed, age, weight, height, medicalInfo, additionalInfo, selectedAvatar, gender)
+                                    saveToDatabase(name, breed, age, weight, height, medicalInfo, additionalInfo, selectedAvatar, gender, userId)
                                     // Menampilkan dialog saat form disubmit
                                     showDialog = true
                                 } else {
@@ -219,17 +221,15 @@ fun PetTypeSelection(
     }
 }
 
-
 @Composable
 fun AvatarSection(selectedAvatar: Int?, onAvatarSelected: (Int) -> Unit) {
+    // Menggunakan getAvatarDrawable untuk mendapatkan resource ID dari avatar
     val dogAvatars = listOf(
-        R.drawable.avatar1,
-        R.drawable.avatar2,
-        R.drawable.avatar3,
-        R.drawable.avatar4,
-        R.drawable.avatar5,
-        R.drawable.avatar6
+        1, 2, 3, 4, 5, 6 // ID avatar sebagai angka 1-6
     )
+
+    // Pastikan selectedAvatar memiliki nilai valid yang tidak 0
+    //val currentAvatar = selectedAvatar ?: 1 // Defaultkan ke 1 jika null
 
     Spacer(modifier = Modifier.height(16.dp))
 
@@ -250,26 +250,30 @@ fun AvatarSection(selectedAvatar: Int?, onAvatarSelected: (Int) -> Unit) {
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                dogAvatars.take(3).forEach { avatar ->
+                dogAvatars.take(3).forEachIndexed { index, avatarId ->
                     Box(
                         modifier = Modifier
                             .size(80.dp)
                             .background(
-                                if (selectedAvatar == avatar) Color(0xFFFFC0CB) else Color.White,
+                                if (selectedAvatar == avatarId) Color(0xFFFFC0CB) else Color.White,
                                 shape = RoundedCornerShape(30.dp)
                             )
-                            .clickable { onAvatarSelected(avatar) }
+                            .clickable { onAvatarSelected(avatarId) }
                             .border(1.dp, Color.Black, RoundedCornerShape(30.dp))
                             .padding(5.dp)
                     ) {
-                        Image(
-                            painter = painterResource(id = avatar),
-                            contentDescription = "Dog Avatar",
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .align(Alignment.Center)
-                                .clip(RoundedCornerShape(30.dp))
-                        )
+                        val avatarDrawable = getAvatarDrawable(avatarId)
+                        // Mendapatkan drawable dari avatarId
+                        avatarDrawable?.let {
+                            Image(
+                                painter = painterResource(id = it),
+                                contentDescription = "Dog Avatar",
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .align(Alignment.Center)
+                                    .clip(RoundedCornerShape(30.dp))
+                            )
+                        }
                     }
                 }
             }
@@ -280,26 +284,29 @@ fun AvatarSection(selectedAvatar: Int?, onAvatarSelected: (Int) -> Unit) {
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                dogAvatars.drop(3).forEach { avatar ->
+                dogAvatars.drop(3).forEachIndexed { index, avatarId ->
                     Box(
                         modifier = Modifier
                             .size(80.dp)
                             .background(
-                                if (selectedAvatar == avatar) Color(0xFFFFC0CB) else Color.White,
+                                if (selectedAvatar == avatarId) Color(0xFFFFC0CB) else Color.White,
                                 shape = RoundedCornerShape(30.dp)
                             )
-                            .clickable { onAvatarSelected(avatar) }
+                            .clickable { onAvatarSelected(avatarId) }
                             .border(1.dp, Color.Black, RoundedCornerShape(30.dp))
                             .padding(5.dp)
                     ) {
-                        Image(
-                            painter = painterResource(id = avatar),
-                            contentDescription = "Dog Avatar",
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .align(Alignment.Center)
-                                .clip(RoundedCornerShape(30.dp))
-                        )
+                        val avatarDrawable = getAvatarDrawable(avatarId) // Mendapatkan drawable dari avatarId
+                        avatarDrawable?.let {
+                            Image(
+                                painter = painterResource(id = it),
+                                contentDescription = "Dog Avatar",
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .align(Alignment.Center)
+                                    .clip(RoundedCornerShape(30.dp))
+                            )
+                        }
                     }
                 }
             }
@@ -458,7 +465,8 @@ fun saveToDatabase(
     medicalInfo: String?,
     additionalInfo: String?,
     selectedAvatar: Int?,
-    gender: String
+    gender: String,
+    userId: String
 ) {
     val database: DatabaseReference = FirebaseDatabase.getInstance().getReference("pets")
 
@@ -475,7 +483,8 @@ fun saveToDatabase(
             "medicalInfo" to medicalInfo,
             "additionalInfo" to additionalInfo,
             "avatar" to selectedAvatar,
-            "gender" to gender
+            "gender" to gender,
+            "userId" to userId
         )
 
         // Menyimpan data ke path petId yang unik
@@ -499,5 +508,5 @@ fun saveToDatabase(
 @Composable
 fun DogFormPreview() {
     val navController = rememberNavController()
-    DogForm(navController = navController)
+    //DogForm(navController = navController,  userId: String)
 }

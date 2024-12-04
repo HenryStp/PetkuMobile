@@ -28,7 +28,14 @@ fun AppNavigation() {
             )
         }
         composable("formlostpet") {
-            FormLostPet(navController = navController) // Halaman FormLostPet
+            FormLostPet(
+                navController = navController,
+                onSubmitClick = { documentId ->
+                    navController.navigate("profileLostPet/$documentId") {
+                        popUpTo("lostpet1") { inclusive = false } // Bersihkan FormLostPet dari stack
+                    }
+                }
+            )
         }
         composable("lostpetdetail") {
             LostPetDetail(navController = navController) // Halaman LostPetDetail
@@ -38,7 +45,8 @@ fun AppNavigation() {
         }
         composable("profileLostPet/{documentId}") { backStackEntry ->
             val documentId = backStackEntry.arguments?.getString("documentId") ?: ""
-            ProfileLostPet(documentId = documentId)
+            ProfileLostPet(documentId = documentId, navController = navController)
+
         }
     }
 }

@@ -58,7 +58,7 @@ data class LostPet(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FormLostPet(navController: NavHostController, modifier: Modifier = Modifier) {
+fun FormLostPet(navController: NavHostController, modifier: Modifier = Modifier, onSubmitClick: (String) -> Unit) {
     val scrollState = rememberScrollState() // Mengingat status scroll
     val showDialog = remember { mutableStateOf(false) }
     val documentId = remember { mutableStateOf("") }
@@ -274,7 +274,9 @@ fun FormLostPet(navController: NavHostController, modifier: Modifier = Modifier)
 
                 submitLostPetData(lostPet) { documentIdValue ->
                     documentId.value = documentIdValue
-                    showDialog.value = true
+                    navController.navigate("profileLostPet/$documentIdValue") {
+                        popUpTo("lostpet1") { inclusive = false } // Kembali ke lostpet1, hapus form dari stack
+                    }
                 }
             },
 
@@ -459,5 +461,12 @@ fun InputField(
 @Composable
 fun PreviewFormLostPet() {
     val mockNavController = rememberNavController()
-    FormLostPet(navController = mockNavController, modifier = Modifier.padding(16.dp))
+    FormLostPet(
+        navController = mockNavController,
+        modifier = Modifier.padding(16.dp),
+        onSubmitClick = { documentId ->
+            // Fungsi dummy untuk onSubmitClick
+            println("Submitted document ID: $documentId")
+        }
+    )
 }

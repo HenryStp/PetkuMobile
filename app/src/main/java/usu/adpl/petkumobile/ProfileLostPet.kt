@@ -19,19 +19,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import usu.adpl.petkumobile.viewmodel.LostPetViewModel
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import usu.adpl.petkumobile.customFontFamily
-import com.google.firebase.database.FirebaseDatabase
-import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
-import usu.adpl.petkumobile.LostPet
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun ProfileLostPet(documentId: String, viewModel: LostPetViewModel = viewModel()) {
+fun ProfileLostPet(documentId: String, navController: NavHostController, viewModel: LostPetViewModel = viewModel()) {
 //    val database = FirebaseDatabase.getInstance()
 //    val reference = database.getReference("lostPets").child(documentId)
 //    val lostPetState = remember { mutableStateOf<LostPet?>(null) }
@@ -61,16 +54,25 @@ fun ProfileLostPet(documentId: String, viewModel: LostPetViewModel = viewModel()
             ) {
                 // Gambar hewan peliharaan
                 Image(
-                    painter = painterResource(id = R.drawable.sample_pet_image), // Gambar hewan
+                    painter = painterResource(
+                        id = if (lostPet.petType.equals("cat", ignoreCase = true)) {
+                            R.drawable.cat_default // Ganti dengan resource gambar kucing Anda
+                        } else if (lostPet.petType.equals("dog", ignoreCase = true)) {
+                            R.drawable.dog_default // Ganti dengan resource gambar anjing Anda
+                        } else {
+                            throw IllegalArgumentException("Invalid pet type")
+                        }
+                    ),
                     contentDescription = "Lost Pet",
                     modifier = Modifier
                         .fillMaxSize()
                         .background(Color.White, shape = RoundedCornerShape(16.dp))
                 )
 
+
                 // Ikon Back di atas gambar
                 IconButton(
-                    onClick = { /* Kembali ke halaman sebelumnya */ },
+                    onClick = {navController.popBackStack("lostPet1", false) },
                     modifier = Modifier
                         .align(Alignment.TopStart) // Menempatkan ikon di pojok kiri atas
                         .padding(16.dp) // Menambahkan padding dari tepi gambar
@@ -288,12 +290,14 @@ fun LostPetListScreen(navController: NavHostController) {
 
 
 
-    @Preview(showBackground = true)
-    @Composable
-    fun PreviewProfileLostPet() {
-        ProfileLostPet(
-            documentId = "exampleDocumentId", // Atur ID sesuai kebutuhan untuk testing
+@Preview(showBackground = true)
+@Composable
+fun PreviewProfileLostPet() {
+    val navController = rememberNavController() // Dummy NavController untuk preview
+    ProfileLostPet(
+        documentId = "exampleDocumentId", // ID dokumen contoh untuk testing
+        navController = navController // Berikan NavController ke ProfileLostPet
+    )
+}
 
-        )
-    }
 

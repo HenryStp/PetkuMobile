@@ -95,7 +95,7 @@ fun ProfileLostPet(documentId: String, viewModel: LostPetViewModel = viewModel()
                     .padding(16.dp)
             ) {
                 Text(
-                    text = "${lostPet.name}",
+                    text = "${lostPet.name.uppercase()}",
                     fontFamily = customFontFamily,
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 20.sp,

@@ -36,6 +36,7 @@ import androidx.compose.material3.OutlinedTextField
 
 
 data class LostPet(
+    val documentId: String = "",
     val petType: String = "",
     val name: String = "",
     val breed: String = "",

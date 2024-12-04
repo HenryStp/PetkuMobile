@@ -15,6 +15,7 @@ import com.google.firebase.database.FirebaseDatabase
 
 
 data class LostPet(
+    val documentId: String = "",
     val name: String = "",
     val petType: String = "",
     val breed: String = "",

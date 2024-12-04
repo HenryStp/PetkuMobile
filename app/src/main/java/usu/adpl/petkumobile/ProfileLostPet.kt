@@ -19,6 +19,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import usu.adpl.petkumobile.viewmodel.LostPetViewModel
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import usu.adpl.petkumobile.customFontFamily
+import com.google.firebase.database.FirebaseDatabase
+import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -72,7 +76,7 @@ fun ProfileLostPet(documentId: String, navController: NavHostController, viewMod
 
                 // Ikon Back di atas gambar
                 IconButton(
-                    onClick = {navController.popBackStack("lostPet1", false) },
+                    onClick = {navController.popBackStack() },
                     modifier = Modifier
                         .align(Alignment.TopStart) // Menempatkan ikon di pojok kiri atas
                         .padding(16.dp) // Menambahkan padding dari tepi gambar

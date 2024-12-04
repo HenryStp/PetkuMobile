@@ -36,6 +36,9 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+
 
 class CalendarActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,25 +66,29 @@ fun getDayName(dateString: String): String {
 
 fun savedDataSchedule(
     schedule: Schedule,
-    onSucces : () -> Unit,
-    onFailure : (Exception) -> Unit
-){
+    onSucces: () -> Unit,
+    onFailure: (Exception) -> Unit
+) {
     val database = FirebaseDatabase.getInstance()
     val scheduleRef = database.getReference("schedule")
 
     val scheduleId = scheduleRef.push().key ?: return
 
-    scheduleRef.child(scheduleId).setValue(schedule)
+    val scheduleWithId = schedule.copy(id = scheduleId)
+
+    scheduleRef.child(scheduleId).setValue(scheduleWithId)
         .addOnSuccessListener {
             onSucces()
         }
-        .addOnFailureListener{ exception ->
+        .addOnFailureListener { exception ->
             onFailure(exception)
         }
 }
 
 
+
 @OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true, widthDp = 360, heightDp = 640)
 @Composable
 fun ScheduleView() {
     var title by remember { mutableStateOf("") }
@@ -235,18 +242,16 @@ fun ScheduleView() {
                 contentAlignment = Alignment.Center
             ) {
                 Button(
-
                     onClick = {
                         val schedule = Schedule(
                             title = title,
                             notes = notes,
                             date = selectedDate,
                             time = selectedTime
-
                         )
                         savedDataSchedule(schedule,
                             onSucces = {
-                                message = "Schedule Create Succesfully !"
+                                message = "Schedule Created Successfully!"
 
                                 title = ""
                                 notes = ""
@@ -257,11 +262,12 @@ fun ScheduleView() {
                                 message = "Error: ${exception.message}"
                             })
                     },
-
                     modifier = Modifier
                 ) {
                     Text(text = "Create New Schedule")
                 }
+
+
             }
         }
 
@@ -292,6 +298,7 @@ fun fetchSchedulesFromFirebase(
     }
 }
 
+
 @Composable
 fun ScheduleItem(
     day: String,
@@ -300,34 +307,71 @@ fun ScheduleItem(
     subtitle: String,
     backgroundColor: Color
 ) {
-    Row(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .background(backgroundColor)
-            .padding(16.dp)
+            .padding(vertical = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = backgroundColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(end = 16.dp)
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = day, fontWeight = FontWeight.Bold, fontSize = 20.sp, color = Color.Black)
-            Text(text = date, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color.Black)
-        }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(end = 16.dp)
+            ) {
+                Text(text = day, fontWeight = FontWeight.Bold, fontSize = 20.sp, color = Color.Black)
+                Text(text = date, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color.Black)
+            }
 
-        Column {
-            Text(text = title, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
-            Text(text = subtitle, fontSize = 14.sp, color = Color.DarkGray)
+            Column {
+                Text(text = title, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
+                Text(text = subtitle, fontSize = 14.sp, color = Color.DarkGray)
+            }
         }
     }
 }
+
+fun deleteScheduleFromFirebase(
+    scheduleId: String,
+    onSuccess: () -> Unit,
+    onFailure: (Exception) -> Unit
+) {
+    val database = FirebaseDatabase.getInstance()
+    val scheduleRef = database.getReference("schedule").child(scheduleId)
+
+    scheduleRef.removeValue()
+        .addOnSuccessListener { onSuccess() }
+        .addOnFailureListener { exception -> onFailure(exception) }
+}
+
+fun updateScheduleInFirebase(
+    scheduleId: String,
+    updatedSchedule: Schedule,
+    onSuccess: () -> Unit,
+    onFailure: (Exception) -> Unit
+) {
+    val database = FirebaseDatabase.getInstance()
+    val scheduleRef = database.getReference("schedule").child(scheduleId)
+
+    scheduleRef.setValue(updatedSchedule)
+        .addOnSuccessListener { onSuccess() }
+        .addOnFailureListener { exception -> onFailure(exception) }
+}
+
+
 
 
 @Composable
 fun WeeklySchedule() {
     var schedules by remember { mutableStateOf<List<Schedule>>(emptyList()) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var isEditing by remember { mutableStateOf(false) }
+    var editingSchedule by remember { mutableStateOf<Schedule?>(null) }
 
+    // Ambil data dari Firebase saat komponen diluncurkan
     LaunchedEffect(Unit) {
         fetchSchedulesFromFirebase(
             onSuccess = { fetchedSchedules ->
@@ -357,17 +401,166 @@ fun WeeklySchedule() {
                 .fillMaxWidth()
                 .padding(16.dp)
                 .background(Color.White)
+                .verticalScroll(rememberScrollState())
         ) {
-            schedules.forEach { schedule ->
-                ScheduleItem(
-                    day = getDayName(schedule.date),
-                    date = schedule.date.split("-").last(),
-                    title = schedule.title,
-                    subtitle = schedule.notes,
-                    backgroundColor = Color(0xFFD3EED8)
-                )
+            schedules.forEachIndexed { index, schedule ->
+                val backgroundColor = when (index % 3) {
+                    0 -> Color(0xFFD3EED8)
+                    1 -> Color(0xFFFFD7D7)
+                    else -> Color(0xFFFFE4C7)
+                }
 
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    colors = CardDefaults.cardColors(containerColor = backgroundColor),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                text = getDayName(schedule.date),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 20.sp,
+                                color = Color.Black
+                            )
+                            Text(
+                                text = schedule.date.split("-").last(),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp,
+                                color = Color.Black
+                            )
+                            Text(
+                                text = schedule.title,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                color = Color.Black
+                            )
+                            Text(
+                                text = schedule.notes,
+                                fontSize = 14.sp,
+                                color = Color.DarkGray
+                            )
+                        }
+
+                        // Tombol Edit
+                        IconButton(onClick = {
+                            editingSchedule = schedule
+                            isEditing = true
+                        }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_edit), // Gunakan ikon edit yang sesuai
+                                contentDescription = "Edit",
+                                tint = Color.Blue
+                            )
+                        }
+
+                        // Tombol Delete
+                        IconButton(onClick = {
+                            deleteScheduleFromFirebase(
+                                schedule.id ?: "",
+                                onSuccess = {
+                                    schedules = schedules.filter { it.id != schedule.id }
+                                },
+                                onFailure = { exception ->
+                                    errorMessage = exception.message
+                                }
+                            )
+                        }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_baseline_delete), // Gunakan ikon delete yang sesuai
+                                contentDescription = "Delete",
+                                tint = Color.Red
+                            )
+                        }
+                    }
+                }
             }
         }
     }
+
+    // Dialog Edit
+    if (isEditing) {
+        EditScheduleDialog(
+            schedule = editingSchedule,
+            onDismiss = { isEditing = false },
+            onSave = { updatedSchedule ->
+                if (updatedSchedule.id != null) {
+                    updateScheduleInFirebase(
+                        updatedSchedule.id,
+                        updatedSchedule,
+                        onSuccess = {
+                            schedules = schedules.map {
+                                if (it.id == updatedSchedule.id) updatedSchedule else it
+                            }
+                            isEditing = false
+                        },
+                        onFailure = { exception ->
+                            errorMessage = exception.message
+                        }
+                    )
+                }
+            }
+        )
+    }
+}
+@Composable
+fun EditScheduleDialog(
+    schedule: Schedule?,
+    onDismiss: () -> Unit,
+    onSave: (Schedule) -> Unit
+) {
+    if (schedule == null) return
+
+    var title by remember { mutableStateOf(schedule.title) }
+    var notes by remember { mutableStateOf(schedule.notes) }
+    var date by remember { mutableStateOf(schedule.date) }
+    var time by remember { mutableStateOf(schedule.time) }
+
+    AlertDialog(
+        onDismissRequest = { onDismiss() },
+        title = { Text("Edit Schedule") },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    label = { Text("Title") }
+                )
+                OutlinedTextField(
+                    value = notes,
+                    onValueChange = { notes = it },
+                    label = { Text("Notes") }
+                )
+                OutlinedTextField(
+                    value = date,
+                    onValueChange = { date = it },
+                    label = { Text("Date") }
+                )
+                OutlinedTextField(
+                    value = time,
+                    onValueChange = { time = it },
+                    label = { Text("Time") }
+                )
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                onSave(schedule.copy(title = title, notes = notes, date = date, time = time))
+            }) {
+                Text("Save")
+            }
+        },
+        dismissButton = {
+            Button(onClick = { onDismiss() }) {
+                Text("Cancel")
+            }
+        }
+    )
 }

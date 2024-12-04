@@ -13,6 +13,7 @@ fun AppNavigation() {
     NavHost(navController = navController, startDestination = "lostpet2") {
         composable("lostpet2") {
             LostPet2(
+                //navController = navController,
                 onHomeClick = { /* Tidak perlu navigasi, tetap di halaman yang sama */ },
                 onReportClick = { navController.navigate("lostpet1") } ,// Pergi ke LostPet1
                 onViewDetailsClick = { navController.navigate("lostpetdetail") } // Navigasi ke LostPetDetail
@@ -20,6 +21,7 @@ fun AppNavigation() {
         }
         composable("lostpet1") {
             LostPet1(
+                navController = navController,
                 onHomeClick = { navController.navigate("lostpet2") },
                 onReportClick = { /*no nav*/ },
                 onAddReportClick = { navController.navigate("formlostpet") }
@@ -30,6 +32,13 @@ fun AppNavigation() {
         }
         composable("lostpetdetail") {
             LostPetDetail(navController = navController) // Halaman LostPetDetail
+        }
+        composable("lostPetList") {
+            LostPetListScreen(navController = navController)
+        }
+        composable("profileLostPet/{documentId}") { backStackEntry ->
+            val documentId = backStackEntry.arguments?.getString("documentId") ?: ""
+            ProfileLostPet(documentId = documentId)
         }
     }
 }

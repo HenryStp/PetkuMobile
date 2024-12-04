@@ -21,11 +21,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
 import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.material3.Text
 import androidx.compose.material3.Button
 import androidx.compose.material3.TextButton
@@ -39,7 +37,6 @@ import androidx.compose.material3.OutlinedTextField
 
 data class LostPet(
     val petType: String = "",
-    val photo: String = "",
     val name: String = "",
     val breed: String = "",
     val age: String = "",
@@ -54,7 +51,8 @@ data class LostPet(
     val ownerPhone: String = "",
     val ownerEmail: String = "",
     val ownerInstagram: String = "",
-    val reward: String = ""
+    val reward: String = "",
+    val photo: Int = 0
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,6 +60,7 @@ data class LostPet(
 fun FormLostPet(navController: NavHostController, modifier: Modifier = Modifier) {
     val scrollState = rememberScrollState() // Mengingat status scroll
     val showDialog = remember { mutableStateOf(false) }
+    val documentId = remember { mutableStateOf("") }
 
 // State untuk setiap input field
     val nameState = remember { mutableStateOf("") }
@@ -141,7 +140,6 @@ fun FormLostPet(navController: NavHostController, modifier: Modifier = Modifier)
 
 
         // Input fields for pet details
-        //InputField(label = "Photo", isButton = true, modifier = Modifier.fillMaxWidth())
         InputField( value = nameState.value,
             onValueChange = { nameState.value = it },
             label = "Name", modifier = Modifier.fillMaxWidth())
@@ -245,10 +243,16 @@ fun FormLostPet(navController: NavHostController, modifier: Modifier = Modifier)
         // Submit button
         Button(
             onClick = {
+                // Pilih foto default berdasarkan jenis hewan
+                val defaultPhoto = when (selectedPetType.value) {
+                    "Cat" -> R.drawable.cat_default
+                    "Dog" -> R.drawable.dog_default
+                    else -> 0
+                }
+
                 // Kumpulkan data dari input
                 val lostPet = LostPet(
                     petType = selectedPetType.value,
-                    photo = "Photo URL if available", // Implementasikan upload foto
                     name = nameState.value, // Menggunakan nilai langsung karena state sekarang adalah String
                     breed = breedState.value,
                     age = ageState.value,
@@ -263,16 +267,16 @@ fun FormLostPet(navController: NavHostController, modifier: Modifier = Modifier)
                     ownerPhone = ownerPhoneState.value,
                     ownerEmail = ownerEmailState.value,
                     ownerInstagram = ownerInstagramState.value,
-                    reward = rewardState.value
+                    reward = rewardState.value,
+                    photo = defaultPhoto
                 )
 
-
-                // Simpan data ke Firebase
-                submitLostPetData(lostPet)
-
-                // Tampilkan dialog sukses
-                showDialog.value = true
+                submitLostPetData(lostPet) { documentIdValue ->
+                    documentId.value = documentIdValue
+                    showDialog.value = true
+                }
             },
+
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF4B9B8)),
             shape = RoundedCornerShape(32.dp),
             contentPadding = PaddingValues(0.dp), // Menghilangkan padding default
@@ -345,7 +349,7 @@ fun FormLostPet(navController: NavHostController, modifier: Modifier = Modifier)
                         Button(
                             onClick = {
                                 // Navigasi ke halaman report
-                                showDialog.value = false // Tutup dialog
+                                navController.navigate("profilelostpet/${documentId.value}")
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF4B9B8))
                         ) {
@@ -358,21 +362,24 @@ fun FormLostPet(navController: NavHostController, modifier: Modifier = Modifier)
         Spacer(modifier = Modifier.height(32.dp))
     }
 }
-fun submitLostPetData(lostPet: LostPet) {
+fun submitLostPetData(lostPet: LostPet, onSuccess: (String) -> Unit) {
     val database = FirebaseDatabase.getInstance()
     val reference = database.getReference("lostPets")
+    val newReference = reference.push()
 
-    // Push data ke database
-    reference.push().setValue(lostPet)
+    newReference.setValue(lostPet)
         .addOnSuccessListener {
-            // Data berhasil disimpan
-            println("Data berhasil disimpan ke Firebase")
+            // Kembalikan ID dokumen untuk navigasi
+            val documentId = newReference.key ?: ""
+            onSuccess(documentId)
+            println("Data berhasil disimpan ke Firebase dengan ID: $documentId")
         }
         .addOnFailureListener {
-            // Gagal menyimpan data
             println("Gagal menyimpan data ke Firebase: ${it.message}")
         }
 }
+
+
 
 @Composable
 fun ChoiceButton(

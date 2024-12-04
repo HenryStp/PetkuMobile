@@ -32,7 +32,7 @@ fun ProfileLostPet(documentId: String, navController: NavHostController, viewMod
 //    val database = FirebaseDatabase.getInstance()
 //    val reference = database.getReference("lostPets").child(documentId)
 //    val lostPetState = remember { mutableStateOf<LostPet?>(null) }
-
+    val isPetFounded = remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         viewModel.fetchLostPetData(documentId)
     }
@@ -109,15 +109,18 @@ fun ProfileLostPet(documentId: String, navController: NavHostController, viewMod
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "STILL MISSING",
-                    color = Color.Red,
+                    text = if (isPetFounded.value) "FOUNDED" else "STILL MISSING",
+                    color = if (isPetFounded.value) Color.Green else Color.Red,
                     fontSize = 14.sp,
                     fontFamily = customFontFamily,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFFFFBFBF), RoundedCornerShape(8.dp))
+                        .background(
+                            if (isPetFounded.value) Color(0xFFB9F6CA) else Color(0xFFFFBFBF),
+                            RoundedCornerShape(8.dp)
+                        )
                         .padding(vertical = 4.dp)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -198,36 +201,15 @@ fun ProfileLostPet(documentId: String, navController: NavHostController, viewMod
                     lineHeight = 20.sp
                 )
 
-
-                // Tombol Edit dan Found dalam satu baris
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(16.dp) // Spasi antar tombol
                 ) {
-                    // Tombol Edit
-                    Button(
-                        onClick = { /* Logic untuk Edit */ },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFFFFF)),
-                        shape = RoundedCornerShape(32.dp),
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(32.dp))
-                            .border(
-                                width = 2.dp,
-                                color = Color.Black,
-                                shape = RoundedCornerShape(32.dp) // Outline bulat sama dengan tombol
-                            )
-                            .height(40.dp) // Tinggi tombol
-                            .width(200.dp) // Lebar tombol
-                    ) {
-                        Text( text = "EDIT", color = Color.Black, fontFamily = customFontFamily,
-                            fontWeight = FontWeight.Bold,)
-                    }
 
                     // Tombol Found
                     Button(
-                        onClick = { /* Logic untuk Found */ },
+                        onClick = { isPetFounded.value = true },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF81C784)),
                         shape = RoundedCornerShape(32.dp),
                         modifier = Modifier
@@ -251,6 +233,7 @@ fun ProfileLostPet(documentId: String, navController: NavHostController, viewMod
         }
     }
 }
+
 
     @Composable
     fun ProfileSection(label: String, value: String) {

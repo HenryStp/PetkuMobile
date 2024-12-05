@@ -29,8 +29,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
-//import usu.adpl.petkumobile.R
-//import usu.adpl.petkumobile.Pet
+
 
 class DisplayPetActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,19 +45,20 @@ class DisplayPetActivity : ComponentActivity() {
 @Composable
 fun DisplayPet(navController: NavController, userId: String) {
     // State untuk menyimpan data dari Firebase
+    // State untuk menyimpan data dari Firebase
     var pets by remember { mutableStateOf<List<PetData>>(emptyList()) }
 
-    // Load data dari Firebase
-    LaunchedEffect(Unit) {
+    DisposableEffect(Unit) {
         val database = FirebaseDatabase.getInstance()
         val petsRef = database.getReference("pets")
 
         // Query untuk mengambil data berdasarkan userId
         val query = petsRef.orderByChild("userId").equalTo(userId)
-        query.addValueEventListener(object : ValueEventListener {
+        val valueEventListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 try {
-                    val loadedPets = snapshot.children.mapNotNull { it.getValue(PetData::class.java) }
+                    val loadedPets =
+                        snapshot.children.mapNotNull { it.getValue(PetData::class.java) }
                     pets = loadedPets
                     Log.d("FirebaseData", "Pets loaded for user $userId: $pets")
                 } catch (e: Exception) {
@@ -69,8 +69,16 @@ fun DisplayPet(navController: NavController, userId: String) {
             override fun onCancelled(error: DatabaseError) {
                 Log.e("FirebaseError", "Query cancelled: ${error.message}")
             }
-        })
+        }
+
+        query.addValueEventListener(valueEventListener)
+
+        // Cleanup listener saat `DisplayPet` tidak lagi digunakan
+        onDispose {
+            query.removeEventListener(valueEventListener)
+        }
     }
+
 
     // Tampilan utama
     Box(
@@ -85,7 +93,7 @@ fun DisplayPet(navController: NavController, userId: String) {
                 .fillMaxHeight()
                 .padding(top = 115.dp)
                 .background(
-                    color = Color(0xFFD2E8E1), // Warna hijau pastel
+                    color = Color(0xFFD2E8E1),
                     shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                 )
         )
@@ -98,9 +106,8 @@ fun DisplayPet(navController: NavController, userId: String) {
                 .padding(16.dp)
                 .align(Alignment.TopStart)
         ) {
-            val arrowIcon = painterResource(id = R.drawable.arrow)
             Icon(
-                painter = arrowIcon,
+                painter = painterResource(id = R.drawable.arrow),
                 contentDescription = "Back",
                 tint = Color.Black,
                 modifier = Modifier.size(25.dp)
@@ -138,8 +145,7 @@ fun DisplayPet(navController: NavController, userId: String) {
     }
 }
 
-
-@Composable
+    @Composable
 fun PetCard(pet: PetData) {
     Card(
         modifier = Modifier

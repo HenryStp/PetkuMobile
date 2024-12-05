@@ -53,7 +53,8 @@ data class LostPet(
     val ownerEmail: String = "",
     val ownerInstagram: String = "",
     val reward: String = "",
-    val photo: Int = 0
+    val photo: Int = 0,
+    val status: String = "stillMissing"
 )
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -234,6 +234,18 @@ fun ProfileLostPet(documentId: String, navController: NavHostController, viewMod
     }
 }
 
+fun updatePetStatus(documentId: String, newStatus: String) {
+    val database = FirebaseDatabase.getInstance()
+    val reference = database.getReference("lostPets").child(documentId)
+
+    reference.child("status").setValue(newStatus)
+        .addOnSuccessListener {
+            println("Status berhasil diperbarui menjadi: $newStatus")
+        }
+        .addOnFailureListener {
+            println("Gagal memperbarui status: ${it.message}")
+        }
+}
 
     @Composable
     fun ProfileSection(label: String, value: String) {
@@ -274,6 +286,7 @@ fun LostPetListScreen(navController: NavHostController) {
         }
     }
 }
+
 
 
 

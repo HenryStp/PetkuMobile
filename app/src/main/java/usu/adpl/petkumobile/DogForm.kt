@@ -175,6 +175,7 @@ fun DogForm(navController: NavController, userId: String) {
                             )
                         ) {
                             Text("Submit")
+
                         }
                     }
                 }

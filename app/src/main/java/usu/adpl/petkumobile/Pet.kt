@@ -12,5 +12,6 @@ data class PetData(
     val medicalInfo: String?,
     val additionalInfo: String?,
     val avatar: Int?,
-    val gender: String // Menambahkan gender ke data model
+    val gender: String, // Menambahkan gender ke data model
+    val userId: String?
 )

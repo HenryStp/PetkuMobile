@@ -129,6 +129,11 @@
             android:exported="true"
             android:theme="@style/Theme.PetkuMobile">
         </activity>
+        <activity
+            android:name=".LostPet2Activity"
+            android:exported="true"
+            android:theme="@style/Theme.PetkuMobile">
+        </activity>
     </application>
 
 </manifest>

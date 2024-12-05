@@ -368,9 +368,9 @@ fun CategoriesSection() {
                 .padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceAround
         ) {
-            CategoryItem(name = "Calendar", iconResId = R.drawable.calendar,destinationActivity = CalendarActivity::class.java)
+            CategoryItem(name = "Schedule", iconResId = R.drawable.calendar,destinationActivity = CalendarActivity::class.java)
             CategoryItem(name = "Service", iconResId = R.drawable.service,destinationActivity = PetServiceActivity::class.java )
-            CategoryItem(name = "Lost Pet", iconResId = R.drawable.lost_pet,destinationActivity = CalendarActivity::class.java)
+            CategoryItem(name = "Lost Pet", iconResId = R.drawable.lost_pet,destinationActivity = LostPet2Activity::class.java)
         }
     }
 }
@@ -414,7 +414,7 @@ fun LostPetSection() {
 
     SectionHeader(title = "Lost Pet",
         onSeeAllClick = {
-        val intent = Intent(context, CalendarActivity::class.java)
+        val intent = Intent(context, LostPet2Activity::class.java)
         context.startActivity(intent)
     })
     LazyRow {
@@ -422,7 +422,7 @@ fun LostPetSection() {
             PetCard(
                 name = "Luna - Siamese Cat",
                 onClick = {
-                    val intent = Intent(context, CalendarActivity::class.java)
+                    val intent = Intent(context, LostPet2Activity::class.java)
                     context.startActivity(intent)
                 }
             )

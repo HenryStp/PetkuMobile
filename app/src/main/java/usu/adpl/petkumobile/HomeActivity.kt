@@ -274,8 +274,7 @@ fun AddPetSection(userId: String) {
                                         .clickable {
                                             // Membuat Intent untuk membuka DisplayPet
                                             val intent = Intent(context, DisplayPetActivity::class.java).apply {
-                                                // Kirim data jika diperlukan, misalnya petId
-                                                //putExtra("petId", pet["id"] as? String) // Ganti dengan ID atau data yang ingin dikirim
+                                                putExtra("userId", userId)
                                             }
                                             context.startActivity(intent) // Menjalankan aktivitas DisplayPet
                                         }

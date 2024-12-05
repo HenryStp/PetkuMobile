@@ -35,15 +35,16 @@ import com.google.firebase.database.ValueEventListener
 class DisplayPetActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val userId = intent.getStringExtra("user_id") ?: "Unknown User"
         setContent {
             val navController = rememberNavController() // Inisialisasi NavController
-            DisplayPet(navController = navController)
+            DisplayPet(navController = navController, userId = userId)
         }
     }
 }
 
 @Composable
-fun DisplayPet(navController: NavController) {
+fun DisplayPet(navController: NavController, userId: String) {
     // State untuk menyimpan data dari Firebase
     var pets by remember { mutableStateOf<List<PetData>>(emptyList()) }
 
@@ -52,20 +53,21 @@ fun DisplayPet(navController: NavController) {
         val database = FirebaseDatabase.getInstance()
         val petsRef = database.getReference("pets")
 
-        petsRef.addValueEventListener(object : ValueEventListener {
+        // Query untuk mengambil data berdasarkan userId
+        val query = petsRef.orderByChild("userId").equalTo(userId)
+        query.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 try {
                     val loadedPets = snapshot.children.mapNotNull { it.getValue(PetData::class.java) }
                     pets = loadedPets
-                    Log.d("FirebaseData", "Pets loaded: $pets")
+                    Log.d("FirebaseData", "Pets loaded for user $userId: $pets")
                 } catch (e: Exception) {
-                    // Tambahkan log jika terjadi error
                     Log.e("FirebaseError", "Error parsing data: ${e.message}")
                 }
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // Log error jika diperlukan
+                Log.e("FirebaseError", "Query cancelled: ${error.message}")
             }
         })
     }
@@ -90,7 +92,7 @@ fun DisplayPet(navController: NavController) {
 
         // Tombol back
         IconButton(
-            onClick = { navController.navigateUp() }, // Navigasi ke halaman sebelumnya
+            onClick = { navController.navigateUp() },
             modifier = Modifier
                 .padding(top = 115.dp)
                 .padding(16.dp)
@@ -100,7 +102,7 @@ fun DisplayPet(navController: NavController) {
             Icon(
                 painter = arrowIcon,
                 contentDescription = "Back",
-                tint = Color.Black, // Warna panah
+                tint = Color.Black,
                 modifier = Modifier.size(25.dp)
             )
         }
@@ -109,7 +111,7 @@ fun DisplayPet(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 40.dp), // Beri padding agar konten tidak tumpang tindih
+                .padding(top = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             LazyColumn(
@@ -124,7 +126,7 @@ fun DisplayPet(navController: NavController) {
                 } else {
                     item {
                         Text(
-                            text = "No pets available",
+                            text = "No pets available for this user",
                             modifier = Modifier.align(Alignment.CenterHorizontally),
                             style = MaterialTheme.typography.bodyLarge,
                             color = Color.Gray
@@ -135,6 +137,7 @@ fun DisplayPet(navController: NavController) {
         }
     }
 }
+
 
 @Composable
 fun PetCard(pet: PetData) {
@@ -247,6 +250,6 @@ fun getAvatarDrawable(avatarIndex: Int): Int {
 @Composable
 fun DisplayPetPreview() {
     val navController = rememberNavController()
-    DisplayPet(navController = navController)
+    //DisplayPet(navController = navController)
 }
 

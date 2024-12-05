@@ -55,8 +55,9 @@ class ProfilScreen : ComponentActivity() {
                         composable("petSaved") {
                             ProfileSaved(navController = navController) // Memanggil PetSaved
                         }
-                        composable("displayPet") {
-                            DisplayPet(navController = navController) // Memanggil DisplayPet
+                        composable("displayPet/{userId}") { backStackEntry ->
+                            val userId = backStackEntry.arguments?.getString("userId") ?: "Unknown User"
+                            DisplayPet(navController = navController, userId = userId) // Memanggil DisplayPet
 
 
 

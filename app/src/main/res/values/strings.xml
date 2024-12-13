@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">PetKu</string>
+    <string name="default_web_client_id">268229420443-pm8lijie8oeedpl3fl2ki3dc1gcvhtso.apps.googleusercontent.com</string>
+
 </resources>

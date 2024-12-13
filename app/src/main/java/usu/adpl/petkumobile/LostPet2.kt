@@ -1,5 +1,6 @@
 package usu.adpl.petkumobile
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -23,36 +24,80 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.border
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.compose.rememberNavController
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.DataSnapshot
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+
 
 class LostPet2Activity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val userId = intent.getStringExtra("userId") ?: ""
         setContent {
             AppNavigation(
+                userId = userId
             )
         }
     }
 }
 
-
 @Composable
 fun LostPet2(
+    userId: String,
+    navController: NavController,  // Tambahkan parameter ini
     onHomeClick: () -> Unit,
-    onReportClick: () -> Unit,
-    onViewDetailsClick: () -> Unit,
+    onReportClick: (String) -> Unit,
+    onViewDetailsClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Referensi ke Realtime Database Firebase
+    val database = FirebaseDatabase.getInstance()
+    val lostPetsRef = database.getReference("lostPets")
+
+    val lostPets = remember { mutableStateListOf<LostPet>() }
+
+
+    LaunchedEffect(Unit) {
+        lostPetsRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                lostPets.clear()
+                for (postSnapshot in snapshot.children) {
+                    val lostPet = postSnapshot.getValue(LostPet::class.java)
+                    if (lostPet != null && lostPet.userId != userId) { // Filter: userId harus berbeda
+                        lostPets.add(lostPet)
+                    }
+                }
+                // Debugging log
+                /*Log.d("LostPet2", "Filtered LostPets: $lostPets")*/
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Tangani kesalahan jika diperlukan
+            }
+        })
+    }
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFC9A9E2)) // Background ungu muda
             .padding(16.dp)
-    )
-
-    {
+    ) {
         Spacer(modifier = Modifier.height(16.dp))
-        // Tombol Back
-        IconButton(onClick = { /* Kembali ke halaman sebelumnya */ }) {
+        // Tombol back
+        IconButton(onClick = {
+            val intent = Intent(context, HomeActivity::class.java)
+            context.startActivity(intent)
+        }) {
             Icon(
                 painter = painterResource(id = R.drawable.back_black),
                 contentDescription = "Back",
@@ -129,14 +174,14 @@ fun LostPet2(
 
             // Tombol Report
             Button(
-                onClick = onReportClick,
+                onClick = { onReportClick(userId) }, // Kirim userId
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD3D3D3)),
                 modifier = Modifier
                     .padding(8.dp)
                     .size(width = 200.dp, height = 40.dp)
                     .weight(1f),
                 shape = RoundedCornerShape(32.dp)
-            ){
+            ) {
                 Text(
                     text = "Report",
                     fontSize = 18.sp,
@@ -157,9 +202,14 @@ fun LostPet2(
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(3) { // Ubah sesuai jumlah data yang ada
+                items(lostPets.size) { index ->
                     LostPetCard(
-                        onViewDetailsClick = onViewDetailsClick // Diteruskan dari LostPet2
+                        documentId = lostPets[index].documentId,
+                        lostPet = lostPets[index],
+                        onViewDetailsClick = { documentId ->
+                            navController.navigate("lostpetdetail/$documentId")
+                        },
+                        navController = navController  // Pastikan ini disediakan sebagai parameter
                     )
                 }
             }
@@ -168,15 +218,21 @@ fun LostPet2(
 }
 
 @Composable
-fun LostPetCard(onViewDetailsClick: () -> Unit) {
+fun LostPetCard(
+    documentId: String,
+    lostPet: LostPet,
+    onViewDetailsClick: (String) -> Unit,
+    navController: NavController
+) {
+
     Card(
         shape = RoundedCornerShape(8.dp),
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(8.dp)
-            .border(1.dp, Color.Gray, RoundedCornerShape(8.dp)), // Menambahkan border hitam
-        colors = CardDefaults.cardColors(containerColor = Color.White), // Warna putih untuk Card
+            .padding(2.dp)
+            .border(1.dp, Color.Gray, RoundedCornerShape(8.dp)),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(
@@ -188,40 +244,45 @@ fun LostPetCard(onViewDetailsClick: () -> Unit) {
                     .fillMaxWidth()
                     .aspectRatio(1f) // Membuat rasio persegi untuk gambar
                     .clip(RoundedCornerShape(8.dp))
-                    .background(Color(0xFFFFFFFF))// Warna latar belakang gambar untuk memberi tepi
+                    .background(Color(0xFFFFFFFF)) // Warna latar belakang gambar untuk memberi tepi
                     .border(1.dp, Color.Gray, RoundedCornerShape(8.dp)),
                 contentAlignment = Alignment.Center
             ) {
+                val imageResource = when (lostPet.petType) {
+                    "Cat" -> R.drawable.cat_default // Ganti dengan ID gambar default kucing
+                    "Dog" -> R.drawable.dog_default // Ganti dengan ID gambar default anjing
+                    else -> throw IllegalArgumentException("Invalid pet type")
+                }
+
                 Image(
-                    painter = painterResource(id = R.drawable.sample_pet_image), // Gambar hewan
+                    painter = painterResource(id = imageResource), // Gambar default berdasarkan jenis pet
                     contentDescription = "Lost Pet",
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(8.dp) // Memberikan ruang tepi di sekitar gambar
+                        .fillMaxSize() // Mengatur ukuran maksimal gambar di dalam box
+                        .aspectRatio(1f)
+
                 )
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Detail Hewan Peliharaan
             Column {
                 Text(
-                    text = "LUNA - SIAMESE CAT",
+                    text = "${lostPet.name} - ${lostPet.breed}",
                     fontFamily = customFontFamily,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
+                    fontSize = 20.sp,
                     color = Color.Black
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = "Location: Jl. Mawar No. 23, Jakarta (0.8 km from you)\n" +
-                            "Last Seen: October 3, 2024, at 6:30 PM\n" +
-                            "Description: Medium, light brown with dark face, no collar\n" +
+                    text = "Location: ${lostPet.lastSeenLocation}\n" +
+                            "Description: ${lostPet.colorAndFeatures}\n" +
                             "• Reward Available",
                     fontFamily = customFontFamily,
-                    fontSize = 12.sp,
+                    fontSize = 16.sp,
                     color = Color.Gray
                 )
 
@@ -233,38 +294,45 @@ fun LostPetCard(onViewDetailsClick: () -> Unit) {
                     fontWeight = FontWeight.Medium,
                     fontSize = 12.sp,
                     color = Color(0xFF1E88E5),
-                    modifier = Modifier.clickable { onViewDetailsClick() }
+                    modifier = Modifier.clickable { navController.navigate("lostPetDetail/${documentId}") }
                 )
+
             }
         }
 
-        // Label "STILL MISSING" di bagian bawah kartu
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xFFFFBFBF), RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp))
-                .padding(vertical = 4.dp),
+                .background(
+                    color = if (lostPet.status == "FOUNDED") Color(0xFFB9F6CA) else Color(0xFFFFBFBF),
+                    shape = RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp)
+                )
+                .padding(vertical = 8.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "STILL MISSING",
+                text = lostPet.status,
                 fontFamily = customFontFamily,
                 fontWeight = FontWeight.Bold,
-                fontSize = 12.sp,
-                color = Color.Red,
+                fontSize = 16.sp,
+                color = if (lostPet.status == "FOUNDED") Color.Green else Color.Red,
                 textAlign = TextAlign.Center
             )
         }
+
     }
 }
 
+
+
+/*
 @Preview(showBackground = true)
 @Composable
 fun PreviewLostPet2() {
     // Memberikan nilai untuk onHomeClick dan onReportClick di preview
     LostPet2(
-        onHomeClick = { /* Tambahkan aksi untuk tombol Home di preview */ },
-        onReportClick = { /* Tambahkan aksi untuk tombol Report di preview */ },
+        onHomeClick = { *//* Tambahkan aksi untuk tombol Home di preview *//* },
+        onReportClick = { *//* Tambahkan aksi untuk tombol Report di preview *//* },
         onViewDetailsClick = {}
     )
-}
+}*/

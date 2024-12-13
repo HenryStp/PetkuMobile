@@ -1,5 +1,6 @@
 package usu.adpl.petkumobile
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -29,15 +30,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun LostPet1(
+    userId: String,
     navController: NavHostController,
     onHomeClick: () -> Unit,
     onReportClick: () -> Unit,
     onAddReportClick: () -> Unit,
-    modifier: Modifier = Modifier) {
-
+    modifier: Modifier = Modifier
+) {
     val lostPets = remember { mutableStateOf<List<LostPet>>(emptyList()) }
     val isLoading = remember { mutableStateOf(true) }
 
@@ -48,8 +51,8 @@ fun LostPet1(
         reference.get().addOnSuccessListener { snapshot ->
             val pets = snapshot.children.mapNotNull { data ->
                 val pet = data.getValue(LostPet::class.java)
-                pet?.copy(documentId = data.key ?: "") // Ambil ID dokumen dari key
-            }
+                pet?.copy(documentId = data.key ?: "")
+            }.filter { it.userId == userId } // Filter berdasarkan userId
             lostPets.value = pets
             isLoading.value = false
         }.addOnFailureListener {
@@ -58,6 +61,7 @@ fun LostPet1(
         }
     }
 
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -65,8 +69,12 @@ fun LostPet1(
             .padding(16.dp)
     ) {
         Spacer(modifier = Modifier.height(16.dp))
+
         // Tombol back
-        IconButton(onClick = { /* Kembali ke halaman sebelumnya */ }) {
+        IconButton(onClick = {
+            val intent = Intent(context, HomeActivity::class.java)
+            context.startActivity(intent)
+        }) {
             Icon(
                 painter = painterResource(id = R.drawable.back_black),
                 contentDescription = "Back",
@@ -158,6 +166,7 @@ fun LostPet1(
                 )
             }
         }
+
         // Layout utama putih untuk konten
         Column(
             modifier = Modifier
@@ -207,7 +216,6 @@ fun LostPet1(
                             fontWeight = FontWeight.Normal
                         )
                     }
-
                 } else {
                     // Display list of lost pets if data exists
                     LazyColumn(
@@ -222,7 +230,6 @@ fun LostPet1(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .wrapContentHeight()
-                                    //.padding(8.dp)
                                     .border(
                                         1.dp,
                                         Color.Gray,
@@ -307,16 +314,19 @@ fun LostPet1(
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .background(Color(0xFFFFBFBF), RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp))
+                                        .background(
+                                            color = if (pet.status == "FOUNDED") Color(0xFFB9F6CA) else Color(0xFFFFBFBF),
+                                            shape = RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp)
+                                        )
                                         .padding(vertical = 4.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
-                                        text = "STILL MISSING",
+                                        text = pet.status,
                                         fontFamily = customFontFamily,
                                         fontWeight = FontWeight.Bold,
-                                        fontSize = 12.sp,
-                                        color = Color.Red,
+                                        fontSize = 16.sp,
+                                        color = if (pet.status == "FOUNDED") Color.Green else Color.Red,
                                         textAlign = TextAlign.Center
                                     )
                                 }
@@ -345,13 +355,15 @@ fun LostPet1(
                                 }
                             }
                         }
-                    }
 
+                    }
                 }
             }
         }
     }
-}
+    }
+
+/*
 @Preview(showBackground = true)
 @Composable
 fun PreviewLostPet1() {
@@ -360,8 +372,15 @@ fun PreviewLostPet1() {
 
     LostPet1(
         navController = navController, // Berikan navController
-        onHomeClick = { /* Aksi tombol Home */ },
-        onReportClick = { /* Aksi tombol Report */ },
-        onAddReportClick = { /* Aksi tombol Add Report */ }
+        onHomeClick = { */
+/* Aksi tombol Home *//*
+ },
+        onReportClick = { */
+/* Aksi tombol Report *//*
+ },
+        onAddReportClick = { */
+/* Aksi tombol Add Report *//*
+ }
     )
 }
+*/

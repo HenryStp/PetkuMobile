@@ -124,18 +124,8 @@ fun SplashScreen2(onNavigateSkip: () -> Unit = {}, onNavigateNext: () -> Unit = 
                     Text(text = "Skip", color = Color.DarkGray)
                 }
 
-                // Menggunakan FloatingActionButton untuk tombol Next berbentuk lingkaran hitam
-                FloatingActionButton(
-                    onClick = onNavigateNext,
-                    containerColor = Color.Black,
-                    shape = CircleShape, // Membuat latar belakang berbentuk lingkaran
-                    modifier = Modifier.size(50.dp) // Mengatur ukuran lingkaran tombol
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.PlayArrow,
-                        contentDescription = "Next",
-                        tint = Color.White // Mengatur warna ikon menjadi putih
-                    )
+                TextButton(onClick = onNavigateNext) {
+                    Text(text = "Next", color = Color.DarkGray)
                 }
             }
 

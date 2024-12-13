@@ -125,15 +125,10 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
-
-
-
     implementation ("androidx.compose.ui:ui:1.5.1") // Versi terbaru Compose
     implementation ("androidx.compose.material:material:1.5.1")
     implementation("androidx.compose.foundation:foundation:1.5.1")
     implementation ("androidx.compose.ui:ui-tooling-preview:1.5.1")
-
- 
 
 
 
@@ -147,5 +142,7 @@ dependencies {
     implementation("com.maxkeppeler.sheets-compose-dialogs:core:1.0.2")
     implementation("com.maxkeppeler.sheets-compose-dialogs:clock:1.0.2")
     implementation ("io.coil-kt:coil-compose:2.4.0")
+
+    implementation ("com.google.android.gms:play-services-auth:20.0.3")
 
 }

@@ -140,17 +140,8 @@ fun SplashScreen4(onNavigateBack: () -> Unit = {}, onNavigateNext: () -> Unit = 
                     Text(text = "Back", color = Color.DarkGray)
                 }
 
-                FloatingActionButton(
-                    onClick = onNavigateNext,
-                    containerColor = Color.Black,
-                    shape = CircleShape, // Membuat latar belakang berbentuk lingkaran
-                    modifier = Modifier.size(50.dp) // Mengatur ukuran lingkaran tombol
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.PlayArrow,
-                        contentDescription = "Next",
-                        tint = Color.White
-                    )
+                TextButton(onClick = onNavigateNext) {
+                    Text(text = "Next", color = Color.DarkGray)
                 }
             }
         }

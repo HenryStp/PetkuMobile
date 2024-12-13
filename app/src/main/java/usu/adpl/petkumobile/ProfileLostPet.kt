@@ -109,8 +109,8 @@ fun ProfileLostPet(documentId: String, navController: NavHostController, viewMod
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = if (isPetFounded.value) "FOUNDED" else "STILL MISSING",
-                    color = if (isPetFounded.value) Color.Green else Color.Red,
+                    text = if (lostPet.status == "FOUNDED") "FOUNDED" else "STILL MISSING",
+                    color = if (lostPet.status == "FOUNDED") Color.Green else Color.Red,
                     fontSize = 14.sp,
                     fontFamily = customFontFamily,
                     fontWeight = FontWeight.Bold,
@@ -118,7 +118,7 @@ fun ProfileLostPet(documentId: String, navController: NavHostController, viewMod
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(
-                            if (isPetFounded.value) Color(0xFFB9F6CA) else Color(0xFFFFBFBF),
+                            if (lostPet.status == "FOUNDED") Color(0xFFB9F6CA) else Color(0xFFFFBFBF),
                             RoundedCornerShape(8.dp)
                         )
                         .padding(vertical = 4.dp)
@@ -208,26 +208,28 @@ fun ProfileLostPet(documentId: String, navController: NavHostController, viewMod
                 ) {
 
                     // Tombol Found
-                    Button(
-                        onClick = { isPetFounded.value = true },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF81C784)),
-                        shape = RoundedCornerShape(32.dp),
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(32.dp))
-                            .border(
-                                width = 2.dp,
+                    if (lostPet.status != "FOUNDED") {
+                        Button(
+                            onClick = {
+                                updatePetStatus(documentId, "FOUNDED")
+                                viewModel.fetchLostPetData(documentId) // Memastikan data diperbarui
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF81C784)),
+                            shape = RoundedCornerShape(32.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp)
+                        ) {
+                            Text(
+                                text = "MARK AS FOUNDED",
                                 color = Color.Black,
-                                shape = RoundedCornerShape(32.dp) // Outline bulat sama dengan tombol
+                                fontFamily = customFontFamily,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp
                             )
-                            .height(40.dp) // Tinggi tombol
-                            .width(200.dp) // Lebar tombol
-                    ) {
-                        Text( text = "FOUNDED", color = Color.Black, fontFamily = customFontFamily,
-                            fontWeight = FontWeight.Bold,)
+                        }
                     }
                 }
-
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }

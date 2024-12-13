@@ -2,51 +2,71 @@ package usu.adpl.petkumobile
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(userId: String) {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "lostpet2") {
-        composable("lostpet2") {
+    NavHost(navController = navController, startDestination = "LostPet2/$userId") {
+        composable("LostPet2/{userId}") { backStackEntry ->
+            val currentUserId = backStackEntry.arguments?.getString("userId") ?: ""
             LostPet2(
-                //navController = navController,
-                onHomeClick = { /* Tidak perlu navigasi, tetap di halaman yang sama */ },
-                onReportClick = { navController.navigate("lostpet1") } ,// Pergi ke LostPet1
-                onViewDetailsClick = { navController.navigate("lostpetdetail") } // Navigasi ke LostPetDetail
-            )
-        }
-        composable("lostpet1") {
-            LostPet1(
+                userId = currentUserId,
                 navController = navController,
-                onHomeClick = { navController.navigate("lostpet2") },
-                onReportClick = { /*no nav*/ },
-                onAddReportClick = { navController.navigate("formlostpet") }
+                onHomeClick = { /* Tetap di halaman yang sama */ },
+                onReportClick = { userId ->
+                    navController.navigate("LostPet1/$userId")
+                },
+                onViewDetailsClick = { documentId ->
+                    navController.navigate("LostPetDetail/$documentId")
+                }
             )
         }
-        composable("formlostpet") {
+
+        composable(
+            route = "LostPet1/{userId}",
+            arguments = listOf(navArgument("userId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId") ?: ""
+            LostPet1(
+                userId = userId,
+                navController = navController,
+                onHomeClick = { navController.navigate("LostPet2/$userId")  },
+                onReportClick = { /* Tetap di halaman yang sama */ },
+                onAddReportClick = { navController.navigate("formlostpet/$userId")  }
+            )
+        }
+
+        composable("formlostpet/{userId}") { backStackEntry ->
+            val currentUserId = backStackEntry.arguments?.getString("userId") ?: ""
             FormLostPet(
                 navController = navController,
                 onSubmitClick = { documentId ->
                     navController.navigate("profileLostPet/$documentId") {
-                        popUpTo("lostpet1") { inclusive = false } // Bersihkan FormLostPet dari stack
+                        popUpTo("lostpet1/$currentUserId") { inclusive = false }
                     }
-                }
+                },
+                userId = currentUserId // Menyertakan userId ke dalam FormLostPet
             )
         }
-        composable("lostpetdetail") {
-            LostPetDetail(navController = navController) // Halaman LostPetDetail
+
+        composable("LostPetDetail/{documentId}") { navBackStackEntry ->
+            val documentId = navBackStackEntry.arguments?.getString("documentId")?:""
+            LostPetDetail(navController = navController, documentId = documentId)
+
         }
+
         composable("lostPetList") {
             LostPetListScreen(navController = navController)
         }
         composable("profileLostPet/{documentId}") { backStackEntry ->
             val documentId = backStackEntry.arguments?.getString("documentId") ?: ""
             ProfileLostPet(documentId = documentId, navController = navController)
-
         }
     }
 }

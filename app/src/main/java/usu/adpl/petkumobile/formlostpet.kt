@@ -33,9 +33,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.database.FirebaseDatabase
 import androidx.compose.material3.OutlinedTextField
-
+import java.util.UUID
 
 data class LostPet(
+    val id: String="",
     val documentId: String = "",
     val petType: String = "",
     val name: String = "",
@@ -54,12 +55,13 @@ data class LostPet(
     val ownerInstagram: String = "",
     val reward: String = "",
     val photo: Int = 0,
-    val status: String = "stillMissing"
+    val userId: String = "",
+    val status: String = "STILL MISSING"
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FormLostPet(navController: NavHostController, modifier: Modifier = Modifier, onSubmitClick: (String) -> Unit) {
+fun FormLostPet(navController: NavHostController, modifier: Modifier = Modifier, onSubmitClick: (String) -> Unit,  userId: String) {
     val scrollState = rememberScrollState() // Mengingat status scroll
     val showDialog = remember { mutableStateOf(false) }
     val documentId = remember { mutableStateOf("") }
@@ -255,7 +257,7 @@ fun FormLostPet(navController: NavHostController, modifier: Modifier = Modifier,
                 // Kumpulkan data dari input
                 val lostPet = LostPet(
                     petType = selectedPetType.value,
-                    name = nameState.value, // Menggunakan nilai langsung karena state sekarang adalah String
+                    name = nameState.value,
                     breed = breedState.value,
                     age = ageState.value,
                     gender = selectedGender.value,
@@ -270,13 +272,14 @@ fun FormLostPet(navController: NavHostController, modifier: Modifier = Modifier,
                     ownerEmail = ownerEmailState.value,
                     ownerInstagram = ownerInstagramState.value,
                     reward = rewardState.value,
-                    photo = defaultPhoto
+                    photo = defaultPhoto,
+                    userId = userId
                 )
-
-                submitLostPetData(lostPet) { documentIdValue ->
-                    documentId.value = documentIdValue
-                    navController.navigate("profileLostPet/$documentIdValue") {
-                        popUpTo("lostpet1") { inclusive = false } // Kembali ke lostpet1, hapus form dari stack
+                // Simpan data dan navigasikan ke profil kehilangan hewan
+                submitLostPetData(lostPet, userId) { docId ->
+                    documentId.value = docId
+                    if (docId.isNotEmpty()) {
+                        navController.navigate("profileLostPet/$docId")
                     }
                 }
             },
@@ -366,22 +369,24 @@ fun FormLostPet(navController: NavHostController, modifier: Modifier = Modifier,
         Spacer(modifier = Modifier.height(32.dp))
     }
 }
-fun submitLostPetData(lostPet: LostPet, onSuccess: (String) -> Unit) {
+fun submitLostPetData(lostPet: LostPet, userId: String, onSuccess: (String) -> Unit) {
     val database = FirebaseDatabase.getInstance()
     val reference = database.getReference("lostPets")
     val newReference = reference.push()
+    val documentId = newReference.key!!
 
-    newReference.setValue(lostPet)
+    // Tambahkan userId dan documentId saat menyimpan data
+    val updatedLostPet = lostPet.copy(userId = userId, documentId = documentId)
+
+    newReference.setValue(updatedLostPet)
         .addOnSuccessListener {
-            // Kembalikan ID dokumen untuk navigasi
-            val documentId = newReference.key ?: ""
-            onSuccess(documentId)
-            println("Data berhasil disimpan ke Firebase dengan ID: $documentId")
+            onSuccess(documentId) // Kirim kembali documentId melalui callback
         }
-        .addOnFailureListener {
-            println("Gagal menyimpan data ke Firebase: ${it.message}")
+        .addOnFailureListener { exception ->
+            println("Gagal menyimpan data ke Firebase: ${exception.message}")
         }
 }
+
 
 
 
@@ -458,6 +463,7 @@ fun InputField(
 }
 
 
+/*
 @Preview(showBackground = true)
 @Composable
 fun PreviewFormLostPet() {
@@ -470,4 +476,4 @@ fun PreviewFormLostPet() {
             println("Submitted document ID: $documentId")
         }
     )
-}
+}*/

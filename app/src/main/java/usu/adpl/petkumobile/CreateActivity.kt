@@ -2,6 +2,7 @@ package usu.adpl.petkumobile
 
 import android.os.Bundle
 import android.content.Intent
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -171,6 +172,8 @@ fun CreateAccountScreen() {
                                     .document(userId) // Use user ID as document ID
                                     .set(userData)
                                     .addOnSuccessListener {
+                                        Log.d("Firestore", "User data saved successfully")
+
                                         Toast.makeText(context, "Account created successfully", Toast.LENGTH_SHORT).show()
                                         val intent = Intent(context, HomeActivity::class.java).apply {
                                             putExtra("username", username) // Pass the username to HomeActivity

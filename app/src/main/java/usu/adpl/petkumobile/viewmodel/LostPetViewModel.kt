@@ -32,6 +32,8 @@ data class LostPet(
     val ownerEmail: String = "",
     val ownerInstagram: String = "",
     val reward: String = "",
+    val status: String = "STILL MISSING"
+
 )
 
 class LostPetViewModel : ViewModel() {
@@ -51,6 +53,8 @@ class LostPetViewModel : ViewModel() {
             _lostPetData.value = null
         }
     }
+
+
 }
 
 

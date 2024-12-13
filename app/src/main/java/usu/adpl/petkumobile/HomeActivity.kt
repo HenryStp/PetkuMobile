@@ -149,18 +149,18 @@ fun HomeScreen(username: String, userId: String, navController: NavController) {
             .padding(16.dp)
             .verticalScroll(rememberScrollState()) // Menambahkan scrolling
     ) {
-        GreetingSection(username)
+        GreetingSection(username, userId)
         AddPetSection(userId)
         ReminderSection()
-        CategoriesSection()
-        LostPetSection()
+        CategoriesSection(userId)
+        LostPetSection(userId)
         PetShopSection(petShops = petShops)
         PetClinicSection(petClinics = petClinics)
     }
 }
 
 @Composable
-fun GreetingSection(username: String) {
+fun GreetingSection(username: String, userId: String) {
     Text(
         text = "Heloo, $username! 👋",
         fontSize = 20.sp,
@@ -348,7 +348,7 @@ fun ReminderSection() {
 
 
 @Composable
-fun CategoriesSection() {
+fun CategoriesSection(userId: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -368,15 +368,15 @@ fun CategoriesSection() {
                 .padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceAround
         ) {
-            CategoryItem(name = "Schedule", iconResId = R.drawable.calendar,destinationActivity = CalendarActivity::class.java)
-            CategoryItem(name = "Service", iconResId = R.drawable.service,destinationActivity = PetServiceActivity::class.java )
-            CategoryItem(name = "Lost Pet", iconResId = R.drawable.lost_pet,destinationActivity = LostPet2Activity::class.java)
+            CategoryItem(name = "Schedule", iconResId = R.drawable.calendar,destinationActivity = CalendarActivity::class.java, userId = userId)
+            CategoryItem(name = "Service", iconResId = R.drawable.service,destinationActivity = PetServiceActivity::class.java, userId = userId )
+            CategoryItem(name = "Lost Pet", iconResId = R.drawable.lost_pet,destinationActivity = LostPet2Activity::class.java, userId = userId)
         }
     }
 }
 
 @Composable
-fun CategoryItem(name: String, iconResId: Int,destinationActivity : Class<*>) {
+fun CategoryItem(name: String, iconResId: Int,destinationActivity : Class<*>, userId: String) {
     val context = LocalContext.current
 
     Row( // Menggunakan Row agar ikon berada di samping teks
@@ -386,6 +386,7 @@ fun CategoryItem(name: String, iconResId: Int,destinationActivity : Class<*>) {
             .padding(10.dp)
             .clickable {
                 val intent = Intent(context, destinationActivity) // Menggunakan parameter destinationActivity
+                intent.putExtra("userId", userId)
                 context.startActivity(intent)
             }
     ) {
@@ -409,20 +410,23 @@ fun CategoryItem(name: String, iconResId: Int,destinationActivity : Class<*>) {
 }
 
 @Composable
-fun LostPetSection() {
+fun LostPetSection(userId: String) {
     val context = LocalContext.current
 
     SectionHeader(title = "Lost Pet",
         onSeeAllClick = {
         val intent = Intent(context, LostPet2Activity::class.java)
         context.startActivity(intent)
+
     })
     LazyRow {
         items(5) { // Dummy data count
             PetCard(
                 name = "Luna - Siamese Cat",
                 onClick = {
-                    val intent = Intent(context, LostPet2Activity::class.java)
+                    val intent = Intent(context, LostPet2Activity::class.java).apply {
+                        putExtra("userId", userId)
+                    }
                     context.startActivity(intent)
                 }
             )

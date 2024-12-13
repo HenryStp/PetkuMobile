@@ -5,21 +5,31 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import android.util.Log
-import androidx.activity.compose.setContent
-import usu.adpl.petkumobile.ui.theme.PetkuMobileTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Cek apakah aplikasi pertama kali dibuka
-        if (isFirstLaunch(this)) {
-            // Jika pertama kali, tampilkan SplashActivity
+        val sharedPreferences = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+        val isUserLoggedIn = sharedPreferences.getBoolean("isUserLoggedIn", false)
+        val username = sharedPreferences.getString("username", null)
+        val userId = sharedPreferences.getString("userId", null)
+
+        if (isUserLoggedIn && username != null && userId != null) {
+            // Jika user sudah login sebelumnya, langsung buka HomeActivity
+            val intent = Intent(this, HomeActivity::class.java).apply {
+                putExtra("username", username)
+                putExtra("userId", userId)
+            }
+            startActivity(intent)
+            finish()
+        } else if (isFirstLaunch()) {
+            // Jika aplikasi pertama kali dibuka, tampilkan SplashActivity
             val intent = Intent(this, SplashActivity::class.java)
             startActivity(intent)
             finish()
         } else {
-            // Jika bukan pertama kali, langsung menuju LoginActivity
+            // Jika belum login atau data login tidak tersedia, tampilkan LoginActivity
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
             finish()
@@ -27,32 +37,33 @@ class MainActivity : ComponentActivity() {
     }
 
     // Fungsi untuk mengecek apakah aplikasi pertama kali dibuka
-    private fun isFirstLaunch(context: Context): Boolean {
-        val sharedPreferences = context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+    private fun isFirstLaunch(): Boolean {
+        val sharedPreferences = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
         val isFirstLaunch = sharedPreferences.getBoolean("isFirstLaunch", true)
 
-        // Tambahkan log di sini untuk memeriksa nilai isFirstLaunch
-        Log.d("MainActivity", "isFirstLaunch: $isFirstLaunch")
-
-        // Jika ini pertama kali, set status menjadi false setelah pengecekan
         if (isFirstLaunch) {
             val editor = sharedPreferences.edit()
-            editor.putBoolean("isFirstLaunch", false)  // Update status menjadi false
-            editor.apply()  // Jangan lupa simpan perubahan
+            editor.putBoolean("isFirstLaunch", false) // Update status menjadi false
+            editor.apply()
         }
-        return isFirstLaunch  // Mengembalikan status pertama kali aplikasi dibuka
+        return isFirstLaunch
     }
-    // Fungsi untuk menyimpan userId ke session (SharedPreferences)
-    /*fun saveUserIdToSession(context: Context, userId: String) {
+
+    // Fungsi untuk menyimpan data login ke SharedPreferences
+    fun saveLoginData(context: Context, username: String, userId: String) {
         val sharedPreferences = context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
-        editor.putString("userId", userId)  // Simpan userId
-        editor.apply()  // Jangan lupa simpan perubahan
-    }*/
+        editor.putBoolean("isUserLoggedIn", true)
+        editor.putString("username", username)
+        editor.putString("userId", userId)
+        editor.apply()
+    }
 
-    // Fungsi untuk mengambil userId dari session
-    fun getUserIdFromSession(context: Context): String? {
+    // Fungsi untuk menghapus data login dari SharedPreferences (logout)
+    fun clearLoginData(context: Context) {
         val sharedPreferences = context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
-        return sharedPreferences.getString("userId", null)  // Mengambil userId jika ada, jika tidak null
+        val editor = sharedPreferences.edit()
+        editor.clear()
+        editor.apply()
     }
 }

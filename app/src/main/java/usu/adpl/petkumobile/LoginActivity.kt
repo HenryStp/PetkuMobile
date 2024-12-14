@@ -48,8 +48,6 @@ import com.google.firebase.auth.GoogleAuthProvider
 
 
 class LoginActivity : ComponentActivity() {
-    private lateinit var googleSignInClient: GoogleSignInClient
-    private val GOOGLE_SIGN_IN_REQUEST_CODE = 1001
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,13 +55,6 @@ class LoginActivity : ComponentActivity() {
             LoginActivityScreen()
         }
 
-        // Google Sign-In Configuration
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
-            .requestEmail()
-            .build()
-
-        googleSignInClient = GoogleSignIn.getClient(this, gso)
     }
 
     @Composable
@@ -225,8 +216,6 @@ class LoginActivity : ComponentActivity() {
             }
         }
     }
-
-
 
     fun saveLoginData(context: Context, username: String, userId: String) {
         val sharedPreferences = context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)

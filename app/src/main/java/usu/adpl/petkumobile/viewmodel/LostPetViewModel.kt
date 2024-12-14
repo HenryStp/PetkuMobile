@@ -1,5 +1,6 @@
 package usu.adpl.petkumobile.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
@@ -33,8 +34,8 @@ data class LostPet(
     val ownerInstagram: String = "",
     val reward: String = "",
     val status: String = "STILL MISSING"
-
 )
+
 
 class LostPetViewModel : ViewModel() {
     private val _lostPetData = MutableStateFlow<LostPet?>(null)
@@ -45,16 +46,14 @@ class LostPetViewModel : ViewModel() {
         val reference = database.getReference("lostPets").child(documentId)
 
         reference.get().addOnSuccessListener { snapshot ->
-            snapshot?.let {
-                _lostPetData.value = snapshot.getValue(LostPet::class.java)
-            }
+            _lostPetData.value = snapshot.getValue(LostPet::class.java)
         }.addOnFailureListener {
-            // Tangani error jika ada
+            Log.e("LostPetViewModel", "Error fetching data: ${it.message}")
             _lostPetData.value = null
         }
     }
-
-
 }
+
+
 
 

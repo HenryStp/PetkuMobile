@@ -1,5 +1,6 @@
 package usu.adpl.petkumobile
 
+import android.content.Context
 import android.os.Bundle
 import android.content.Intent
 import android.util.Log
@@ -175,6 +176,7 @@ fun CreateAccountScreen() {
                                         Log.d("Firestore", "User data saved successfully")
 
                                         Toast.makeText(context, "Account created successfully", Toast.LENGTH_SHORT).show()
+                                        saveLoginData(context, username, userId)
                                         val intent = Intent(context, HomeActivity::class.java).apply {
                                             putExtra("username", username) // Pass the username to HomeActivity
                                             putExtra("userId", userId)
@@ -299,5 +301,13 @@ fun CustomTextField(
             }
         )
     }
+}
+fun saveLoginData(context: Context, username: String, userId: String) {
+    val sharedPreferences = context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+    val editor = sharedPreferences.edit()
+    editor.putBoolean("isUserLoggedIn", true)
+    editor.putString("username", username)
+    editor.putString("userId", userId)
+    editor.apply()
 }
 

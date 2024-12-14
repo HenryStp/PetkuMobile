@@ -1,5 +1,6 @@
 package usu.adpl.petkumobile
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -94,16 +95,15 @@ fun LostPet2(
     ) {
         Spacer(modifier = Modifier.height(16.dp))
         // Tombol back
-        IconButton(onClick = {
-            val intent = Intent(context, HomeActivity::class.java)
-            context.startActivity(intent)
-        }) {
+        IconButton(onClick =
+        { (context as? Activity)?.finish()  }) {
             Icon(
                 painter = painterResource(id = R.drawable.back_black),
                 contentDescription = "Back",
                 tint = Color.Black
             )
         }
+
 
         // Header dengan teks
         Row(

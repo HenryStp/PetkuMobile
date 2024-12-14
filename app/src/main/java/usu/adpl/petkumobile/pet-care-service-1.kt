@@ -1,5 +1,6 @@
 package usu.adpl.petkumobile
 
+import android.app.Activity
 import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -215,8 +216,7 @@ fun ServiceScreen(navController: NavController? = null) {
                     .size(25.dp)
                     .align(Alignment.CenterStart)
                     .clickable {
-                        val intent = Intent(context, HomeActivity::class.java)
-                        context.startActivity(intent)
+                        (context as? Activity)?.finish()
                     }
             )
 

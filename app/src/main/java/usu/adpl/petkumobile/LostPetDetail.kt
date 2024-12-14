@@ -1,5 +1,9 @@
 package usu.adpl.petkumobile
 
+import android.app.Activity
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,18 +30,39 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+
+
+class LostPetDetailActivity : ComponentActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val documentId = intent.getStringExtra("documentId") ?: ""
+
+        setContent {
+            val navController = rememberNavController()
+            LostPetDetail(
+                documentId = documentId,
+                navController = navController,
+                viewModel = viewModel()
+            )
+        }
+    }
+}
+
+
 
 @Composable
 fun LostPetDetail(documentId: String, navController: NavHostController, viewModel: LostPetViewModel = viewModel()) {
     val lostPet = viewModel.lostPetData.collectAsState().value
-    val isPetFounded = remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
+    LaunchedEffect(documentId) {
         viewModel.fetchLostPetData(documentId)
     }
 
     // Observasi data yang sudah diurutkan berdasarkan timestamp terbaru
 
-
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -74,7 +99,8 @@ fun LostPetDetail(documentId: String, navController: NavHostController, viewMode
 
                 // Ikon Back di atas gambar
                 IconButton(
-                    onClick = {navController.popBackStack() },
+                    onClick =
+                    { (context as? Activity)?.finish()   },
                     modifier = Modifier
                         .align(Alignment.TopStart) // Menempatkan ikon di pojok kiri atas
                         .padding(16.dp) // Menambahkan padding dari tepi gambar
@@ -107,8 +133,8 @@ fun LostPetDetail(documentId: String, navController: NavHostController, viewMode
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = if (isPetFounded.value) "FOUNDED" else "STILL MISSING",
-                    color = if (isPetFounded.value) Color.Green else Color.Red,
+                    text = if (lostPet.status == "FOUNDED") "FOUNDED" else "STILL MISSING",
+                    color = if (lostPet.status == "FOUNDED") Color.Green else Color.Red,
                     fontSize = 14.sp,
                     fontFamily = customFontFamily,
                     fontWeight = FontWeight.Bold,
@@ -116,7 +142,7 @@ fun LostPetDetail(documentId: String, navController: NavHostController, viewMode
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(
-                            if (isPetFounded.value) Color(0xFFB9F6CA) else Color(0xFFFFBFBF),
+                            if (lostPet.status == "FOUNDED") Color(0xFFB9F6CA) else Color(0xFFFFBFBF),
                             RoundedCornerShape(8.dp)
                         )
                         .padding(vertical = 4.dp)
@@ -203,7 +229,6 @@ fun LostPetDetail(documentId: String, navController: NavHostController, viewMode
 
 
 
-
                 @Composable
                 fun LostPetDetail(navController: NavHostController) {
                     val lostPets = listOf("doc1", "doc2", "doc3") // Data dummy
@@ -224,6 +249,32 @@ fun LostPetDetail(documentId: String, navController: NavHostController, viewMode
                 }
 
             }
+        }
+    }
+    @Composable
+    fun ProfileSection(label: String, value: String) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = label,
+                fontFamily = customFontFamily,
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp,
+                color = Color.Black,
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                text = value,
+                fontFamily = customFontFamily,
+                fontSize = 14.sp,
+                color = Color.Gray,
+                modifier = Modifier.weight(2f),
+                textAlign = TextAlign.End
+            )
         }
     }
 }

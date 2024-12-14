@@ -61,7 +61,7 @@ data class LostPet(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FormLostPet(navController: NavHostController, modifier: Modifier = Modifier, onSubmitClick: (String) -> Unit,  userId: String) {
+fun FormLostPet(navController: NavHostController, modifier: Modifier = Modifier, onReportClick: (String) -> Unit,onSubmitClick: (String) -> Unit,  userId: String) {
     val scrollState = rememberScrollState() // Mengingat status scroll
     val showDialog = remember { mutableStateOf(false) }
     val documentId = remember { mutableStateOf("") }
@@ -98,7 +98,7 @@ fun FormLostPet(navController: NavHostController, modifier: Modifier = Modifier,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
-            IconButton(onClick = { navController.popBackStack() }) {
+            IconButton(onClick = { onReportClick(userId) }) {
                 Icon(
                     painter = painterResource(id = R.drawable.back_black),
                     contentDescription = "Back",

@@ -28,7 +28,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun ProfileLostPet(documentId: String, navController: NavHostController, viewModel: LostPetViewModel = viewModel()) {
+fun ProfileLostPet(documentId: String, navController: NavHostController,onReportClick: (String) -> Unit, viewModel: LostPetViewModel = viewModel()) {
 //    val database = FirebaseDatabase.getInstance()
 //    val reference = database.getReference("lostPets").child(documentId)
 //    val lostPetState = remember { mutableStateOf<LostPet?>(null) }
@@ -249,26 +249,32 @@ fun updatePetStatus(documentId: String, newStatus: String) {
         }
 }
 
-    @Composable
-    fun ProfileSection(label: String, value: String) {
-        Column(modifier = Modifier.padding(vertical = 4.dp)) {
-            Text(
-                text = label,
-                fontFamily = customFontFamily,
-                fontWeight = FontWeight.Bold,
-                fontSize = 14.sp,
-                color = Color.Black
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = value,
-                fontFamily = customFontFamily,
-                fontWeight = FontWeight.Bold,
-                fontSize = 14.sp,
-                color = Color.Gray
-            )
-        }
+@Composable
+fun ProfileSection(label: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = label,
+            fontFamily = customFontFamily,
+            fontWeight = FontWeight.Bold,
+            fontSize = 14.sp,
+            color = Color.Black,
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            text = value,
+            fontFamily = customFontFamily,
+            fontSize = 14.sp,
+            color = Color.Gray,
+            modifier = Modifier.weight(2f),
+            textAlign = TextAlign.End
+        )
     }
+}
 
 @Composable
 fun LostPetListScreen(navController: NavHostController) {
@@ -289,17 +295,15 @@ fun LostPetListScreen(navController: NavHostController) {
     }
 }
 
-
-
-
-@Preview(showBackground = true)
+/*@Preview(showBackground = true)
 @Composable
 fun PreviewProfileLostPet() {
     val navController = rememberNavController() // Dummy NavController untuk preview
     ProfileLostPet(
         documentId = "exampleDocumentId", // ID dokumen contoh untuk testing
-        navController = navController // Berikan NavController ke ProfileLostPet
+        navController = navController, // Berikan NavController ke ProfileLostPet,
+        onReportClick: (String) -> Unit,
     )
-}
+}*/
 
 

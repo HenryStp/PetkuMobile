@@ -49,6 +49,10 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import androidx.compose.foundation.lazy.items
+import com.google.firebase.auth.FirebaseAuth
+
+
 
 
 data class PetShopData(
@@ -412,27 +416,72 @@ fun CategoryItem(name: String, iconResId: Int,destinationActivity : Class<*>, us
 @Composable
 fun LostPetSection(userId: String) {
     val context = LocalContext.current
+    val auth = FirebaseAuth.getInstance()
+    val currentUserId = auth.currentUser?.uid
+    val lostPets = remember { mutableStateListOf<LostPet>() }
+    val isLoading = remember { mutableStateOf(true) }
 
-    SectionHeader(title = "Lost Pet",
-        onSeeAllClick = {
-        val intent = Intent(context, LostPet2Activity::class.java)
-        context.startActivity(intent)
+    // Fetch data from Firebase
+    LaunchedEffect(Unit) {
+        val database = FirebaseDatabase.getInstance()
+        val reference = database.getReference("lostPets")
 
-    })
-    LazyRow {
-        items(5) { // Dummy data count
-            PetCard(
-                name = "Luna - Siamese Cat",
-                onClick = {
-                    val intent = Intent(context, LostPet2Activity::class.java).apply {
-                        putExtra("userId", userId)
+        reference.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                lostPets.clear()
+                for (data in snapshot.children) {
+                    val pet = data.getValue(LostPet::class.java)
+                    if (pet != null && pet.userId != currentUserId) {
+                        lostPets.add(pet.copy(documentId = data.key ?: ""))
                     }
-                    context.startActivity(intent)
                 }
-            )
+                isLoading.value = false
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("LostPetSection", "Failed to fetch data: ${error.message}")
+                isLoading.value = false
+            }
+        })
+    }
+
+    Column {
+        SectionHeader(
+            title = "Lost Pet",
+            onSeeAllClick = {
+                // Dari LostPet
+                val intent = Intent(context, LostPet2Activity::class.java).apply {
+                    putExtra("userId", userId) // Kirim userId
+                }
+                context.startActivity(intent)
+
+            }
+        )
+
+        if (isLoading.value) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+        } else if (lostPets.isEmpty()) {
+            Text("No lost pets found.", modifier = Modifier.align(Alignment.CenterHorizontally))
+        } else {
+            LazyRow {
+                items(lostPets.take(5)) { pet -> // Batasi hanya 5 PetCard
+                    PetCard(
+                        name = pet.name ?: "Unknown Pet",
+                        petType = pet.petType,
+                        status = pet.status,
+                        onClick = {
+                            val intent = Intent(context, LostPetDetailActivity::class.java).apply {
+                                putExtra("documentId", pet.documentId)
+                            }
+                            context.startActivity(intent)
+                        }
+                    )
+                }
+            }
         }
     }
 }
+
 
 @Composable
 fun PetShopSection(petShops: List<PetShopData>) {
@@ -520,20 +569,57 @@ fun SectionHeader(title: String) {
 }
 
 @Composable
-fun PetCard(name: String, onClick: () -> Unit ) {
+fun PetCard(name: String, petType: String, status: String, onClick: () -> Unit) {
+    val backgroundColor = when {
+        status.equals("FOUNDED", ignoreCase = true) -> Color(0xFFB9F6CA) // Hijau muda jika statusnya "founded"
+        else -> Color(0xFFFFBFBF) // Merah muda jika bukan keduanya
+    }
+
     Box(
         modifier = Modifier
-            .size(100.dp)
-            .padding(8.dp)
-            .background(Color(0xFFF3F1F5), RoundedCornerShape(16.dp))
+            .fillMaxWidth() // Sesuaikan dengan ukuran layar atau parent container
+            .padding(4.dp)
+            .background(backgroundColor, RoundedCornerShape(16.dp))
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            // Replace with actual image resource
-            Image(painter = painterResource(id = R.drawable.pet), contentDescription = null, modifier = Modifier.size(60.dp))
-            Text(text = name, fontSize = 8.sp, fontFamily = CustomFontFamily,
-                fontWeight = FontWeight.Medium, textAlign = TextAlign.Center, modifier = Modifier.padding(8.dp))
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxSize() // Column menyesuaikan ukuran Box
+        ) {
+            val petImage = when (petType.toLowerCase()) {
+                "cat" -> R.drawable.cat_default // Gambar default kucing
+                "dog" -> R.drawable.dog_default // Gambar default anjing
+                else -> R.drawable.pet // Gambar default lainnya
+            }
+
+            Image(
+                painter = painterResource(id = petImage),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(100.dp) // Sesuaikan ukuran gambar agar lebih kecil
+                    .clip(RoundedCornerShape(16.dp)),
+                contentScale = ContentScale.Crop // Skala gambar
+            )
+            Text(
+                text = name,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(1.dp) // Tambahkan padding yang cukup
+            )
+            Text(
+                text = status,
+                fontSize = 8.sp,
+                fontWeight = FontWeight.Normal,
+                textAlign = TextAlign.Center,
+                color = when {
+                    status.equals("FOUNDED", ignoreCase = true) -> Color.Green
+                    status.equals("STILL MISSING", ignoreCase = true) -> Color.Red
+                    else -> Color.Black // Default warna teks jika status lain
+                },
+                modifier = Modifier.padding(2.dp) // Padding tambahan untuk teks status
+            )
         }
     }
 }

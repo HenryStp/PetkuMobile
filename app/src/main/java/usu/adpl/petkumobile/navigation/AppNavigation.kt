@@ -50,7 +50,8 @@ fun AppNavigation(userId: String) {
                     navController.navigate("profileLostPet/$documentId") {
                         popUpTo("lostpet1/$currentUserId") { inclusive = false }
                     }
-                },
+                },onReportClick = { userId ->
+                    navController.navigate("LostPet1/$userId")},
                 userId = currentUserId // Menyertakan userId ke dalam FormLostPet
             )
         }
@@ -58,15 +59,16 @@ fun AppNavigation(userId: String) {
         composable("LostPetDetail/{documentId}") { navBackStackEntry ->
             val documentId = navBackStackEntry.arguments?.getString("documentId")?:""
             LostPetDetail(navController = navController, documentId = documentId)
-
         }
 
         composable("lostPetList") {
-            LostPetListScreen(navController = navController)
+            LostPetListScreen(navController = navController, )
         }
         composable("profileLostPet/{documentId}") { backStackEntry ->
             val documentId = backStackEntry.arguments?.getString("documentId") ?: ""
-            ProfileLostPet(documentId = documentId, navController = navController)
+            ProfileLostPet(documentId = documentId, navController = navController,  onReportClick = { userId ->
+                navController.navigate("LostPet1/$userId")
+            })
         }
     }
 }

@@ -39,7 +39,8 @@ data class PetShop(
     val alamat: String = "",
     val telepon: String = "",
     val instagram: String = "",
-    val link: String = ""
+    val link: String = "",
+    val gambar: String = ""
 )
 
 class PetShopActivity : ComponentActivity() {
@@ -56,7 +57,6 @@ fun PetShopScreen(navController: NavController? = null) {
     val firestore = FirebaseFirestore.getInstance()
     val petShopList = remember { mutableStateListOf<PetShop>() }
 
-    // Fetch data from Firestore
     LaunchedEffect(Unit) {
         firestore.collection("pet_shop")
             .get()
@@ -68,15 +68,17 @@ fun PetShopScreen(navController: NavController? = null) {
                     val phone = document.getString("telepon") ?: ""
                     val instagram = document.getString("instagram") ?: ""
                     val link = document.getString("link") ?: ""
+                    val gambarNama = document.getString("gambar") ?: ""
 
-                    // Add PetShopitem with complete data
+                    // Tambahkan data ke daftar
                     petShopList.add(
                         PetShop(
                             nama = name,
                             alamat = address,
                             telepon = phone,
                             instagram = instagram,
-                            link = link
+                            link = link,
+                            gambar = gambarNama // Simpan nama gambar dari database
                         )
                     )
                 }
@@ -85,7 +87,6 @@ fun PetShopScreen(navController: NavController? = null) {
                 // Handle error
             }
     }
-
 
     Column(
         modifier = Modifier
@@ -107,7 +108,7 @@ fun PetShopScreen(navController: NavController? = null) {
                 modifier = Modifier
                     .size(25.dp)
                     .align(Alignment.CenterStart)
-                    .clickable { (context as? Activity)?.finish()   }
+                    .clickable { (context as? Activity)?.onBackPressed()  }
             )
             Text(
                 text = "Pet Shop",
@@ -120,13 +121,19 @@ fun PetShopScreen(navController: NavController? = null) {
 
         Spacer(modifier = Modifier.height(15.dp))
 
-        // List of pet boarding options
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             items(petShopList) { petShop ->
+                // Konversi nama gambar menjadi resource ID
+                val imageResId = context.resources.getIdentifier(
+                    petShop.gambar, // Nama gambar dari database
+                    "drawable",
+                    context.packageName
+                ).takeIf { it != 0 } ?: R.drawable.shop // Gunakan gambar default jika tidak ditemukan
+
                 PetShopItem(
-                    imageId = R.drawable.gambar_pet_shop,
+                    imageId = imageResId, // Mengirimkan resource ID
                     title = petShop.nama,
                     location = petShop.alamat,
                     onItemClick = {
@@ -136,43 +143,23 @@ fun PetShopScreen(navController: NavController? = null) {
                             putExtra("telepon", petShop.telepon)
                             putExtra("instagram", petShop.instagram)
                             putExtra("link", petShop.link)
+                            putExtra("gambar", petShop.gambar) // Tetap kirim String untuk activity berikutnya
                         }
                         context.startActivity(intent)
-                        /*// Navigasi ke halaman detail pet shop
-                        navController?.navigate(
-                            "pet-shop-profile/${
-                                Uri.encode(petShop.nama)
-                            }/${
-                                Uri.encode(petShop.alamat)
-                            }/${
-                                Uri.encode(petShop.telepon)
-                            }/${
-                                Uri.encode(petShop.instagram)
-                            }/${
-                                Uri.encode(petShop.link)
-                            }"
-
-                        )
-
-                        {
-
-                        }*/
                     }
                 )
             }
-
         }
     }
 }
 
 @Composable
 fun PetShopItem(
-    imageId: Int,
+    imageId: Int, // Resource ID
     title: String,
     location: String,
     fontFamily: FontFamily = CustomFontFamily,
     onItemClick: () -> Unit
-
 ) {
     Row(
         modifier = Modifier
@@ -182,9 +169,75 @@ fun PetShopItem(
             .background(Color(0xFFE5F2EC), shape = RoundedCornerShape(20.dp))
             .clickable { onItemClick() }
     ) {
-        // Gambar tetap ditampilkan
         Image(
             painter = painterResource(id = imageId),
+            contentDescription = "Pet Shop Image",
+            modifier = Modifier
+                .size(110.dp) // Sesuaikan ukuran gambar agar sesuai dengan kotak
+                .clip(RoundedCornerShape(20.dp))
+        )
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 13.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = title,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.Black,
+                fontFamily = fontFamily,
+            )
+
+            Spacer(modifier = Modifier.width(10.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_location),
+                    contentDescription = "Location Icon",
+                    modifier = Modifier.size(10.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = location,
+                    fontSize = 10.sp,
+                    color = Color.Gray,
+                    fontFamily = fontFamily
+                )
+            }
+        }
+    }
+}
+
+/*
+@Composable
+fun PetShopItem(
+    imageId: String, // Ubah ke String
+    title: String,
+    location: String,
+    fontFamily: FontFamily = CustomFontFamily,
+    onItemClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .width(299.dp)
+            .height(108.dp)
+            .shadow(5.dp, RoundedCornerShape(16.dp))
+            .background(Color(0xFFE5F2EC), shape = RoundedCornerShape(20.dp))
+            .clickable { onItemClick() }
+    ) {
+        // Konversi kembali ke Int untuk resource ID
+        val imageResId = imageId.toIntOrNull() ?: R.drawable.pet
+
+        // Gambar tetap ditampilkan
+        Image(
+            painter = painterResource(id = imageResId),
             contentDescription = "Pet Shop Image",
             modifier = Modifier
                 .clip(RoundedCornerShape(20.dp))
@@ -227,6 +280,7 @@ fun PetShopItem(
         }
     }
 }
+*/
 
 
 @Preview(showBackground = true)

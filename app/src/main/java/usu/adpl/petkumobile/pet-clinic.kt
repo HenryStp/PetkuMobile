@@ -39,9 +39,9 @@ data class PetClinic(
     val alamat: String = "",
     val telepon: String = "",
     val instagram: String = "",
-    val link: String = ""
+    val link: String = "",
+    val gambar: String = ""
 )
-
 class PetClinicActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +50,6 @@ class PetClinicActivity : ComponentActivity() {
         }
     }
 }
-
 @Composable
 fun PetClinicScreen(navController: NavController? = null) {
     val context = LocalContext.current
@@ -69,6 +68,7 @@ fun PetClinicScreen(navController: NavController? = null) {
                     val phone = document.getString("telepon") ?: ""
                     val instagram = document.getString("instagram") ?: ""
                     val link = document.getString("link") ?: ""
+                    val gambarNama = document.getString("gambar") ?: ""
 
                     // Add PetClinic item with complete data
                     petClinicList.add(
@@ -77,7 +77,8 @@ fun PetClinicScreen(navController: NavController? = null) {
                             alamat = address,
                             telepon = phone,
                             instagram = instagram,
-                            link = link
+                            link = link,
+                            gambar = gambarNama
                         )
                     )
                 }
@@ -86,8 +87,6 @@ fun PetClinicScreen(navController: NavController? = null) {
                 // Handle error
             }
     }
-
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -108,7 +107,7 @@ fun PetClinicScreen(navController: NavController? = null) {
                 modifier = Modifier
                     .size(25.dp)
                     .align(Alignment.CenterStart)
-                    .clickable { (context as? Activity)?.finish() }
+                    .clickable { (context as? Activity)?.onBackPressed()  }
             )
             Text(
                 text = "Pet Clinic",
@@ -126,8 +125,15 @@ fun PetClinicScreen(navController: NavController? = null) {
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             items(petClinicList) { petClinic ->
+                // Konversi nama gambar menjadi resource ID
+                val imageResId = context.resources.getIdentifier(
+                    petClinic.gambar, // Nama gambar dari database
+                    "drawable",
+                    context.packageName
+                ).takeIf { it != 0 } ?: R.drawable.clinic // Gunakan gambar default jika tidak ditemukan
+
                 PetClinicItem(
-                    imageId = R.drawable.gambar_pet_clinic,
+                    imageId = imageResId, // Mengirimkan resource ID
                     title = petClinic.nama,
                     location = petClinic.alamat,
                     onItemClick = {
@@ -137,23 +143,9 @@ fun PetClinicScreen(navController: NavController? = null) {
                             putExtra("telepon", petClinic.telepon)
                             putExtra("instagram", petClinic.instagram)
                             putExtra("link", petClinic.link)
+                            putExtra("gambar", petClinic.gambar) // Tetap kirim String untuk activity berikutnya
                         }
                         context.startActivity(intent)
-                       /* // Navigasi ke halaman detail pet clinic
-                        navController?.navigate(
-                            "pet-clinic-profile/${
-                                Uri.encode(petClinic.nama)
-                            }/${
-                                Uri.encode(petClinic.alamat)
-                            }/${
-                                Uri.encode(petClinic.telepon)
-                            }/${
-                                Uri.encode(petClinic.instagram)
-                            }/${
-                                Uri.encode(petClinic.link)
-                            }"
-
-                        )*/
                     }
                 )
             }
@@ -182,6 +174,7 @@ fun PetClinicItem(
             painter = painterResource(id = imageId),
             contentDescription = "Pet Clinic Image",
             modifier = Modifier
+                .size(110.dp) // Sesuaikan ukuran gambar agar sesuai dengan kotak
                 .clip(RoundedCornerShape(20.dp))
         )
 
@@ -222,8 +215,6 @@ fun PetClinicItem(
         }
     }
 }
-
-
 @Preview(showBackground = true)
 @Composable
 fun PreviewPetClinicScreen() {

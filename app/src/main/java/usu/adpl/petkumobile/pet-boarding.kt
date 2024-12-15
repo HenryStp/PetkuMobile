@@ -27,9 +27,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.foundation.lazy.items
 import android.net.Uri
-import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import android.os.Bundle
+import android.content.Intent
+import androidx.compose.ui.platform.LocalContext
+import android.app.Activity
 
 class PetBoardingActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,12 +48,13 @@ data class PetBoarding(
     val alamat: String = "",
     val telepon: String = "",
     val instagram: String = "",
-    val link: String = ""
+    val link: String = "",
+    val gambar: String = ""
 )
-
 
 @Composable
 fun PetBoardingScreen(navController: NavController? = null) {
+    val context = LocalContext.current
     val firestore = FirebaseFirestore.getInstance()
     val petBoardingList = remember { mutableStateListOf<PetBoarding>() }
 
@@ -66,6 +70,7 @@ fun PetBoardingScreen(navController: NavController? = null) {
                     val phone = document.getString("telepon") ?: ""
                     val instagram = document.getString("instagram") ?: ""
                     val link = document.getString("link") ?: ""
+                    val gambarNama = document.getString("gambar") ?: ""
 
                     // Add PetBoarding item with complete data
                     petBoardingList.add(
@@ -74,7 +79,8 @@ fun PetBoardingScreen(navController: NavController? = null) {
                             alamat = address,
                             telepon = phone,
                             instagram = instagram,
-                            link = link
+                            link = link,
+                            gambar = gambarNama
                         )
                     )
                 }
@@ -83,7 +89,6 @@ fun PetBoardingScreen(navController: NavController? = null) {
                 // Handle error
             }
     }
-
     // UI
     Column(
         modifier = Modifier
@@ -104,7 +109,7 @@ fun PetBoardingScreen(navController: NavController? = null) {
                 modifier = Modifier
                     .size(25.dp)
                     .align(Alignment.CenterStart)
-                    .clickable { navController?.popBackStack() }
+                    .clickable { (context as? Activity)?.onBackPressed()  }
             )
             Text(
                 text = "Pet Boarding",
@@ -122,35 +127,39 @@ fun PetBoardingScreen(navController: NavController? = null) {
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             items(petBoardingList) { petBoarding ->
+                // Konversi nama gambar menjadi resource ID
+                val imageResId = context.resources.getIdentifier(
+                    petBoarding.gambar, // Nama gambar dari database
+                    "drawable",
+                    context.packageName
+                ).takeIf { it != 0 } ?: R.drawable.clinic // Gunakan gambar default jika tidak ditemukan
+
+
                 PetBoardingItem(
-                    imageId = R.drawable.gambar_pet_boarding,  // Gambar tetap ada
+                    imageId = imageResId, // Mengirimkan resource ID
                     title = petBoarding.nama,
                     location = petBoarding.alamat,
                     onItemClick = {
-                        // Navigasi ke halaman detail pet boarding
-                        navController?.navigate(
-                            "pet-boarding-profile/${
-                                Uri.encode(petBoarding.nama)
-                            }/${
-                                Uri.encode(petBoarding.alamat)
-                            }/${
-                                Uri.encode(petBoarding.telepon)
-                            }/${
-                                Uri.encode(petBoarding.instagram)
-                            }/${
-                                Uri.encode(petBoarding.link)
-                            }"
-                        )
+                        val intent = Intent(context, PetBoardingProfileActivity::class.java).apply {
+                            putExtra("nama", petBoarding.nama)
+                            putExtra("alamat", petBoarding.alamat)
+                            putExtra("telepon", petBoarding.telepon)
+                            putExtra("instagram", petBoarding.instagram)
+                            putExtra("link", petBoarding.link)
+                            putExtra("gambar", petBoarding.gambar) // Tetap kirim String untuk activity berikutnya
+                        }
+                        context.startActivity(intent)
                     }
                 )
             }
         }
+
     }
 }
 
 @Composable
 fun PetBoardingItem(
-    imageId: Int,
+    imageId: Int, // Resource ID
     title: String,
     location: String,
     fontFamily: FontFamily = CustomFontFamily,
@@ -161,14 +170,14 @@ fun PetBoardingItem(
             .width(299.dp)
             .height(108.dp)
             .shadow(5.dp, RoundedCornerShape(16.dp))
-            .background(Color(0xFFFFE8D8), shape = RoundedCornerShape(20.dp))
+            .background(Color(0xFFE5F2EC), shape = RoundedCornerShape(20.dp))
             .clickable { onItemClick() }
     ) {
-        // Gambar tetap ditampilkan
         Image(
             painter = painterResource(id = imageId),
             contentDescription = "Pet Boarding Image",
             modifier = Modifier
+                .size(110.dp) // Sesuaikan ukuran gambar agar sesuai dengan kotak
                 .clip(RoundedCornerShape(20.dp))
         )
 

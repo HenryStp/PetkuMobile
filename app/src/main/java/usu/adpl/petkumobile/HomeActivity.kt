@@ -52,21 +52,21 @@ import com.google.firebase.database.ValueEventListener
 import androidx.compose.foundation.lazy.items
 import com.google.firebase.auth.FirebaseAuth
 
-
-
-
 data class PetShopData(
     val nama: String = "",
     val alamat: String = "",
     val telepon: String = "",
     val instagram: String = "",
-    val link: String = "")
+    val link: String = "",
+    val gambar: String = ""
+)
 data class PetClinicData(
     val nama: String = "",
     val alamat: String = "",
     val telepon: String = "",
     val instagram: String = "",
-    val link: String = ""
+    val link: String = "",
+    val gambar: String = ""
 )
 
 
@@ -481,8 +481,6 @@ fun LostPetSection(userId: String) {
         }
     }
 }
-
-
 @Composable
 fun PetShopSection(petShops: List<PetShopData>) {
     val context = LocalContext.current // Mendapatkan konteks
@@ -497,25 +495,31 @@ fun PetShopSection(petShops: List<PetShopData>) {
     LazyRow {
         items(petShops.take(5).size) { index ->
             val shop = petShops[index]
+            // Konversi nama gambar menjadi resource ID
+            val imageResId = context.resources.getIdentifier(
+                shop.gambar, // Nama gambar dari database
+                "drawable",
+                context.packageName
+            ).takeIf { it != 0 } ?: R.drawable.shop
 
             ShopCard(
                 name = shop.nama,
+                imageResId = imageResId, // Parameter yang sesuai
                 onClick = {
-                    /*Log.d("PetShopSection", "Navigating to PetShopProfileActivity for: ${shop.nama}")*/
                     val intent = Intent(context, PetShopProfileActivity::class.java)
                     intent.putExtra("nama", shop.nama)
                     intent.putExtra("alamat", shop.alamat)
                     intent.putExtra("telepon", shop.telepon)
                     intent.putExtra("instagram", shop.instagram)
                     intent.putExtra("link", shop.link)
+                    intent.putExtra("gambar", shop.gambar)
                     context.startActivity(intent)
                 }
             )
+
         }
     }
 }
-
-
 
 @Composable
 fun PetClinicSection(petClinics: List<PetClinicData>) {
@@ -531,8 +535,16 @@ fun PetClinicSection(petClinics: List<PetClinicData>) {
     LazyRow {
         items(petClinics.take(5).size) { index -> // Pass the size of the list instead of the list itself
             val clinic = petClinics[index] // Use the item at this index
+
+            val imageResId = context.resources.getIdentifier(
+                clinic.gambar, // Nama gambar dari database
+                "drawable",
+                context.packageName
+            ).takeIf { it != 0 } ?: R.drawable.clinic
+
             ClinicCard(
                 name = clinic.nama,
+                imageResId = imageResId,
                 onClick = {
                     val intent = Intent(context, PetClinicProfileActivity::class.java)
                     intent.putExtra("nama", clinic.nama)
@@ -540,18 +552,13 @@ fun PetClinicSection(petClinics: List<PetClinicData>) {
                     intent.putExtra("telepon", clinic.telepon)
                     intent.putExtra("instagram", clinic.instagram)
                     intent.putExtra("link", clinic.link)
-
+                    intent.putExtra("gambar", clinic.gambar)
                     context.startActivity(intent)
                 }
-
-
             ) // Pass the clinic name to the ClinicCard
         }
     }
 }
-
-
-
 @Composable
 fun SectionHeader(title: String) {
     Row(
@@ -592,7 +599,6 @@ fun PetCard(name: String, petType: String, status: String, onClick: () -> Unit) 
                 "dog" -> R.drawable.dog_default // Gambar default anjing
                 else -> R.drawable.pet // Gambar default lainnya
             }
-
             Image(
                 painter = painterResource(id = petImage),
                 contentDescription = null,
@@ -625,7 +631,7 @@ fun PetCard(name: String, petType: String, status: String, onClick: () -> Unit) 
 }
 
 @Composable
-fun ShopCard(name: String, onClick: () -> Unit ) {
+fun ShopCard(name: String, imageResId: Int, onClick: () -> Unit ) {
     Box(
         modifier = Modifier
             .size(120.dp)
@@ -639,7 +645,7 @@ fun ShopCard(name: String, onClick: () -> Unit ) {
             modifier = Modifier.fillMaxSize() // Column menyesuaikan dengan ukuran Box
         ) {
             Image(
-                painter = painterResource(id = R.drawable.shop),
+                painter = painterResource(id = imageResId), // Menggunakan imageResId
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth() // Gambar memenuhi lebar kolom
@@ -660,7 +666,7 @@ fun ShopCard(name: String, onClick: () -> Unit ) {
 
 
 @Composable
-fun ClinicCard(name: String, onClick: () -> Unit ) {
+fun ClinicCard(name: String, imageResId: Int, onClick: () -> Unit ) {
     Box(
         modifier = Modifier
             .size(120.dp)
@@ -674,7 +680,7 @@ fun ClinicCard(name: String, onClick: () -> Unit ) {
             modifier = Modifier.fillMaxSize() // Column menyesuaikan dengan ukuran Box
         ) {
             Image(
-                painter = painterResource(id = R.drawable.clinic),
+                painter = painterResource(id = imageResId), // Menggunakan imageResId
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth() // Gambar memenuhi lebar kolom

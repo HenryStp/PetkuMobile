@@ -97,6 +97,8 @@ class PetServiceActivity : ComponentActivity() {
                                     ?: ""
                             val link =
                                 backStackEntry.arguments?.getString("link") ?: ""
+                            val gambar =
+                                backStackEntry.arguments?.getString("gambar") ?: ""
 
                             PetClinicProfileScreen(
                                 nama,
@@ -104,6 +106,7 @@ class PetServiceActivity : ComponentActivity() {
                                 telepon,
                                 instagram,
                                 link,
+                                gambar,
                                 navController = navController
                             )
                         }
@@ -134,6 +137,8 @@ class PetServiceActivity : ComponentActivity() {
                                     ?: ""
                             val link =
                                 backStackEntry.arguments?.getString("link") ?: ""
+                            val gambar =
+                                backStackEntry.arguments?.getString("gambar") ?: ""
 
                             PetBoardingProfileScreen(
                                 nama,
@@ -141,6 +146,7 @@ class PetServiceActivity : ComponentActivity() {
                                 telepon,
                                 instagram,
                                 link,
+                                gambar,
                                 navController = navController
                             )
                         }
@@ -171,6 +177,8 @@ class PetServiceActivity : ComponentActivity() {
                                     ?: ""
                             val link =
                                 backStackEntry.arguments?.getString("link") ?: ""
+                            val gambar =
+                                backStackEntry.arguments?.getString("gambar") ?: ""
 
                             PetShopProfileScreen(
                                 nama,
@@ -178,11 +186,13 @@ class PetServiceActivity : ComponentActivity() {
                                 telepon,
                                 instagram,
                                 link,
+                                gambar,
                                 navController = navController
                             )
 
                         }
                     }
+
                 }
             }
 

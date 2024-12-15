@@ -41,6 +41,7 @@ class PetShopProfileActivity : ComponentActivity() {
         val telepon = intent.getStringExtra("telepon") ?: "Telepon tidak tersedia"
         val instagram = intent.getStringExtra("instagram") ?: "Instagram tidak tersedia"
         val link = intent.getStringExtra("link") ?: ""
+        val gambar = intent.getStringExtra("gambar") ?: ""
 
         setContent {
             val navController = rememberNavController() // NavController untuk navigasi lokal
@@ -50,6 +51,7 @@ class PetShopProfileActivity : ComponentActivity() {
                 telepon = telepon,
                 instagram = instagram,
                 link = link,
+                gambar = gambar,
                 navController = navController
             )
         }
@@ -63,6 +65,7 @@ fun PetShopProfileScreen(
     telepon: String,
     instagram: String,
     link: String,
+    gambar: String,
     navController: NavController
 ) {
     val scrollState = rememberScrollState()
@@ -80,20 +83,47 @@ fun PetShopProfileScreen(
                 .fillMaxWidth()
                 .height(300.dp)
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.gambar_pet_shop),
-                contentDescription = "Pet Shop Profile",
+            Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .shadow(5.dp, RoundedCornerShape(16.dp))
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color.White),
-                contentScale = ContentScale.Crop
-            )
+                    .fillMaxWidth()
+                    .height(300.dp)
+            ) {
+                // Ambil ID sumber daya gambar dari nama file
+                val imageResourceId = context.resources.getIdentifier(gambar, "drawable", context.packageName)
+
+
+                // Periksa apakah resource ditemukan
+                if (imageResourceId != 0) {
+                    Image(
+                        painter = painterResource(id = imageResourceId),
+                        contentDescription = "Pet Shop Profile",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .shadow(5.dp, RoundedCornerShape(16.dp))
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(Color.White),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    // Tampilkan placeholder jika gambar tidak ditemukan
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Gray)
+                            .clip(RoundedCornerShape(16.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Gambar tidak tersedia",
+                            color = Color.White
+                        )
+                    }
+                }
+            }
             TopAppBar(
                 title = {},
                 navigationIcon = {
-                    IconButton(onClick = { (context as? Activity)?.finish()  }) {
+                    IconButton(onClick = { (context as? Activity)?.onBackPressed() })  {
                         Image(
                             painter = painterResource(id = R.drawable.back_white),
                             contentDescription = "Back",

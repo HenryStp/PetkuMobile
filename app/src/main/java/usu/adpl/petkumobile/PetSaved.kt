@@ -22,7 +22,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun ProfileSaved(navController: NavController) {
+fun ProfileSaved(navController: NavController, userId: String) {
     // Gunakan Box untuk memusatkan konten di layar
     Box(
         modifier = Modifier
@@ -59,7 +59,9 @@ fun ProfileSaved(navController: NavController) {
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Button(
-                    onClick = { navController.navigate("displayPet") },
+                    onClick = {
+                        navController.navigate("displayPet/$userId")
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF4B9B8)), // Warna tombol
                     shape = RoundedCornerShape(16.dp),
@@ -75,11 +77,10 @@ fun ProfileSaved(navController: NavController) {
         }
     }
 }
-
-@Preview(showBackground = true)
+/*@Preview(showBackground = true)
 @Composable
 fun PreviewProfileSaved() {
     val navController = rememberNavController()
     ProfileSaved(navController = navController)
-}
+}*/
 

@@ -18,7 +18,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.ui.platform.LocalContext
 import android.app.Activity
-
+import androidx.activity.ComponentActivity
 
 @Composable
 fun PetScreen(navController: NavController) {
@@ -42,7 +42,7 @@ fun PetScreen(navController: NavController) {
                 )
         ) {
             IconButton(
-                onClick = { navController.navigateUp() }, // Navigasi ke halaman sebelumnya
+                onClick = { (context as? ComponentActivity)?.onBackPressed() }, // Navigasi ke halaman sebelumnya
                 modifier = Modifier
                     .padding(16.dp)
                     .align(Alignment.TopStart)

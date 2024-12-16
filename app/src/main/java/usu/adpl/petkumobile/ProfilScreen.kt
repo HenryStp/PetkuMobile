@@ -15,9 +15,6 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.FirebaseApp
 import usu.adpl.petkumobile.ui.theme.PetkuMobileTheme
 
-
-
-
 class ProfilScreen : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,28 +37,25 @@ class ProfilScreen : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     // Set navigasi di sini
-                    NavHost(navController = navController, startDestination = "petScreen") {
-                        composable("petScreen") {
-                            PetScreen(navController = navController) // Memanggil PetScreen
+                    NavHost(navController = navController, startDestination = "PetScreen") {
+                        composable("PetScreen") {
+                            PetScreen(navController = navController)
                         }
                         composable("dogForm/{userId}") { backStackEntry ->
                             val userId = backStackEntry.arguments?.getString("userId") ?: "Unknown User"
-                            DogForm(navController = navController, userId = userId) // Memanggil DogForm
+                            DogForm(navController = navController, userId = userId)
                         }
                         composable("catForm/{userId}") { backStackEntry ->
                             val userId = backStackEntry.arguments?.getString("userId") ?: "Unknown User"
-                            CatForm(navController = navController, userId = userId) // Memanggil CatForm
+                            CatForm(navController = navController, userId = userId)
                         }
-                        composable("petSaved") {
-                            ProfileSaved(navController = navController) // Memanggil PetSaved
+                        composable("petSaved/{userId}") { backStackEntry ->
+                            val userId = backStackEntry.arguments?.getString("userId") ?: "Unknown User"
+                            CatForm(navController = navController, userId = userId)
                         }
                         composable("displayPet/{userId}") { backStackEntry ->
                             val userId = backStackEntry.arguments?.getString("userId") ?: "Unknown User"
-                            DisplayPet(navController = navController, userId = userId) // Memanggil DisplayPet
-
-
-
-
+                            DisplayPet(navController = navController, userId = userId)
                         }
                     }
                 }

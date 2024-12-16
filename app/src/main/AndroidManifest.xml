@@ -142,6 +142,11 @@
             android:exported="true"
             android:theme="@style/Theme.PetkuMobile">
         </activity>
+        <activity
+            android:name=".DogFormActivity"
+            android:exported="true"
+            android:theme="@style/Theme.PetkuMobile">
+        </activity>
     </application>
 
 </manifest>

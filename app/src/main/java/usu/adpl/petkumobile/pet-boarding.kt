@@ -57,7 +57,6 @@ fun PetBoardingScreen(navController: NavController? = null) {
     val context = LocalContext.current
     val firestore = FirebaseFirestore.getInstance()
     val petBoardingList = remember { mutableStateListOf<PetBoarding>() }
-
     // Fetch data from Firestore
     LaunchedEffect(Unit) {
         firestore.collection("pet_boarding")
@@ -153,7 +152,6 @@ fun PetBoardingScreen(navController: NavController? = null) {
                 )
             }
         }
-
     }
 }
 
@@ -170,7 +168,7 @@ fun PetBoardingItem(
             .width(299.dp)
             .height(108.dp)
             .shadow(5.dp, RoundedCornerShape(16.dp))
-            .background(Color(0xFFE5F2EC), shape = RoundedCornerShape(20.dp))
+            .background(Color(0xFFFFE8D8), shape = RoundedCornerShape(20.dp))
             .clickable { onItemClick() }
     ) {
         Image(
@@ -218,8 +216,6 @@ fun PetBoardingItem(
         }
     }
 }
-
-
 
 @Preview(showBackground = true)
 @Composable

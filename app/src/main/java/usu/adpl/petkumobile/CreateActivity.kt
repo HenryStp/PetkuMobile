@@ -41,8 +41,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import com.google.firebase.auth.FirebaseAuth
 import java.security.MessageDigest
 
-
-
 class CreateActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,8 +56,6 @@ class CreateActivity : ComponentActivity() {
     Font(R.font.sen_bold, FontWeight.Bold),
     Font(R.font.sen_extrabold, FontWeight.ExtraBold)
 )*/
-
-
 
 @Composable
 @Preview(showBackground = true)
@@ -143,8 +139,6 @@ fun CreateAccountScreen() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-
-
         // Button for registration
         Button(
             onClick = {
@@ -210,7 +204,6 @@ fun CreateAccountScreen() {
             )
         }
 
-
         Spacer(modifier = Modifier.height(16.dp))
 
         // Login Text
@@ -244,7 +237,6 @@ fun CreateAccountScreen() {
         }
     }
 }
-
 
 @Composable
 fun CustomTextField(

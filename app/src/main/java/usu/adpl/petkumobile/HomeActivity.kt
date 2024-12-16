@@ -76,7 +76,7 @@ class HomeActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val userId: String = intent.getStringExtra("userId") ?: "Unknown User"
+        val userId = intent.getStringExtra("userId") ?: "Unknown User"
         val username = intent.getStringExtra("username") ?: "Unknown User"
         setContent {
             HomeScreen(username, userId, navController = rememberNavController())
@@ -276,11 +276,10 @@ fun AddPetSection(userId: String) {
                                     modifier = Modifier
                                         .fillMaxSize()
                                         .clickable {
-                                            // Membuat Intent untuk membuka DisplayPet
                                             val intent = Intent(context, DisplayPetActivity::class.java).apply {
                                                 putExtra("userId", userId)
                                             }
-                                            context.startActivity(intent) // Menjalankan aktivitas DisplayPet
+                                            context.startActivity(intent)// Menjalankan aktivitas DisplayPet
                                         }
                                 )
                             } else {

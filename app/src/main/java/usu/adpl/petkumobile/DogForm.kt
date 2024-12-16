@@ -1,6 +1,8 @@
 package usu.adpl.petkumobile
 
+import android.content.Intent
 import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,6 +17,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavController
@@ -37,6 +41,8 @@ fun DogForm(navController: NavController, userId: String) {
 
     // Menyimpan status dialog
     var showDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
 
     Box(
         modifier = Modifier
@@ -54,7 +60,7 @@ fun DogForm(navController: NavController, userId: String) {
                 )
         ) {
             IconButton(
-                onClick = { navController.navigate("PetScreen") }, // Navigasi ke PetScreen
+                onClick = { (context as? ComponentActivity)?.onBackPressed() },
                 modifier = Modifier
                     .padding(16.dp)
                     .align(Alignment.TopStart)
@@ -107,11 +113,11 @@ fun DogForm(navController: NavController, userId: String) {
                     }
                     item {
                         Spacer(modifier = Modifier.height(10.dp))
-                        CustomTextFieldForDogForm("Weight", weight, onValueChange = { weight = it })
+                        CustomTextFieldForDogForm("Weight (kg)", weight, onValueChange = { weight = it })
                     }
                     item {
                         Spacer(modifier = Modifier.height(10.dp))
-                        CustomTextFieldForDogForm("Height", height, onValueChange = { height = it })
+                        CustomTextFieldForDogForm("Height (cm)", height, onValueChange = { height = it })
                     }
                     item {
                         Spacer(modifier = Modifier.height(10.dp))
@@ -187,7 +193,7 @@ fun DogForm(navController: NavController, userId: String) {
                         .offset(y = 50.dp) // Memindahkan ke bawah sedikit
                         .align(Alignment.Center)
                 ) {
-                    ProfileSaved(navController = navController)
+                    ProfileSaved(navController = navController, userId = userId)
                 }
             }
         }
@@ -203,9 +209,7 @@ fun PetTypeSelection(
     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
         listOf("Dog", "Cat").forEach { type ->
             Button(
-                onClick = {
-                    if (type == "Cat") {
-                        navController.navigate("catForm") // Navigasi ke halaman CatForm
+                onClick = {                  if (type == "Cat") {                       navController.navigate("catForm/{userId}") // Navigasi ke halaman CatForm
                     } else {
                         onTypeSelected(type)
                     }
@@ -228,9 +232,6 @@ fun AvatarSection(selectedAvatar: Int?, onAvatarSelected: (Int) -> Unit) {
     val dogAvatars = listOf(
         1, 2, 3, 4, 5, 6 // ID avatar sebagai angka 1-6
     )
-
-    // Pastikan selectedAvatar memiliki nilai valid yang tidak 0
-    //val currentAvatar = selectedAvatar ?: 1 // Defaultkan ke 1 jika null
 
     Spacer(modifier = Modifier.height(16.dp))
 
@@ -343,7 +344,7 @@ fun CustomTextFieldForDogForm(
     ) {
         Text(
             text = label,
-            fontSize = 14.sp,
+            fontSize = 12.sp,
             color = Color.Gray,
             modifier = Modifier.padding(start = 20.dp)
         )
@@ -354,18 +355,23 @@ fun CustomTextFieldForDogForm(
             onValueChange = { newText -> onValueChange(newText) },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(if (isMultiline) 100.dp else 50.dp)
+                .height(if (isMultiline) 150.dp else 50.dp)
                 .clip(RoundedCornerShape(30.dp))
                 .background(Color.White)
                 .border(1.dp, Color.Black, RoundedCornerShape(30.dp)),
             maxLines = if (isMultiline) 5 else 1,
             singleLine = !isMultiline,
+            textStyle = TextStyle(
+                fontSize = 16.sp, // Atur ukuran font lebih besar
+                lineHeight = 22.sp // Tambahkan lineHeight untuk visibilitas
+            ),
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent
-            )
+            ),
+
         )
     }
 }
@@ -399,11 +405,11 @@ fun CustomTextFieldForDogForm(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(if (isMultiline) 100.dp else 50.dp)
+                .height(if (isMultiline) 150.dp else 50.dp)
                 .clip(RoundedCornerShape(30.dp))
                 .background(Color.White)
                 .border(1.dp, Color.Black, RoundedCornerShape(30.dp)),
-            maxLines = if (isMultiline) 5 else 1,
+            maxLines = if (isMultiline) 3 else 1,
             singleLine = !isMultiline,
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.White,
@@ -414,7 +420,6 @@ fun CustomTextFieldForDogForm(
         )
     }
 }
-
 
 @Composable
 fun GenderSelection(

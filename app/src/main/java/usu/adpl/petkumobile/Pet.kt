@@ -4,14 +4,14 @@ package usu.adpl.petkumobile
 //
 //@Parcelize
 data class PetData(
-    val name: String?,
-    val breed: String?,
-    val age: String?,
-    val weight: Int?,
-    val height: Int?,
-    val medicalInfo: String?,
-    val additionalInfo: String?,
-    val avatar: Int?,
-    val gender: String, // Menambahkan gender ke data model
-    val userId: String?
+    val name: String? = null,
+    val breed: String? = null,
+    val age: String? = null,
+    val weight: Int? = null,
+    val height: Int? = null,
+    val medicalInfo: String? = null,
+    val additionalInfo: String? = null,
+    val avatar: Int? = null,
+    val gender: String = "",
+    val userId: String? = null
 )

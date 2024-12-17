@@ -35,9 +35,13 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import android.content.Context
+import android.content.Intent
+import androidx.compose.foundation.clickable
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.zIndex
+import com.google.firebase.firestore.FirebaseFirestore
 
-class DisplayPetActivity : ComponentActivity() {
+class DisplayPetActivity :  ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val userId = intent.getStringExtra("userId") ?: "Unknown User"
@@ -50,9 +54,31 @@ class DisplayPetActivity : ComponentActivity() {
 }
 
 @Composable
+
 fun DisplayPet(navController: NavController, userId: String) {
     val context = LocalContext.current
     var pets by remember { mutableStateOf<List<PetData>>(emptyList()) }
+    var username by remember { mutableStateOf<String?>(null) }
+
+    // Mengambil username berdasarkan userId dari Firestore
+    DisposableEffect(Unit) {
+        val userRef = FirebaseFirestore.getInstance().collection("users").document(userId)
+
+        val listenerRegistration = userRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.e("FirestoreError", "Listen failed: ${e.message}")
+                return@addSnapshotListener
+            }
+            snapshot?.let {
+                username = it.getString("username")
+                Log.d("FirestoreData", "Username loaded for user $userId: $username")
+            }
+        }
+
+        onDispose {
+            listenerRegistration.remove()
+        }
+    }
 
     DisposableEffect(Unit) {
         val database = FirebaseDatabase.getInstance()
@@ -89,6 +115,29 @@ fun DisplayPet(navController: NavController, userId: String) {
             .fillMaxSize()
             .background(Color.White)
     ) {
+        // Tombol back
+        IconButton(
+            onClick = {
+                val intent = Intent(context, HomeActivity::class.java)
+                intent.putExtra("userId", userId) // Menambahkan data userId ke intent
+                intent.putExtra("username", username)
+                context.startActivity(intent)
+                (context as? Activity)?.finish() // Menutup aktivitas saat kembali ke home
+            },
+            modifier = Modifier
+                .padding(start = 16.dp, top = 15.dp)
+                .align(Alignment.TopStart)
+                .offset(y = 110.dp)
+                .zIndex(1f) // Menempatkan di lapisan paling atas
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.arrow),
+                contentDescription = "Back",
+                tint = Color.Black,
+                modifier = Modifier.size(25.dp)
+            )
+        }
+
         // Box hijau dengan rounded corners
         Box(
             modifier = Modifier
@@ -101,30 +150,12 @@ fun DisplayPet(navController: NavController, userId: String) {
                 )
         )
 
-        // Tombol back
-        IconButton(
-            onClick = { (context as? ComponentActivity)?.onBackPressed() },
-            modifier = Modifier
-                .padding(top = 115.dp)
-                .padding(16.dp)
-                .align(Alignment.TopStart)
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.arrow),
-                contentDescription = "Back",
-                tint = Color.Black,
-                modifier = Modifier.size(25.dp)
-            )
-        }
-
         // Konten di dalam Box hijau
         Column(
             modifier = Modifier
                 .fillMaxSize()
-
                 .padding(top = 120.dp),
             horizontalAlignment = Alignment.CenterHorizontally
-
         ) {
 
             LazyColumn(
@@ -422,6 +453,7 @@ fun getAvatarDrawable(avatarIndex: Int): Int {
 @Composable
 fun DisplayPetPreview() {
     val navController = rememberNavController()
-    //DisplayPet(navController = navController)
+    val userId = "User"
+    DisplayPet(navController = navController, userId= userId)
 }
 

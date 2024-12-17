@@ -2,6 +2,7 @@ package usu.adpl.petkumobile
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
@@ -50,12 +51,26 @@ import com.maxkeppeler.sheets.clock.ClockDialog
 import com.maxkeppeler.sheets.clock.models.ClockConfig
 import com.maxkeppeler.sheets.clock.models.ClockSelection
 import java.time.LocalDate
+import androidx.compose.material.AlertDialog
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+
 
 class CalendarActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val userId = intent.getStringExtra("userId") // Jika userId adalah String
         setContent {
-            ScheduleView()
+            ScheduleView(userId = userId)
         }
     }
 }
@@ -66,7 +81,8 @@ data class Schedule(
     val title: String = "",
     val notes: String = "",
     val date: String = "",
-    val time: String = ""
+    val time: String = "",
+    val userId: String? = null
 )
 
 fun savedDataSchedule(
@@ -88,71 +104,115 @@ fun savedDataSchedule(
         }
 }
 
+
+
+val currentDate = LocalDate.now()
+
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Composable
-fun ScheduleView() {
+fun ScheduleView(userId: String?) {
     var title by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
     var selectedDate by remember { mutableStateOf("") }
     var selectedTime by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
+    var showSuccessDialog by remember { mutableStateOf(false) }
 
+    val schedules = remember { mutableStateOf<List<Schedule>>(emptyList()) }
     val calendarState = rememberSheetState()
     val clockState = rememberSheetState()
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
+
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
+    var scheduleToDelete by remember { mutableStateOf<Schedule?>(null) }
+
+    LaunchedEffect(userId) {
+        val database = FirebaseDatabase.getInstance()
+        val scheduleRef = database.reference.child("schedule")
+
+        val currentDate = LocalDate.now() // Hanya tanggal saat ini
+
+        scheduleRef.orderByChild("userId").equalTo(userId)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val fetchedSchedules = mutableListOf<Schedule>()
+                    for (childSnapshot in snapshot.children) {
+                        val schedule = childSnapshot.getValue(Schedule::class.java)
+                        if (schedule != null) {
+                            val scheduleDate = try {
+                                // Ubah jadwal menjadi LocalDate
+                                LocalDate.parse(schedule.date)
+                            } catch (e: Exception) {
+                                null
+                            }
+
+                            // Tambahkan hanya jika tanggal jadwal di masa mendatang
+                            if (scheduleDate != null && scheduleDate.isAfter(currentDate)) {
+                                fetchedSchedules.add(schedule)
+                            }
+                        }
+                    }
+                    // Urutkan jadwal berdasarkan tanggal
+                    schedules.value = fetchedSchedules.sortedBy { LocalDate.parse(it.date) }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    message = "Gagal mengambil data: ${error.message}"
+                }
+            })
+    }
+
 
     LaunchedEffect(message) {
         if (message.isNotEmpty()) {
             snackbarHostState.showSnackbar(message)
         }
     }
-
+    val currentDate = LocalDate.now()
     CalendarDialog(
         state = calendarState,
         config = CalendarConfig(
             monthSelection = true,
             yearSelection = true,
             style = CalendarStyle.MONTH,
-            disabledDates = listOf(LocalDate.now().minusDays(3))
+            disabledDates = listOf(currentDate.minusDays(3)) // Nonaktifkan semua tanggal sebelumnya
         ),
-        selection =CalendarSelection.Date{date ->
-            selectedDate = date.toString()
-
-        } )
+        selection = CalendarSelection.Date { date ->
+            selectedDate = date.toString() // Simpan tanggal yang dipilih
+        }
+    )
 
     ClockDialog(
         state = clockState,
         config = ClockConfig(is24HourFormat = false),
-        selection = ClockSelection.HoursMinutes {hours,minutes ->
+        selection = ClockSelection.HoursMinutes { hours, minutes ->
             selectedTime = "$hours:$minutes"
-
         }
     )
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(5.dp)
-        .background(color = Color.White)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(5.dp)
+            .background(color = Color.White)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 10.dp, top = 10.dp, bottom = 15.dp),
-            ) {
+        ) {
             Image(
                 modifier = Modifier
                     .size(30.dp)
-                    .clickable {
-                        val intent = Intent(context,HomeActivity::class.java)
-                        context.startActivity(intent)
-                    },
-
+                    .clickable(
+                        onClick = {
+                            (context as? ComponentActivity)?.onBackPressedDispatcher?.onBackPressed()
+                        }
+                    ),
                 painter = painterResource(id = R.drawable.back_black),
                 contentDescription = "Back Image",
-
-                )
+            )
 
             Text(
                 modifier = Modifier
@@ -161,7 +221,6 @@ fun ScheduleView() {
                 text = "Calendar",
                 fontSize = 30.sp,
                 textAlign = TextAlign.Center
-
             )
         }
 
@@ -177,11 +236,9 @@ fun ScheduleView() {
                     .padding(start = 16.dp, top = 16.dp, bottom = 5.dp),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
-
-
             )
             Text(
-                text = "Whiskers's Day!",
+                text = "Your Pet's Day!",
                 modifier = Modifier
                     .padding(start = 16.dp),
                 fontSize = 20.sp,
@@ -193,40 +250,39 @@ fun ScheduleView() {
                 modifier = Modifier
                     .padding(start = 16.dp, top = 16.dp, bottom = 5.dp),
             )
-            OutlinedTextField(modifier = Modifier
-                .padding(start = 16.dp, bottom = 15.dp, end = 16.dp)
-                .fillMaxWidth(),
-                value = title ,
-                onValueChange = { newTitle ->
-                    title = newTitle
-                })
+            OutlinedTextField(
+                modifier = Modifier
+                    .padding(start = 16.dp, bottom = 15.dp, end = 16.dp)
+                    .fillMaxWidth(),
+                value = title,
+                onValueChange = { newTitle -> title = newTitle }
+            )
 
             Text(
                 text = "Notes",
                 modifier = Modifier
                     .padding(start = 16.dp, top = 16.dp, bottom = 5.dp),
             )
-            OutlinedTextField(modifier = Modifier
-                .padding(start = 16.dp, bottom = 15.dp, end = 16.dp)
-                .fillMaxWidth(),
-                value = notes ,
-                onValueChange = { newNotes ->
-                    notes = newNotes
-                })
+            OutlinedTextField(
+                modifier = Modifier
+                    .padding(start = 16.dp, bottom = 15.dp, end = 16.dp)
+                    .fillMaxWidth(),
+                value = notes,
+                onValueChange = { newNotes -> notes = newNotes }
+            )
 
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 30.dp)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 30.dp)
             ) {
-                OutlinedButton(modifier = Modifier
-                    .padding(start = 25.dp, end = 30.dp),
-                    onClick = {
-                        calendarState.show()
-                    }) { Text(text = "Date Picker") }
+                OutlinedButton(
+                    modifier = Modifier
+                        .padding(start = 30.dp, end = 40.dp),
+                    onClick = { calendarState.show() }
+                ) { Text(text = "Date Picker") }
 
-                OutlinedButton(onClick = {
-                    clockState.show()
-                }) { Text(text = "Time Picker", maxLines = 1)}
+                OutlinedButton(onClick = { clockState.show() }) { Text(text = "Time Picker", maxLines = 1) }
             }
 
             Box(
@@ -236,38 +292,168 @@ fun ScheduleView() {
                 contentAlignment = Alignment.Center
             ) {
                 Button(
-
                     onClick = {
-                        val schedule = Schedule(
-                            title = title,
-                            notes = notes,
-                            date = selectedDate,
-                            time = selectedTime
+                        if (title.isNotBlank() && notes.isNotBlank() && selectedDate.isNotBlank() && selectedTime.isNotBlank()) {
+                            val scheduleDate = try {
+                                LocalDate.parse(selectedDate)
+                            } catch (e: Exception) {
+                                null
+                            }
 
-                        )
-                        savedDataSchedule(schedule,
-                            onSucces = {
-                                message = "Schedule Create Succesfully !"
-
-                                title = ""
-                                notes = ""
-                                selectedDate = ""
-                                selectedTime = ""
-                            },
-                            onFailure = { exception ->
-                                message = "Error: ${exception.message}"
-                            })
+                            if (scheduleDate != null && !scheduleDate.isBefore(currentDate)) {
+                                val schedule = Schedule(
+                                    title = title,
+                                    notes = notes,
+                                    date = selectedDate,
+                                    time = selectedTime,
+                                    userId = userId
+                                )
+                                savedDataSchedule(schedule,
+                                    onSucces = {
+                                        showSuccessDialog = true
+                                        title = ""
+                                        notes = ""
+                                        selectedDate = ""
+                                        selectedTime = ""
+                                    },
+                                    onFailure = { exception -> message = "Error: ${exception.message}" })
+                            } else {
+                                message = "Please select a valid date and time (today or later)."
+                            }
+                        } else {
+                            message = "Please fill all fields to create a schedule."
+                        }
                     },
-
+                    enabled = title.isNotBlank() && notes.isNotBlank() && selectedDate.isNotBlank() && selectedTime.isNotBlank(),
                     modifier = Modifier
-                ) {
-                    Text(text = "Create New Schedule")
+                ) { Text(text = "Create New Schedule") }
+            }
+        }
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
+        ) {
+            items(schedules.value) { schedule ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFFE1BEE7) // Warna ungu muda (hex: #E1BEE7)
+                    ),
+                    elevation = CardDefaults.elevatedCardElevation(4.dp)
+                )  {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = "Judul: ${schedule.title}", fontWeight = FontWeight.Bold)
+                            Text(text = "Catatan: ${schedule.notes}")
+                            Text(text = "Tanggal: ${schedule.date}")
+                            Text(text = "Waktu: ${schedule.time}")
+                        }
+                        Text(
+                            text = "Hapus",
+                            color = Color(0xFF6A1B9A),
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                                .clickable {
+                                    scheduleToDelete = schedule
+                                    showDeleteConfirmation = true
+                                }
+                                .padding(start = 4.dp)
+                        )
+                    }
                 }
             }
         }
 
+
+        if (showDeleteConfirmation) {
+            AlertDialog(
+                onDismissRequest = { showDeleteConfirmation = false },
+                title = { Text("Delete Confirmation") },
+                text = { Text("Are you sure you want to delete this schedule?") },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            scheduleToDelete?.let { schedule ->
+                                deleteSchedule(schedule,
+                                    onSuccess = {
+                                        message = "Schedule successfully deleted"
+                                        showDeleteConfirmation = false
+                                    },
+                                    onFailure = { errorMessage ->
+                                        message = errorMessage
+                                        showDeleteConfirmation = false
+                                    }
+                                )
+                            }
+                        }
+                    ) { Text("Yes") }
+                },
+                dismissButton = {
+                    Button(
+                        onClick = { showDeleteConfirmation = false }
+                    ) { Text("No") }
+                }
+            )
+        }
+        SnackbarHost(hostState = snackbarHostState)
+
+        if (showSuccessDialog) {
+            AlertDialog(
+                onDismissRequest = { showSuccessDialog = false },
+                title = { Text(text = "Success") },
+                text = { Text(text = "Your schedule has been created successfully.") },
+                confirmButton = {
+                    Button(
+                        onClick = { showSuccessDialog = false }
+                    ) { Text("OK") }
+                }
+            )
+        }
     }
-
-    SnackbarHost(hostState = snackbarHostState)
-
 }
+
+
+
+// Fungsi Delete Schedule (tidak ada perubahan)
+fun deleteSchedule(schedule: Schedule, onSuccess: () -> Unit, onFailure: (String) -> Unit) {
+    val database = FirebaseDatabase.getInstance()
+    val scheduleRef = database.reference.child("schedule")
+
+    scheduleRef.orderByChild("title").equalTo(schedule.title)
+        .addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (child in snapshot.children) {
+                    child.ref.removeValue()
+                        .addOnSuccessListener {
+                            onSuccess()
+                        }
+                        .addOnFailureListener { exception ->
+                            onFailure("Error: ${exception.message}")
+                        }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                onFailure("Error: ${error.message}")
+            }
+        })
+}
+
+
+
+
+
+
+
+
+
+

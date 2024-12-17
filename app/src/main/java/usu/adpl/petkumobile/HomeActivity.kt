@@ -38,6 +38,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
@@ -51,6 +52,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import androidx.compose.foundation.lazy.items
 import com.google.firebase.auth.FirebaseAuth
+import java.time.LocalDate
 
 data class PetShopData(
     val nama: String = "",
@@ -155,7 +157,7 @@ fun HomeScreen(username: String, userId: String, navController: NavController) {
     ) {
         GreetingSection(username, userId)
         AddPetSection(userId)
-        ReminderSection()
+        ReminderSection(userId)
         CategoriesSection(userId)
         LostPetSection(userId)
         PetShopSection(petShops = petShops)
@@ -209,7 +211,7 @@ fun AddPetSection(userId: String) {
                 .fillMaxWidth()
                 .height(120.dp) // Adjust height if needed
                 .padding(vertical = 4.dp)
-                .background(Color(0xFFD0B3EF), RoundedCornerShape(16.dp)),
+                .background(Color(0xFFC9B3E1), RoundedCornerShape(16.dp)),
             contentAlignment = Alignment.Center
         ) {
             if (pets.isEmpty()) {
@@ -319,9 +321,37 @@ private fun getDrawableResourceId(context: android.content.Context, name: String
     }
 }
 
-@Preview
 @Composable
-fun ReminderSection() {
+fun ReminderSection(userId: String) {
+    val schedules = remember { mutableStateOf<List<Schedule>>(emptyList()) }
+    val currentDate = LocalDate.now() // Tanggal saat ini
+
+    // Mengambil data jadwal berdasarkan userId dan hari ini
+    LaunchedEffect(userId) {
+        val database = FirebaseDatabase.getInstance()
+        val scheduleRef = database.reference.child("schedule")
+
+        scheduleRef.orderByChild("userId").equalTo(userId)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val fetchedSchedules = mutableListOf<Schedule>()
+                    for (childSnapshot in snapshot.children) {
+                        val schedule = childSnapshot.getValue(Schedule::class.java)
+                        if (schedule != null && schedule.date == currentDate.toString()) {
+                            fetchedSchedules.add(schedule)
+                        }
+                    }
+                    schedules.value = fetchedSchedules
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("ReminderSection", "Error fetching schedules: ${error.message}")
+                }
+            })
+    }
+
+    val context = LocalContext.current // Pindahkan ke dalam fungsi Composable
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -335,16 +365,47 @@ fun ReminderSection() {
             modifier = Modifier.padding(bottom = 4.dp)
         )
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(120.dp)
-                .border(5.dp, Color(0xFFEFEFEF), RoundedCornerShape(8.dp))
-                .padding(16.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(text = "No schedule yet!", color = Color.Gray, fontSize = 15.sp,fontFamily = CustomFontFamily,
-                fontWeight = FontWeight.Medium)
+        if (schedules.value.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .border(5.dp, Color(0xFFEFEFEF), RoundedCornerShape(8.dp))
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "No schedule yet!",
+                    color = Color.Gray,
+                    fontSize = 15.sp,
+                    fontFamily = CustomFontFamily,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        } else {
+            schedules.value.forEach { schedule ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.8f)
+                        .align(Alignment.CenterHorizontally)
+                        .padding(5.dp)
+                        .background(Color(0xFFF1D7CC), RoundedCornerShape(8.dp))
+                        .clickable {
+                            // Navigasi ke CalendarActivity
+                            val intent = Intent(context, CalendarActivity::class.java)
+                            intent.putExtra("userId", userId)
+                            context.startActivity(intent)
+                        }
+                        .padding(12.dp)
+                ) {
+                    Text(
+                        text = "${schedule.title}  =>  Time: ${schedule.time}",
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 14.sp,
+                        color = Color.Black
+                    )
+                }
+            }
         }
     }
 }
@@ -371,21 +432,36 @@ fun CategoriesSection(userId: String) {
                 .padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceAround
         ) {
-            CategoryItem(name = "Schedule", iconResId = R.drawable.calendar,destinationActivity = CalendarActivity::class.java, userId = userId)
-            CategoryItem(name = "Service", iconResId = R.drawable.service,destinationActivity = PetServiceActivity::class.java, userId = userId )
-            CategoryItem(name = "Lost Pet", iconResId = R.drawable.lost_pet,destinationActivity = LostPet2Activity::class.java, userId = userId)
+            CategoryItem(
+                name = "Schedule",
+                iconResId = R.drawable.calendar,
+                backgroundColor = Color(0xFFB39DD0),
+                destinationActivity = CalendarActivity::class.java,
+                userId = userId)
+            CategoryItem(
+                name = "Service",
+                iconResId = R.drawable.service,
+                backgroundColor = Color(0xFFFFD7C2),
+                destinationActivity = PetServiceActivity::class.java,
+                userId = userId )
+            CategoryItem(
+                name = "Lost Pet",
+                iconResId = R.drawable.lost_pet,
+                backgroundColor = Color(0xFFC2E8D6),
+                destinationActivity = LostPet2Activity::class.java,
+                userId = userId)
         }
     }
 }
 
 @Composable
-fun CategoryItem(name: String, iconResId: Int,destinationActivity : Class<*>, userId: String) {
+fun CategoryItem(name: String, iconResId: Int,destinationActivity : Class<*>, userId: String, backgroundColor: Color) {
     val context = LocalContext.current
 
     Row( // Menggunakan Row agar ikon berada di samping teks
         verticalAlignment = Alignment.CenterVertically, // Menyelaraskan ikon dan teks secara vertikal
         modifier = Modifier
-            .background(Color(0x703E9880), RoundedCornerShape(36.dp))
+            .background(backgroundColor, RoundedCornerShape(36.dp))
             .padding(10.dp)
             .clickable {
                 val intent = Intent(context, destinationActivity) // Menggunakan parameter destinationActivity
@@ -635,7 +711,7 @@ fun ShopCard(name: String, imageResId: Int, onClick: () -> Unit ) {
         modifier = Modifier
             .size(120.dp)
             .padding(4.dp)
-            .background(Color(0x703E9880), RoundedCornerShape(16.dp))
+            .background(Color(0x709AD0B9), RoundedCornerShape(16.dp))
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
@@ -670,7 +746,7 @@ fun ClinicCard(name: String, imageResId: Int, onClick: () -> Unit ) {
         modifier = Modifier
             .size(120.dp)
             .padding(4.dp)
-            .background(Color(0x703E9880), RoundedCornerShape(16.dp))
+            .background(Color(0x709AD0B9), RoundedCornerShape(16.dp))
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {

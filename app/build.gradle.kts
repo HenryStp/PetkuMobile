@@ -93,6 +93,7 @@ dependencies {
     implementation ("androidx.compose.material:material-icons-core:1.3.1")
     implementation ("androidx.compose.material:material-icons-extended:1.3.1")
     implementation ("androidx.compose.material:material:1.4.3")
+
     implementation(libs.firebase.firestore)
     implementation ("com.google.firebase:firebase-bom:32.1.0")
     implementation ("com.google.firebase:firebase-firestore:25.1.1")  
@@ -144,5 +145,6 @@ dependencies {
     implementation ("io.coil-kt:coil-compose:2.4.0")
 
     implementation ("com.google.android.gms:play-services-auth:20.0.3")
+    implementation ("androidx.work:work-runtime-ktx:2.8.0")
 
 }

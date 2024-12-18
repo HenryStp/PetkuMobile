@@ -1,6 +1,8 @@
 package usu.adpl.petkumobile
 
 import android.content.Intent
+import android.icu.util.TimeUnit
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -40,7 +42,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
 import com.google.firebase.database.FirebaseDatabase
 import com.maxkeppeker.sheets.core.models.base.rememberSheetState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
@@ -63,12 +64,27 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.core.app.ActivityCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
+import java.time.Duration
 
 
 class CalendarActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val userId = intent.getStringExtra("userId") // Jika userId adalah String
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                1
+            )
+        }
+
         setContent {
             ScheduleView(userId = userId)
         }
@@ -84,6 +100,8 @@ data class Schedule(
     val time: String = "",
     val userId: String? = null
 )
+
+
 
 fun savedDataSchedule(
     schedule: Schedule,
@@ -106,6 +124,7 @@ fun savedDataSchedule(
 
 
 
+
 val currentDate = LocalDate.now()
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -123,9 +142,11 @@ fun ScheduleView(userId: String?) {
     val clockState = rememberSheetState()
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
+    val scheduleViewModel: ScheduleViewModel = viewModel()
 
     var showDeleteConfirmation by remember { mutableStateOf(false) }
     var scheduleToDelete by remember { mutableStateOf<Schedule?>(null) }
+
 
     LaunchedEffect(userId) {
         val database = FirebaseDatabase.getInstance()
@@ -263,6 +284,9 @@ fun ScheduleView(userId: String?) {
                 modifier = Modifier
                     .padding(start = 16.dp, top = 16.dp, bottom = 5.dp),
             )
+
+            Spacer(modifier = Modifier.height(8.dp))  // Menambah jarak eksplisit antara Text dan OutlinedTextField
+
             OutlinedTextField(
                 modifier = Modifier
                     .padding(start = 16.dp, bottom = 15.dp, end = 16.dp)
@@ -270,6 +294,7 @@ fun ScheduleView(userId: String?) {
                 value = notes,
                 onValueChange = { newNotes -> notes = newNotes }
             )
+
 
             Row(
                 modifier = Modifier
@@ -294,6 +319,16 @@ fun ScheduleView(userId: String?) {
                 Button(
                     onClick = {
                         if (title.isNotBlank() && notes.isNotBlank() && selectedDate.isNotBlank() && selectedTime.isNotBlank()) {
+                            Log.d("Notes", "Entered notes: $notes")
+                            val combinedDateTimeString = "$selectedDate $selectedTime"
+                            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+                            val selectedDateTime = LocalDateTime.parse(combinedDateTimeString, formatter)
+
+                            val delay = scheduleViewModel.calculateDelay(LocalDateTime.now(), selectedDateTime)  // Hitung delay
+
+                            // Panggil scheduleNotification dari ViewModel
+                            scheduleViewModel.scheduleNotification(title, notes, delay)
+
                             val scheduleDate = try {
                                 LocalDate.parse(selectedDate)
                             } catch (e: Exception) {
@@ -310,6 +345,29 @@ fun ScheduleView(userId: String?) {
                                 )
                                 savedDataSchedule(schedule,
                                     onSucces = {
+                                        val workManager = WorkManager.getInstance(context)
+
+                                        val timeParts = selectedTime.split(":")
+                                        val hours = timeParts[0].toInt()
+                                        val minutes = timeParts[1].toInt()
+
+                                        // Hitung delay waktu dalam milidetik
+                                        val notificationTime = LocalDateTime.of(scheduleDate.year, scheduleDate.monthValue, scheduleDate.dayOfMonth, hours, minutes)
+                                        val delay = java.time.Duration.between(LocalDateTime.now(), notificationTime).toMillis()
+
+                                        if (delay > 0) {
+                                            val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
+                                                .setInitialDelay(delay, java.util.concurrent.TimeUnit.MILLISECONDS)
+                                                .setInputData(
+                                                    workDataOf(
+                                                        "title" to title,
+                                                        "notes" to notes
+                                                    )
+                                                )
+                                                .build()
+
+                                            workManager.enqueue(workRequest)
+                                        }
                                         showSuccessDialog = true
                                         title = ""
                                         notes = ""

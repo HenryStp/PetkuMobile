@@ -85,11 +85,11 @@
 
         <!-- Main Activity -->
 
-<!--        <activity-->
-<!--            android:name=".MainActivity"-->
-<!--            android:exported="true"-->
-<!--            android:theme="@style/Theme.PetkuMobile">-->
-<!--        </activity>-->
+        <!--        <activity-->
+        <!--            android:name=".MainActivity"-->
+        <!--            android:exported="true"-->
+        <!--            android:theme="@style/Theme.PetkuMobile">-->
+        <!--        </activity>-->
 
         <activity
             android:name=".PetServiceActivity"

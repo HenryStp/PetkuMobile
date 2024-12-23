@@ -168,8 +168,8 @@ fun ScheduleView(userId: String?) {
                                 null
                             }
 
-                            // Tambahkan hanya jika tanggal jadwal di masa mendatang
-                            if (scheduleDate != null && scheduleDate.isAfter(currentDate)) {
+                            // Tambahkan jika jadwal hari ini atau di masa depan
+                            if (scheduleDate != null && (scheduleDate.isEqual(currentDate) || scheduleDate.isAfter(currentDate))) {
                                 fetchedSchedules.add(schedule)
                             }
                         }
@@ -191,13 +191,20 @@ fun ScheduleView(userId: String?) {
         }
     }
     val currentDate = LocalDate.now()
+
+    val disabledDates = generateSequence(currentDate.minusYears(1)) { it.plusDays(1) }
+        .takeWhile { it.isBefore(currentDate) }
+        .toList()
+
     CalendarDialog(
         state = calendarState,
         config = CalendarConfig(
             monthSelection = true,
             yearSelection = true,
             style = CalendarStyle.MONTH,
-            disabledDates = listOf(currentDate.minusDays(3)) // Nonaktifkan semua tanggal sebelumnya
+            disabledDates = disabledDates,
+            minYear = 2024,
+            maxYear = 2034
         ),
         selection = CalendarSelection.Date { date ->
             selectedDate = date.toString() // Simpan tanggal yang dipilih
@@ -505,13 +512,3 @@ fun deleteSchedule(schedule: Schedule, onSuccess: () -> Unit, onFailure: (String
             }
         })
 }
-
-
-
-
-
-
-
-
-
-
